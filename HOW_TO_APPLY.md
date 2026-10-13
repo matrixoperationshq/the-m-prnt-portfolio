@@ -1,49 +1,48 @@
-# The M Prnt V2.5 — Gallery Layout & Drag Organizer
+# The M Prnt V2.6 — Client Work Gallery
 
-This is a **small website code update**, not a new portfolio or database. It builds directly on the completed V2.4 organization, icon, marquee and 50 MB upload changes.
+A dedicated, editable portfolio gallery for **real client commissions**: ads, logos, flyers, promotional graphics and campaign materials. It is distinct from The Concept Lab (spec work) and Visual Studies (self-initiated pieces).
 
-## What is new
+## What is included
 
-- **Actual-image sizing:** Studio Admin → select a project → Project Display → Homepage card shape → **Match the actual image · no crop**. The frame respects the uploaded image's intrinsic aspect ratio. Keep Square, Portrait 4:5, Landscape 16:9, Classic 3:2, or Editorial preset where matching dimensions is preferable.
-- **Arrange galleries:** In Studio Admin, click **Arrange galleries** under Your projects. Select a destination and choose **Compact**, **Editorial**, or **Carousel**. Reorder the project thumbnails by dragging on desktop or by tapping the up/down buttons on mobile. Click **Save layout & order**.
-- **Compact layout:** Stacks uneven image heights more tightly to avoid empty grid rows, particularly in Selected Work, The Concept Lab and Visual Studies. Note: in Compact mode, masonry column widths determine the card widths, so choose Editorial mode for old per-card full-width treatments.
-- **Carousel layout:** Sideways touch scrolling, keyboard browsing, and arrow buttons. All seven project galleries can use the setting independently.
-- **No ranking field:** The old Featured rank field and project-editor order arrows are removed from the interface; existing values stay in saved records for compatibility. No database migration is required.
+Seven website files, based on the currently deployed V2.5 GitHub source (not an earlier V2.4 release):
 
-## Install — only these seven project files
+- `index.html`
+- `admin/index.html`
+- `js/site.js`
+- `js/admin.js`
+- `js/project-taxonomy.js`
+- `css/site.css`
+- `css/admin.css`
 
-1. Back up your GitHub repository (`Code → Download ZIP`) and use Studio Admin → **Export backup JSON**. Do not delete anything in Supabase.
-2. Download and extract the provided V2.5 ZIP.
-3. Replace these paths in the **same** GitHub repository (do not create a second site):
+Do **not** upload the ZIP itself to GitHub; unzip it and upload the individual files preserving these paths. **Do not replace `js/config.js`.**
 
-   - `index.html` (retained from completed V2.4)
-   - `admin/index.html`
-   - `css/site.css`
-   - `css/admin.css`
-   - `js/site.js`
-   - `js/admin.js`
-   - `js/project-taxonomy.js` (retained from completed V2.4)
+## Install
 
-4. Commit to the `main` branch. Netlify should automatically redeploy the updated website.
-5. Open `https://themprnt.co/admin/`. Sign in, use **Arrange galleries**, select the section, rearrange, select a mode, and save.
-6. Refresh `https://themprnt.co/` in another tab to inspect the public layout. Use a hard refresh if cached assets are still displayed.
+1. Create a backup of the current GitHub source or commit to a new branch.
+2. In the GitHub repository `matrixoperationshq/the-m-prnt-portfolio`, replace the matching seven files, preserving folders.
+3. Commit to `main` when ready for Netlify to deploy.
+4. Refresh `themprnt.co/admin/` after the Netlify deploy completes.
+5. For an actual commissioned project, select **Client Work** under **Where should this appear?**. The discipline can independently be Advertising, Brand Identity, or Poster Design. Keep it marked **Published**, then select **Save changes**.
+6. The **Client Work** section and header link appear automatically after at least one published project has been assigned; until then, no empty section is displayed.
+7. To change order or switch between compact, editorial or horizontal: **Arrange galleries → Client Work → Save layout & order**.
+8. To change the wording: open **Studio copy + links → Client Work / Public Section Copy** and save.
 
-**Do not overwrite** `js/config.js` or `data/projects.json`. This update contains no Supabase credentials, and it does not modify your projects, uploads, access policies, or storage bucket.
+## Default copy
 
-## Layout modes
+**Label:** 03 / CLIENT WORK · DESIGN IN PRACTICE
 
-| Mode | Best use | Behavior |
-| --- | --- | --- |
-| Compact | Mixed portraits, posters, landscape creative work | A tightly stacked masonry-like gallery without the intentional staggered gaps; card order is read down the first column, then across |
-| Editorial | Flagship case studies with consistent, curated sizing | Preserves V2.4 asymmetric grid, custom card spans and designed spacing |
-| Carousel | Collections people can swipe through | Horizontal touch/trackpad scroll, scroll snapping, desktop buttons |
+**Headline:** Designed for the brief. / Made to stand out.
 
-You can switch modes per section at any time. Draft projects won't appear in public galleries until published. Selected Work contains only projects marked **Also feature in Selected Work**.
+**Description:** From brand identities and promotional campaigns to flyers, advertising, and everyday creative assets. A collection of commissioned work where strategy meets visual storytelling, tailored to each client's audience, personality, and goals.
 
-## Testing / limitations
+No Supabase table, authentication, or storage setting changes are needed. Existing project records are not reassigned and no content is uploaded automatically. The new placement requires explicit assignment through Studio Admin.
 
-- JavaScript syntax was checked and the public gallery was rendered in isolated desktop/mobile browser tests with real bundled artwork. The arranger was also tested in desktop/mobile simulated browser sessions, including reorder and mocked saving.
-- **Real authenticated Supabase saving and live deployment must still be tested after you install**. This release is packaged, not already deployed.
-- Mobile ordering uses clearly labeled **up/down buttons** rather than touch drag. Desktop has HTML drag-and-drop.
-- Compact CSS columns stack items vertically in each column (as masonry galleries do). If exact left-to-right reading order is important, choose Editorial or Carousel instead.
-- Original-image sizing is available for project cards, not arbitrary CSS decorations or interactive GLB viewer canvases. GLB display size is controlled by its viewer component.
+## Testing after installation
+
+- Confirm an existing project still opens and renders normally.
+- Assign one **real commissioned** project to Client Work and save. Refresh the homepage and verify it appears in the new section.
+- Change the gallery mode to Carousel in Arrange galleries, save, refresh, and verify horizontal scrolling and arrows.
+- Edit the Client Work headline in Studio copy + links, save, refresh, and verify.
+- Confirm Concept Lab and Visual Studies still show their prior work and that no content was duplicated.
+
+If the public site shows older code, hard-refresh with Command + Shift + R and check the latest Netlify deployment succeeded.

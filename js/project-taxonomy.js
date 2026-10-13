@@ -14,6 +14,7 @@ export const DISCIPLINES = [
 export const LOCATIONS = [
   ['work','Creative Work','Curated brand identity and complete creative projects'],
   ['digital','Digital Experiences','Websites, commerce, UX and digital systems'],
+  ['client','Client Work','Commissioned ads, brand marks, flyers and client collateral'],
   ['concept','The Concept Lab','Spec ads, mock campaigns, pitches and creative experiments'],
   ['visual','Visual Studies','Posters, illustrations, graphics and standalone designs'],
   ['motion','Motion & Film','Animations, films and motion design'],

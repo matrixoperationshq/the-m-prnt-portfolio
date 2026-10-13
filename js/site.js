@@ -5,7 +5,7 @@ const $$=q=>Array.from(document.querySelectorAll(q));
 const modal=$('#project-dialog');
 let allProjects=[];let activeFilter='All';
 let galleryOrderV25={},galleryModesV25={};
-const GALLERY_DEFAULT_MODES={featured:'compact',archive:'compact',digital:'editorial',concept:'compact',visual:'compact',motion:'editorial',three:'editorial'};
+const GALLERY_DEFAULT_MODES={featured:'compact',archive:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial'};
 function ordered(section,list){
  const seq=Array.isArray(galleryOrderV25[section])?galleryOrderV25[section]:[];
  if(!seq.length)return list;
@@ -72,6 +72,31 @@ function renderDigital(){
  $('#digital-grid').innerHTML=list.map((p,i)=>`<article class="digital-card digital-card-${i+1} card-ratio-${att(ratio(p.card_ratio))}" data-aura="${att(disciplineFor(p))}"><div class="digital-visual">${image(p.cover,p.title+' brand presentation')}<div class="digital-number">0${i+1} / DIGITAL EXPERIENCE</div></div><div class="digital-info"><span class="digital-type">${esc(p.client_type||'DIGITAL BUILD')}</span><h3>${displayTitle(p)}</h3><p>${esc(p.summary||'')}</p><div class="digital-tags">${(p.tags||[]).slice(0,3).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="digital-actions"><button type="button" data-open="${att(p.id)}" class="digital-case">Explore the build <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></button>${safeUrl(p.site_url)?`<a href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">View website <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></a>`:''}</div></div></article>`).join('');
  setGalleryPresentation('digital','digital-grid');
 }
+// A distinct collection for actual commissions, not speculative campaigns.
+function clientCard(p,i){
+ const shape=ratio(p.card_ratio||'original'),crop=fit(p.card_fit||'contain');
+ const label=(p.tags||[]).find(tag=>/^(advertising|ads?|logos?|flyers?|social|packaging|branding|collateral)$/i.test(tag))||disciplineFor(p);
+ return `<article class="client-card client-ratio-${att(shape)} client-fit-${att(crop)}" data-aura="${att(disciplineFor(p))}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="View client project: ${att(p.title)}">
+  <div class="client-art">${image(p.cover,p.title+' commissioned artwork',i>1)}<span class="client-card-arrow" aria-hidden="true">${CARD_ARROW}</span></div>
+  <div class="client-card-meta"><span>${esc(label)}</span><h3>${displayTitle(p)}</h3>${p.role?`<p>${esc(p.role)}</p>`:''}</div>
+ </article>`;
+}
+function renderClient(){
+ const list=ordered('client',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='client'));
+ const section=$('#client');if(!section)return;
+ section.hidden=!list.length;
+ document.querySelectorAll('.client-nav-link').forEach(link=>{link.hidden=!list.length});
+ if(!list.length)return;
+ $('#client-grid').innerHTML=list.map(clientCard).join('');
+ setGalleryPresentation('client','client-grid');
+}
+function loadClientCopy(settings){
+ const keys={clientWorkLabel:'client-label',clientWorkHeading:'client-title-first',clientWorkEmphasis:'client-title-emphasis',clientWorkDescription:'client-description'};
+ for(const [key,id] of Object.entries(keys)){
+  if(typeof settings[key]==='string'&&settings[key].trim())document.getElementById(id).textContent=settings[key].trim();
+ }
+}
+
 // Two distinct creative archives with their own layouts, sourced from Supabase.
 const CARD_ARROW='<svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 function conceptCard(p,i){
@@ -255,5 +280,5 @@ function launchSeamlessBanner(){
   rebuild();
 }
 
-async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;renderWork();renderDigital();renderConcept();renderVisual();renderMotion();renderCustomSections(s.customSections);const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderDigital();renderClient();renderConcept();renderVisual();renderMotion();renderCustomSections(s.customSections);const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();

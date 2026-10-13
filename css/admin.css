@@ -111,3 +111,5 @@
 .arrange-footer p{font-size:12px;color:#c2b1c7;max-width:360px;line-height:1.5}
 .arrange-footer button{white-space:nowrap}
 @media(max-width:640px){.arrange-options{grid-template-columns:1fr}.arrange-item{gap:8px;padding:8px}.arrange-item img{width:46px;height:49px}.arrange-handle{font-size:17px}.arrange-item-buttons button{min-width:32px}.arrange-footer{flex-direction:column;align-items:stretch}.arrange-footer button{width:100%}}
+
+.client-copy-settings{grid-column:1/-1;margin:13px 0 5px;padding:19px;border:1px solid #a96f9959;border-radius:12px;background:#4a2e490f;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.client-copy-settings .panel-label,.client-copy-settings .fineprint,.client-copy-settings .wide{grid-column:1/-1}.client-copy-settings label{display:flex;flex-direction:column;gap:8px}.client-copy-settings input,.client-copy-settings textarea{width:100%;min-width:0}@media(max-width:650px){.client-copy-settings{grid-template-columns:1fr}}
