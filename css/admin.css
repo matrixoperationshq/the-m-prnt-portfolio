@@ -34,3 +34,46 @@
 .motion-play .line-icon,.pdf-link .line-icon,.digital-actions .line-icon { vertical-align:-0.15em; }
 .word-band-track .line-icon { width: .8em; height:.8em; vertical-align:-0.06em; }
 .orbit-cross .line-icon { display:block; }
+
+/* V2.4 — discipline vs placement. Keep website destinations obvious in the studio. */
+.field-hint {display:block;font-size:10px;font-weight:400;color:var(--dim);letter-spacing:0;margin:2px 0 3px}
+.library-location-filter {display:block;color:#e89abf;font-size:9px;font-weight:700;letter-spacing:.13em;margin:15px 4px 10px}
+.library-location-filter select {margin-top:7px;font-size:11px;letter-spacing:0;background:#21182a;border-color:#ffffff37;padding:9px 10px}
+.library-location-pill {display:inline-block;font-size:8px!important;line-height:1.5;letter-spacing:.05em;text-transform:uppercase;margin-top:7px;padding:2px 8px;color:#ebcbe0!important;background:#a9589d24;border:1px solid #be74a04a;border-radius:50px;width:fit-content}
+.placement-panel {margin:18px 0 24px;padding:clamp(19px,2.6vw,30px);background:linear-gradient(130deg,#292037,#20162c 65%,#2a182f);border:1px solid #d385ba41;border-radius:14px;box-shadow:0 16px 50px #0002}
+.placement-heading {display:flex;align-items:start;justify-content:space-between;gap:20px;margin-bottom:20px}
+.placement-heading h2 {font:600 clamp(25px,3.1vw,36px)/1.1 var(--serif);letter-spacing:-.055em;margin:6px 0 8px}
+.placement-heading h2 em {font-weight:500;color:#e990b8}
+.placement-heading p {font-size:11px;color:#c8b2c9;margin:0;max-width:500px}
+.placement-live {font-size:9px;letter-spacing:.11em;font-weight:700;color:#e9aed3;padding:9px 11px;border:1px solid #d087b24f;border-radius:999px;white-space:nowrap}
+.placement-choices {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.placement-choice {position:relative;display:flex;flex-direction:column;min-height:132px;justify-content:space-between;gap:13px;padding:16px;border:1px solid #ffffff29;background:#140e1d91;border-radius:11px;cursor:pointer;transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}
+.placement-choice:hover {border-color:#e17ab8aa;transform:translateY(-2px)}
+.placement-choice.is-selected {border-color:#f48bbd;background:linear-gradient(145deg,#8038586c,#412457b0);box-shadow:0 0 0 1px #d76cb640,inset 0 1px 0 #ffffff24}
+.placement-choice input {position:absolute;width:18px;height:18px;right:13px;top:13px;margin:0;accent-color:#ef87b8}
+.placement-choice-ordinal {font:600 23px/1 var(--serif);color:#e9a7cd}
+.placement-choice-copy {display:flex;flex-direction:column;gap:5px}
+.placement-choice-copy strong {font-size:13px;line-height:1.25}
+.placement-choice-copy small {font-size:10px;color:#bcaaca;line-height:1.35}
+.placement-feedback {padding:12px 14px;border:1px solid #e093ba33;background:#f298c609;border-radius:8px;margin:14px 0 0;color:#dec5d9;font-size:11px}
+.preview-location {display:inline-block;color:#aa507c;background:#fcf6fb;border:1px solid #d49eb64f;border-radius:30px;padding:5px 9px;margin-bottom:9px;font-size:9px;font-weight:700;letter-spacing:.1em}
+@media (max-width:1100px){.placement-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.placement-choices{grid-template-columns:1fr 1fr;gap:7px}.placement-choice{min-height:130px;padding:12px}.placement-choice-copy strong{font-size:12px}.placement-heading{display:block}.placement-live{display:inline-block;margin-top:12px}}
+@media (prefers-reduced-motion:reduce){.placement-choice{transition:none!important;transform:none!important}}
+.placement-choice input[type="radio"] {appearance:none;-webkit-appearance:none;width:17px;height:17px;padding:0;border:1px solid #b59ab6;background:#2b2033;border-radius:50%;box-shadow:0 0 0 2px #100c160f;cursor:pointer}
+.placement-choice input[type="radio"]:checked {border-color:#f6a3d0;background:#ec8cbd;box-shadow:inset 0 0 0 3px #35213b}
+.placement-choice input[type="radio"]:focus-visible {outline:2px solid #f1bddb;outline-offset:3px}
+
+/* Seven destinations, designed to be scannable without taking over the editor. */
+.placement-choices{grid-template-columns:repeat(4,minmax(0,1fr))}
+.placement-choice{min-height:128px}
+.placement-choice:nth-child(3){--location-accent:#ffa48a}
+.placement-choice:nth-child(4){--location-accent:#b7a5fa}
+.placement-choice:nth-child(5){--location-accent:#81c2d0}
+.placement-choice:nth-child(6){--location-accent:#a999ed}
+.placement-choice-ordinal{color:var(--location-accent,#e9a7cd)}
+.placement-choice.is-selected{border-color:var(--location-accent,#f48bbd)}
+.placement-choice:focus-within{outline:2px solid #eeb9df;outline-offset:3px}
+@media(max-width:1250px){.placement-choices{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:850px){.placement-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.placement-choices{grid-template-columns:1fr 1fr;gap:8px}.placement-choice{min-height:132px;padding:12px}}

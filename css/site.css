@@ -106,3 +106,130 @@
 .motion-play .line-icon,.pdf-link .line-icon,.digital-actions .line-icon { vertical-align:-0.15em; }
 .word-band-track .line-icon { width: .8em; height:.8em; vertical-align:-0.06em; }
 .orbit-cross .line-icon { display:block; }
+
+
+/* V2.4 — TRUE SEAMLESS INFINITE BANNER
+   Each identical word sequence is long enough to cover the viewport;
+   the second sequence enters immediately as the first scrolls out. */
+.word-band-track {
+  gap: 0;
+  animation: none;
+  will-change: transform;
+}
+.word-band-set {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: max-content;
+  white-space: nowrap;
+}
+.word-band-unit {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 28px;
+  padding-right: 28px;
+  white-space: nowrap;
+}
+.word-band-track > .word-band-set > .word-band-unit {
+  font-size: 15px; /* preserve original words; only the SVG wrappers are 17px */
+}
+.word-band-track.is-ready {
+  animation: seamless-marquee var(--ticker-duration, 30s) linear infinite;
+}
+@keyframes seamless-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(var(--ticker-offset, -1000px), 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .word-band-track.is-ready { animation: none !important; transform: none !important; }
+}
+
+/* V2.4 — discipline filters / clear collection hierarchy */
+.filter-toolbar{align-items:center;gap:18px}
+.filter-list{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.filter-list .filter-btn{transition:background .2s,color .2s,border-color .2s,transform .2s}
+.filter-list .filter-btn:hover{transform:translateY(-2px)}
+.filter-list .filter-btn.active{box-shadow:0 8px 25px #36182f18}
+.digital-grid:empty,.motion-grid:empty{min-height:0}
+@media (prefers-reduced-motion:reduce){.filter-list .filter-btn{transition:none!important;transform:none!important}}
+
+/* V2.4 — independent Motion and 3D collections with editorial gallery rhythm. */
+.media-collection{margin-top:64px}
+.media-collection[hidden]{display:none!important}
+.media-collection-heading{display:flex;align-items:end;justify-content:space-between;gap:26px;padding:0 0 24px;margin-bottom:18px;border-bottom:1px solid #dcb0df33}
+.media-collection-heading>div>span{display:block;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e79ccd;margin-bottom:10px}
+.media-collection-heading h3{font:600 clamp(35px,4.3vw,64px)/1.08 var(--serif);letter-spacing:-.06em;margin:0;color:#fff7fa}
+.media-collection-heading h3 em{color:#dc8cda;font-weight:500}
+.media-collection-heading p{max-width:340px;font-size:12px;line-height:1.65;color:#c5b0d1;margin:0 0 4px}
+#motion-three-collection .media-collection-heading{border-bottom-color:#b185eb55}
+#motion-three-collection .media-collection-heading h3 em{color:#a68df3}
+#motion-three-collection .motion-card{border-color:#a683e343}
+@media(max-width:650px){.media-collection{margin-top:46px}.media-collection-heading{display:block}.media-collection-heading p{margin-top:11px}.media-collection-heading h3{font-size:39px}}
+
+
+/* V2.4 FINAL — concept lab and visual studies are genuine, editable public destinations. */
+.site-header .desktop-nav{gap:clamp(11px,1.55vw,28px)}
+.site-header .desktop-nav a{font-size:clamp(10px,.81vw,12px)}
+#work,#digital,#concept,#visual,#motion,#three,#studio,#contact{scroll-margin-top:28px}
+.concept-section{position:relative;overflow:hidden;padding:126px 0 140px;background:#241023;color:#fff7f1;isolation:isolate}
+.concept-section:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 97% 3%,#78336b77,transparent 48%),radial-gradient(ellipse at 2% 86%,#8a40393d,transparent 50%)}
+.concept-heading{display:flex;align-items:center;justify-content:space-between;gap:30px;margin-bottom:65px}
+.concept-heading .eyebrow{color:#ffa5c5;font-size:11px;letter-spacing:.21em;margin:0 0 17px}
+.concept-heading h2,.visual-heading h2{font:600 clamp(64px,8vw,116px)/.97 var(--serif);letter-spacing:-.073em;margin:0}
+.concept-heading h2 em{color:#f58baa;font-weight:500}
+.concept-intro{font-size:14px;line-height:1.85;color:#e0c8d8;max-width:570px;margin:24px 0 0}
+.concept-stamp{width:185px;height:185px;flex:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;border:1px solid #e7adc477;border-radius:50%;transform:rotate(13deg);background:#f4a1ba0c}
+.concept-stamp span{font-size:8px;letter-spacing:.17em;font-weight:700;color:#eaa7c5}
+.concept-stamp strong{font:600 32px/.94 var(--serif);letter-spacing:-.07em}
+.concept-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:26px;align-items:start}
+.concept-card{grid-column:span 6;cursor:pointer;min-width:0;outline-offset:8px}
+.concept-card:nth-child(3n+1){grid-column:span 7}
+.concept-card:nth-child(3n+2){grid-column:span 5;margin-top:80px}
+.concept-card:nth-child(3n){grid-column:span 6;margin-top:10px}
+.concept-art{position:relative;background:#4e2a48;aspect-ratio:5/4;border-radius:18px;overflow:hidden;border:1px solid #ffffff38;box-shadow:0 25px 55px #10061744}
+.concept-card:nth-child(3n+2) .concept-art{aspect-ratio:4/5}
+.concept-art img{height:100%;width:100%;object-fit:cover;transition:transform .6s ease}
+.concept-card.card-fit-contain .concept-art img{object-fit:contain}
+.concept-card.card-ratio-square .concept-art{aspect-ratio:1}
+.concept-card.card-ratio-portrait .concept-art{aspect-ratio:4/5}
+.concept-card.card-ratio-landscape .concept-art{aspect-ratio:16/9}
+.concept-card.card-ratio-classic .concept-art{aspect-ratio:3/2}
+.concept-card:hover .concept-art img,.visual-card:hover .visual-art img{transform:scale(1.05)}
+.concept-index{position:absolute;left:15px;top:16px;color:#fff;font-size:9px;font-weight:700;letter-spacing:.16em;background:#201020cc;padding:11px 15px;border-radius:30px}
+.concept-arrow,.visual-open{position:absolute;right:16px;top:16px;width:39px;height:39px;display:grid;place-items:center;border-radius:50%;background:#f8f1ef;color:#281323;transition:transform .25s}
+.concept-card:hover .concept-arrow,.visual-card:hover .visual-open{transform:rotate(45deg)}
+.concept-meta{padding:22px 3px 0}.concept-meta>span{font-size:9px;letter-spacing:.17em;text-transform:uppercase;color:#e49dbb;font-weight:700}
+.concept-meta h3{font:600 clamp(29px,3vw,48px)/1.12 var(--serif);letter-spacing:-.055em;margin:10px 0 7px}
+.concept-meta p{font-size:11px;letter-spacing:.08em;color:#d0b5ca;margin:0;text-transform:uppercase}
+.visual-section{background:#eae1ed;color:#25172a;padding:130px 0 140px;position:relative}
+.visual-heading{display:grid;grid-template-columns:1fr 330px;column-gap:30px;align-items:end;margin-bottom:55px}
+.visual-heading .eyebrow{grid-column:1/-1;color:#a24778;font-size:10px;letter-spacing:.17em;margin-bottom:19px}
+.visual-heading h2 em{color:#a15c9e;font-weight:500}
+.visual-heading p{font-size:13px;line-height:1.9;color:#746576;max-width:330px;margin:0 0 6px}
+.visual-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:25px 18px;align-items:start}
+.visual-card{grid-column:span 3;cursor:pointer;min-width:0;outline-offset:6px}
+.visual-card:nth-child(5n+1){grid-column:span 4}
+.visual-card:nth-child(5n+2){grid-column:span 4;margin-top:74px}
+.visual-card:nth-child(5n+3){grid-column:span 4;margin-top:22px}
+.visual-art{position:relative;aspect-ratio:4/5;overflow:hidden;background:#d6c7d5;border:1px solid #5236502b;border-radius:6px;box-shadow:0 22px 35px #462e4f24}
+.visual-card:nth-child(5n+1) .visual-art{aspect-ratio:3/4}
+.visual-card:nth-child(5n+2) .visual-art{aspect-ratio:1/1}
+.visual-art img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .65s ease}
+.visual-card.card-fit-contain .visual-art img{object-fit:contain}
+.visual-card.visual-ratio-square .visual-art{aspect-ratio:1}
+.visual-card.visual-ratio-portrait .visual-art{aspect-ratio:4/5}
+.visual-card.visual-ratio-landscape .visual-art{aspect-ratio:16/9}
+.visual-card.visual-ratio-classic .visual-art{aspect-ratio:3/2}
+.visual-open{width:33px;height:33px;top:11px;right:11px;opacity:0}
+.visual-card:hover .visual-open,.visual-card:focus-visible .visual-open{opacity:1}
+.visual-card-meta{padding:14px 1px 0}.visual-card-meta span{display:block;color:#965c84;text-transform:uppercase;font-size:9px;letter-spacing:.1em}
+.visual-card-meta h3{font:600 clamp(17px,2vw,25px)/1.15 var(--serif);letter-spacing:-.045em;margin:6px 0 0}
+.visual-footnote{font-size:9px;letter-spacing:.19em;font-weight:700;margin:70px 0 0;border-top:1px solid #8d669047;padding-top:20px;color:#7c6480}
+.collection-empty{grid-column:1/-1;margin:0;min-height:195px;display:flex;align-items:center;justify-content:center;padding:28px;border:1px dashed currentColor;border-radius:16px;opacity:.65;font-size:13px;line-height:1.8;text-align:center}
+#concept-grid .collection-empty{background:#ffffff05}#visual-grid .collection-empty{background:#ffffff30}
+.media-collection{scroll-margin-top:35px}
+@media(max-width:1100px){.visual-card,.visual-card:nth-child(n){grid-column:span 6;margin-top:0}.visual-heading{grid-template-columns:1fr 240px}.concept-stamp{height:144px;width:144px}}
+@media(max-width:850px){.concept-section,.visual-section{padding:95px 0}.concept-heading{align-items:start}.concept-heading h2,.visual-heading h2{font-size:clamp(57px,11vw,85px)}.concept-stamp{display:none}.visual-heading{display:block}.visual-heading p{margin-top:20px}.site-header .desktop-nav{display:none}}
+@media(max-width:580px){.concept-section,.visual-section{padding:76px 0 86px}.concept-heading{margin-bottom:34px}.concept-heading h2,.visual-heading h2{font-size:clamp(55px,13vw,78px)}.concept-grid,.visual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 12px}.concept-card,.concept-card:nth-child(n){grid-column:span 2;margin:0}.concept-card:nth-child(2n) .concept-art{aspect-ratio:1/1}.concept-meta h3{font-size:34px}.visual-card,.visual-card:nth-child(n){grid-column:span 1;margin-top:0}.visual-card:nth-child(3n){grid-column:span 2}.visual-card:nth-child(3n) .visual-art{aspect-ratio:4/3}.visual-card-meta h3{font-size:19px}.visual-heading{margin-bottom:30px}.visual-footnote{margin-top:40px}.concept-art{border-radius:12px}}
+@media(prefers-reduced-motion:reduce){.concept-art img,.visual-art img,.concept-arrow,.visual-open{transition:none!important}}
