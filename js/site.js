@@ -4,16 +4,23 @@ const $$=q=>Array.from(document.querySelectorAll(q));
 const modal=$('#project-dialog');
 let allProjects=[];let activeFilter='All';
 let toastTimer;
+const pick=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
+const ratio=v=>pick(v,['original','auto','square','portrait','landscape','classic'],'original');
+const fit=v=>pick(v,['contain','cover'],'contain');
+const columns=v=>pick(v,['one','two','three','editorial'],'two');
+const gap=v=>pick(v,['normal','tight','airy'],'normal');
+const cardSpan=v=>pick(v,['auto','wide','half'],'auto');
+
 function toast(message){const node=$('#toast');node.textContent=message;node.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.classList.remove('show'),3600)}
 function image(src,alt='',lazy=true){const valid=safeUrl(src);return valid?`<img src="${att(valid)}" alt="${att(alt)}" loading="${lazy?'lazy':'eager'}" decoding="async">`:`<div class="empty-note">Visual coming soon</div>`}
 function isUsable(p){return p.status==='published'&&!!safeUrl(p.cover)}
 function displayTitle(p){return esc(p.title||'Untitled work')}
 function featuredCard(p,i){
- return `<article class="project-card featured" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}">
+ return `<article class="project-card featured card-ratio-${att(ratio(p.card_ratio))} card-span-${att(cardSpan(p.card_span))} card-fit-${att(fit(p.card_fit||'cover'))}" data-aura="${att(p.category||'Brand worlds')}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}">
  <div class="card-visual">${image(p.cover,p.title+' project image',i>1)}<span class="card-index">${String(i+1).padStart(2,'0')} / ${esc((p.category||'DESIGN').toUpperCase())}</span><span class="card-icon" aria-hidden="true">↗</span></div>
  <div class="project-card-titleline"><div><h3>${displayTitle(p)}</h3><p>${esc(p.role||p.eyebrow||p.category)}</p></div><span class="project-card-numeral">✳</span></div></article>`;
 }
-function miniCard(p,i){return `<article class="project-card mini" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="card-visual">${image(p.cover,p.title+' project image')}<span class="card-index">${esc((p.category||'WORK').toUpperCase())}</span><span class="card-icon" aria-hidden="true">↗</span></div><div class="project-card-titleline"><div><h3>${displayTitle(p)}</h3><p>${esc((p.tags||[]).slice(0,3).join(' / '))}</p></div></div></article>`}
+function miniCard(p,i){return `<article class="project-card mini card-ratio-${att(ratio(p.card_ratio))} card-fit-${att(fit(p.card_fit||'cover'))}" data-aura="${att(p.category||'Campaigns')}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="card-visual">${image(p.cover,p.title+' project image')}<span class="card-index">${esc((p.category||'WORK').toUpperCase())}</span><span class="card-icon" aria-hidden="true">↗</span></div><div class="project-card-titleline"><div><h3>${displayTitle(p)}</h3><p>${esc((p.tags||[]).slice(0,3).join(' / '))}</p></div></div></article>`}
 function renderWork(){
  const publish=allProjects.filter(isUsable);
  const featured=publish.filter(p=>p.featured).sort((a,b)=>(a.feature_rank||999)-(b.feature_rank||999));
@@ -31,7 +38,7 @@ function renderWork(){
 }
 function renderDigital(){
  const list=allProjects.filter(p=>p.status==='published'&&p.category==='Web & products');
- $('#digital-grid').innerHTML=list.map((p,i)=>`<article class="digital-card digital-card-${i+1}"><div class="digital-visual">${image(p.cover,p.title+' brand presentation')}<div class="digital-number">0${i+1} / DIGITAL EXPERIENCE</div></div><div class="digital-info"><span class="digital-type">${esc(p.client_type||'DIGITAL BUILD')}</span><h3>${displayTitle(p)}</h3><p>${esc(p.summary||'')}</p><div class="digital-tags">${(p.tags||[]).slice(0,3).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="digital-actions"><button type="button" data-open="${att(p.id)}" class="digital-case">Explore the build ↗</button>${safeUrl(p.site_url)?`<a href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">View website ↗</a>`:''}</div></div></article>`).join('');
+ $('#digital-grid').innerHTML=list.map((p,i)=>`<article class="digital-card digital-card-${i+1}" data-aura="${att(p.category||'Web & products')}"><div class="digital-visual">${image(p.cover,p.title+' brand presentation')}<div class="digital-number">0${i+1} / DIGITAL EXPERIENCE</div></div><div class="digital-info"><span class="digital-type">${esc(p.client_type||'DIGITAL BUILD')}</span><h3>${displayTitle(p)}</h3><p>${esc(p.summary||'')}</p><div class="digital-tags">${(p.tags||[]).slice(0,3).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="digital-actions"><button type="button" data-open="${att(p.id)}" class="digital-case">Explore the build ↗</button>${safeUrl(p.site_url)?`<a href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">View website ↗</a>`:''}</div></div></article>`).join('');
 }
 function motionCard(p){
  const m=(p.media||[]).find(x=>x.type==='video'||x.type==='model');
@@ -40,30 +47,49 @@ function motionCard(p){
  if(model&&safeUrl(model))visual=`<model-viewer src="${att(safeUrl(model))}" alt="Interactive model for ${att(p.title)}" camera-controls auto-rotate shadow-intensity="1" interaction-prompt="auto" exposure="1"></model-viewer>`;
  else if(m&&m.type==='video'&&safeUrl(m.src))visual=`<video muted loop playsinline preload="none" poster="${att(safeUrl(p.cover))}"><source src="${att(safeUrl(m.src))}" type="video/mp4"></video>`;
  else visual=image(p.cover,p.title);
- return `<article class="motion-card" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="motion-visual">${visual}<span class="motion-play">${model?'✳ DRAG TO ROTATE':'▶ WATCH / EXPLORE'}</span></div><div class="motion-meta"><div><p>${esc(p.eyebrow||p.category)}</p><h3>${displayTitle(p)}</h3></div><span aria-hidden="true" class="motion-visit">↗</span></div></article>`
+ return `<article class="motion-card" data-aura="${att(p.category||'Motion')}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="motion-visual">${visual}<span class="motion-play">${model?'✳ DRAG TO ROTATE':'▶ WATCH / EXPLORE'}</span></div><div class="motion-meta"><div><p>${esc(p.eyebrow||p.category)}</p><h3>${displayTitle(p)}</h3></div><span aria-hidden="true" class="motion-visit">↗</span></div></article>`
 }
 function renderMotion(){const list=allProjects.filter(p=>isUsable(p)&&(p.category==='Motion'||p.category==='Experiments'));$('#motion-grid').innerHTML=list.length?list.map(motionCard).join(''):'<p>More motion and 3D experiments coming soon.</p>';$$('.motion-card video').forEach(v=>{v.addEventListener('mouseenter',()=>v.play().catch(()=>{}));v.addEventListener('mouseleave',()=>{v.pause();v.currentTime=0})})}
 function mediaBlock(m){
  const src=safeUrl(m.src);if(!src)return '';
- if(m.type==='pdf')return `<div class="pdf-holder"><iframe class="pdf-frame" src="${att(src)}#view=FitH" title="${att(m.caption||'Project PDF')}"></iframe><a class="pdf-link" href="${att(src)}" target="_blank" rel="noopener noreferrer">Open PDF in a new tab ↗</a></div>`;
- if(m.type==='video')return `<video controls playsinline preload="metadata" src="${att(src)}"></video>`;
- if(m.type==='model')return `<model-viewer style="height:490px" src="${att(src)}" camera-controls auto-rotate shadow-intensity="1" alt="3D object: ${att(m.caption||'handcrafted sculpture')}"></model-viewer>`;
- return image(src,m.caption||'Project gallery image');
+ const itemRatio=ratio(m.ratio||'original'),itemFit=fit(m.fit||'contain'),span=pick(m.span,['auto','full'],'auto');
+ const cl=`case-media-item media-ratio-${itemRatio} media-fit-${itemFit} media-span-${span}`;
+ let content='';
+ if(m.type==='pdf')content=`<div class="pdf-holder"><iframe class="pdf-frame" loading="lazy" src="${att(src)}#view=FitH" title="${att(m.caption||'Project PDF')}"></iframe><a class="pdf-link" href="${att(src)}" target="_blank" rel="noopener noreferrer">Open PDF in a new tab ↗</a></div>`;
+ else if(m.type==='video')content=`<video controls playsinline preload="metadata" src="${att(src)}"></video>`;
+ else if(m.type==='model')content=`<model-viewer src="${att(src)}" camera-controls shadow-intensity="1" alt="3D object: ${att(m.caption||'handcrafted sculpture')}"></model-viewer>`;
+ else content=`<a class="case-media-image-link" href="${att(src)}" target="_blank" rel="noopener noreferrer" title="Open original image in a new tab">${image(src,m.caption||'Project gallery image')}</a>`;
+ return `<figure class="${cl}">${content}${m.caption?`<figcaption>${esc(m.caption)}</figcaption>`:''}</figure>`;
+}
+function storyBlocks(p){
+ return (Array.isArray(p.story_blocks)?p.story_blocks:[]).map(block=>{
+  if(block.type==='image'){
+   const src=safeUrl(block.src);if(!src)return '';
+   return `<section class="case-story-block"><figure class="case-story-image">${image(src,block.heading||'Project story image')}${block.heading?`<figcaption>${esc(block.heading)}</figcaption>`:''}</figure></section>`;
+  }
+  if(block.type==='text'&&(block.heading||block.body))return `<section class="case-block case-story-block">${block.heading?`<h3>${esc(block.heading)}</h3>`:''}${block.body?`<p>${esc(block.body)}</p>`:''}</section>`;
+  return '';
+ }).join('');
 }
 function openProject(id){
  const p=allProjects.find(p=>p.id===id&&p.status==='published');if(!p)return;
  const assets=(p.media||[]).filter(m=>safeUrl(m.src));
+ const leadShape=ratio(p.hero_ratio||'original'),leadFit=fit(p.hero_fit||'contain');
+ const lead=safeUrl(p.model)?`<model-viewer class="case-hero-model" src="${att(safeUrl(p.model))}" camera-controls auto-rotate shadow-intensity="1" alt="Interactive 3D model"></model-viewer>`
+ :safeUrl(p.cover)?`<div class="case-hero-wrap hero-ratio-${leadShape} hero-fit-${leadFit}"><img class="case-hero-img" src="${att(safeUrl(p.cover))}" alt="${att(p.title+' project cover')}" decoding="async"><a class="case-hero-view" href="${att(safeUrl(p.cover))}" target="_blank" rel="noopener noreferrer">VIEW FULL IMAGE ↗</a></div>`:'';
  const content=`<p class="case-kicker">${esc(p.client_type||p.category)} · ${esc(p.eyebrow||'THE M PRNT')}</p><h2 class="case-title" id="dialog-title">${displayTitle(p)}</h2>
- ${safeUrl(p.model)?`<model-viewer class="case-hero-model" src="${att(safeUrl(p.model))}" camera-controls auto-rotate shadow-intensity="1" alt="Interactive 3D model"></model-viewer>`:(safeUrl(p.cover)?`<div style="max-height:490px;overflow:hidden;border-radius:11px;background:#211625">${image(p.cover,p.title+' cover',false)}</div>`:'')}
+ ${lead}
  <div class="case-desc"><p>${esc(p.summary||'An exploration in art direction and making.')}</p><div class="case-facts"><span>Discipline</span><strong>${esc(p.category)}</strong><span>Role</span><strong>${esc(p.role||'Concept · Design · Production')}</strong><span>Type</span><strong>${esc(p.client_type||'Creative work')}</strong></div></div>
  ${p.approach?`<div class="case-block"><h3>The thinking behind it.</h3><p>${esc(p.approach)}</p></div>`:''}
  ${p.outcome?`<div class="case-block"><h3>The outcome.</h3><p>${esc(p.outcome)}</p></div>`:''}
- <div class="case-media">${assets.length?assets.map(mediaBlock).join(''):'<p class="empty-note">More process images and media coming soon.</p>'}</div>
+ ${storyBlocks(p)}
+ <div class="case-media case-layout-${columns(p.gallery_layout)} gallery-gap-${gap(p.gallery_gap)}">${assets.length?assets.map(mediaBlock).join(''):'<p class="empty-note">More process images and media coming soon.</p>'}</div>
  ${safeUrl(p.site_url)?`<p style="margin-top:25px"><a class="pdf-link" href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">Visit the live site ↗</a></p>`:''}<div class="case-tags">${(p.tags||[]).map(tag=>`<span>${esc(tag)}</span>`).join('')}</div>`;
  $('#dialog-body').innerHTML=content;
  if(!modal.open){modal.showModal();document.body.classList.add('dialog-open')}
  const url=new URL(window.location.href);url.searchParams.set('project',id);window.history.replaceState(null,'',url);
 }
+
 function closeProject(){if(modal.open)modal.close();document.body.classList.remove('dialog-open');$('#dialog-body').innerHTML='';const url=new URL(window.location.href);url.searchParams.delete('project');history.replaceState(null,'',url)}
 function configureInteractions(){
  $('#dialog-close').addEventListener('click',closeProject);
@@ -90,5 +116,34 @@ function launchMotion(){
  function frame(){if(!media.matches){state.forEach(s=>{s.x+=(s.tx-s.x)*.065;s.y+=(s.ty-s.y)*.065;s.el.style.setProperty('--parallax-x',s.x.toFixed(2)+'px');s.el.style.setProperty('--parallax-y',s.y.toFixed(2)+'px')})}requestAnimationFrame(frame)}requestAnimationFrame(frame);
  function scrollEffect(){const rect=area.getBoundingClientRect();const progress=Math.max(0,Math.min(1,-rect.top/(area.offsetHeight*.8)));const wave=Math.sin(progress*Math.PI);const offsets=[[-20,-22,-8],[-8,21,5],[13,-18,9],[24,15,-8],[31,-22,7]];$('#move-word').style.setProperty('--move-translate',(-progress*8)+'px');$('#move-word').style.setProperty('--move-rotate',(progress*1.2)+'deg');$$('.move-letter').forEach((letter,i)=>{const [x,y,r]=offsets[i];letter.style.transform=`translate3d(${(x*wave).toFixed(2)}px,${(y*wave).toFixed(2)}px,0) rotate(${(r*wave).toFixed(2)}deg)`})};addEventListener('scroll',scrollEffect,{passive:true});scrollEffect();
 }
-async function init(){configureInteractions();launchMotion();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').textContent=s.email+' ↗';$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;renderWork();renderDigital();renderMotion();const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+
+function renderCustomSections(sections){
+ const list=Array.isArray(sections)?sections:[];
+ for(const placement of ['after-work','before-motion','before-studio']){
+  const host=$('#custom-'+placement);if(!host)continue;
+  const subset=list.filter(section=>section&&section.placement===placement&&section.title);
+  host.innerHTML=subset.map(section=>{
+   const theme=pick(section.theme,['dark','light'],'light');
+   const layout=pick(section.layout,['split','stacked'],'split');
+   const src=safeUrl(section.image);
+   const link=safeUrl(section.link_url);
+   return `<section class="custom-editorial custom-theme-${theme} custom-layout-${layout}"><div class="layout-container custom-inner"><div class="custom-copy">${section.eyebrow?`<p class="eyebrow">${esc(section.eyebrow)}</p>`:''}<h2>${esc(section.title)}</h2>${section.body?`<p>${esc(section.body)}</p>`:''}${link?`<a href="${att(link)}" target="_blank" rel="noopener noreferrer">${esc(section.link_text||'Explore')} ↗</a>`:''}</div>${src?`<div class="custom-image">${image(src,section.title)}</div>`:''}</div></section>`;
+  }).join('');
+ }
+}
+function launchAura(){
+ const orb=$('#cursor-orb');if(!orb||matchMedia('(pointer: coarse)').matches){if(orb)orb.hidden=true;return;}
+ const palette={'Brand worlds':'224,85,151','Campaigns':'239,98,115','Strategy':'131,85,201','Web & products':'78,155,221','Motion':'182,89,222','Experiments':'130,94,239','Art direction':'212,122,124'};
+ let x=-999,y=-999;
+ document.addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;document.documentElement.style.setProperty('--mouse-x',x+'px');document.documentElement.style.setProperty('--mouse-y',y+'px')},{passive:true});
+ document.addEventListener('pointerover',e=>{
+  const target=e.target.closest('[data-aura]');const section=e.target.closest('.work-section,.studio-section,.digital-section,.custom-theme-light,.project-dialog');
+  orb.dataset.surface=section?'light':'dark';
+  orb.style.setProperty('--aura-rgb',palette[target?.dataset.aura]||'193,103,228');
+  orb.classList.toggle('aura-focused',!!target);
+ });
+ document.addEventListener('pointerleave',()=>orb.classList.remove('aura-focused'));
+}
+
+async function init(){configureInteractions();launchMotion();launchAura();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').textContent=s.email+' ↗';$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;renderWork();renderDigital();renderMotion();renderCustomSections(s.customSections);const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();
