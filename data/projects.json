@@ -1,0 +1,1293 @@
+{
+  "settings": {
+    "email": "madisonleahhunter@gmail.com",
+    "instagram": "https://www.instagram.com/themprnt",
+    "linkedin": "https://www.linkedin.com/in/madisonleahunter",
+    "headline": "Work that moves when you touch it.",
+    "subtitle": "Brand designer, web developer, and creative director. Founder of Maison Mélange and Silk Scheduling. I design it, build it, and launch it — end to end.",
+    "about": "Multidisciplinary brand designer and creative director based in Philadelphia. I work across brand identity, full-stack web development, 3D design, campaign strategy, motion, social content, and editorial. Founder of Maison Mélange (luxury botanical body care, live on Shopify) and Silk Scheduling (appointment automation SaaS, Airtable CRM with Calendly API).",
+    "aboutExtra": "My approach is end-to-end — I design it and I build it. From Shopify stores to Netlify deployments, 3D sculpts in Nomad Sculpt to Sephora pitch decks, the work here spans conception through launch. Range with taste, not staying boxed into one lane."
+  },
+  "projects": [
+    {
+      "id": "maison-melange-hero",
+      "slug": "maison-melange-hero",
+      "title": "Maison Mélange",
+      "eyebrow": "BEAUTY BRAND · FOUNDER · LIVE SHOPIFY",
+      "category": "Brand worlds",
+      "client_type": "Founder-led",
+      "role": "Founder · Brand identity · Creative direction · Shopify",
+      "summary": "Luxury botanical body care — ritual-based, calendula-infused. PA LLC active, trademark published, Sephora Accelerate target. Every layer built by Madison: brand, website, formulas, pitch decks, business plan.",
+      "approach": "A botanical body-care world developed across formulation, art direction, packaging and commerce. The editorial system combines warm natural textures with high-contrast product storytelling.",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/maison-editorial-cover.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/maison-melange-logo.webp",
+          "caption": "Brand imagery and product direction"
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/maison-melange-products.webp",
+          "caption": "Brand insignia"
+        }
+      ],
+      "tags": [
+        "Identity",
+        "Beauty",
+        "E-commerce",
+        "Creative direction"
+      ],
+      "feature_rank": 1,
+      "sort_order": 0,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "pinterest-cover",
+      "slug": "pinterest-cover",
+      "title": "Pinterest / The Muse",
+      "eyebrow": "EDITORIAL · SPEC CAMPAIGN · 20 PAGES",
+      "category": "Campaigns",
+      "client_type": "Speculative",
+      "role": "Art direction · Editorial design · Activation concept",
+      "summary": "Full 20-page spec magazine — The Muse, Spring Edition — with Madison Hunter as cover muse. Campaign vehicle for the PINPOINT Pop-Up Shop by Pinterest, May 2023, Philly. Neon pink and black, lightning motifs, duotone photography.",
+      "approach": "A speculative magazine and PINPOINT pop-up concept linked through electric color, experimental layouts and a unified visual narrative.",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-pinterest-magazine-cover.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-pinterest-magazine-cover.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page1.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page2.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "Editorial",
+        "Art direction",
+        "Campaigns"
+      ],
+      "feature_rank": 2,
+      "sort_order": 1,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "heinz-campaign",
+      "slug": "heinz-campaign",
+      "title": "It Has to Be Heinz",
+      "eyebrow": "3D SCULPT · SPEC CAMPAIGN · 4 POSTERS",
+      "category": "3D & campaigns",
+      "client_type": "Speculative",
+      "role": "3D sculpting · Concept · Art direction",
+      "summary": "Four-poster campaign — each Heinz packet hand-sculpted in Nomad Sculpt with a different food embossed in relief. Fries, burger, hot dog, the classic label. Composited in Procreate + Photoshop. Not stock renders. Campaign: It Has to Be Heinz.",
+      "approach": "Hand-sculpted condiment packet surfaces and food forms, then built the visual campaign across four executions.",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/heinz-campaign-cover.webp",
+      "media": [
+        {
+          "type": "pdf",
+          "src": "/assets/media/heinz-only.pdf",
+          "caption": ""
+        },
+        {
+          "type": "pdf",
+          "src": "/assets/media/heinz-fries.pdf",
+          "caption": ""
+        },
+        {
+          "type": "pdf",
+          "src": "/assets/media/heinz-burger.pdf",
+          "caption": ""
+        },
+        {
+          "type": "pdf",
+          "src": "/assets/media/heinz-hotdog.pdf",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "3D sculpt",
+        "Nomad Sculpt",
+        "Campaigns"
+      ],
+      "feature_rank": 3,
+      "sort_order": 2,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "pac-company",
+      "slug": "pac-company",
+      "title": "PAC Company",
+      "eyebrow": "BRAND IDENTITY · CLIENT",
+      "category": "Brand worlds",
+      "client_type": "Client work",
+      "role": "Brand identity · Logo design · Visual system",
+      "summary": "Bold brand identity for PAC Company (Peyton Acquisitions Construction). Orange and black, Heron Preston + Carhartt influence. Merchandise-forward, utilitarian luxury. Tagline: Acquire. Build. Elevate.",
+      "approach": "An orange-and-black industrial identity with a utilitarian editorial direction and fashion-informed attitude.",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/untitled_artwork.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/untitled_artwork.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "Identity",
+        "Client",
+        "Typography"
+      ],
+      "feature_rank": 4,
+      "sort_order": 3,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "bwhi-series",
+      "slug": "bwhi-series",
+      "title": "Bloom / Wisdom / Love",
+      "eyebrow": "NONPROFIT · 3-POSTER SERIES",
+      "category": "Campaigns",
+      "client_type": "Concept campaign",
+      "role": "Campaign concept · Poster art direction",
+      "summary": "Three-poster series for BWHI. Editorial photography — Black women's bodies with bold floral compositions. Bloom (white lilies, Join the movement), Wisdom (golden marigold afro, Donate Today), Love (blue hydrangeas, Partner with us).",
+      "approach": "Three distinct messages developed into a unified floral portrait poster system for Black women’s health advocacy.",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/bwhi-mock-ad-1.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/bwhi-mock-ad-1.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/bwhi-mock-ad-2.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/bwhi-mock-ad-3.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "Advocacy",
+        "Poster",
+        "Art direction"
+      ],
+      "feature_rank": 5,
+      "sort_order": 4,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "sephora-deck",
+      "slug": "sephora-deck",
+      "title": "Maison Mélange / Sephora Pitch",
+      "eyebrow": "PITCH DECK · RETAIL STRATEGY",
+      "category": "Strategy",
+      "client_type": "Founder-led",
+      "role": "Pitch strategy · Brand storytelling · Retail concept",
+      "summary": "Full Sephora Accelerate pitch deck for Maison Mélange. Ritual system, hero SKU, market positioning, legal readiness proof. Built for prestige retail discovery.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/maison-editorial-cover.webp",
+      "media": [
+        {
+          "type": "pdf",
+          "src": "/assets/media/maison_melange_sephora_accelerate-copy.pdf",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "Strategy",
+        "Beauty",
+        "Pitch deck"
+      ],
+      "feature_rank": 6,
+      "sort_order": 5,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "fashion-beauty",
+      "slug": "fashion-beauty",
+      "title": "Fashion / Beauty Direction",
+      "eyebrow": "CREATIVE DIRECTION",
+      "category": "Art direction",
+      "client_type": "Creative work",
+      "role": "Photo direction · Fashion · Visual research",
+      "summary": "Visual direction through photography, fashion image-making, beauty references and experimental editorial composition.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/photo-edit-matrix.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/photo-edit-matrix.webp",
+          "caption": "Fashion-led photo treatment and visual direction"
+        }
+      ],
+      "tags": [
+        "Fashion",
+        "Composition",
+        "Direction"
+      ],
+      "feature_rank": 7,
+      "sort_order": 6,
+      "status": "published",
+      "featured": true
+    },
+    {
+      "id": "cookie-drop",
+      "slug": "cookie-drop",
+      "title": "flourandoats — Cookie Drop Campaign",
+      "eyebrow": "CLIENT · SOCIAL CAMPAIGN",
+      "category": "Campaigns",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Seasonal social campaign for Flour & Oats. Flavor-guessing mechanic — Chai Swirl + S'more — swipe to reveal. Live post: 807 likes, 79 comments. Delivered in feed, square, and story formats.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/new-cookie-drop-just-in-time-for-fall---1.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/new-cookie-drop-just-in-time-for-fall---1.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/new-cookie-drop-just-in-time-for-fall---4.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/new-cookie-drop-just-in-time-for-fall---41.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "social",
+        "client",
+        "food",
+        "instagram"
+      ],
+      "feature_rank": 999,
+      "sort_order": 7,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "designers-for-peace",
+      "slug": "designers-for-peace",
+      "title": "Designers for Peace — Graphis International 2023",
+      "eyebrow": "COMPETITION · GRAPHIS INTERNATIONAL",
+      "category": "Campaigns",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Poster for the Designers for Peace initiative through Graphis International 2023. A child in blue and yellow sits in rubble. A single green sprout grows from the debris. We must grow from our past, so it does not hurt our future.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/designers-for-peace.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/designers-for-peace.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "Graphis",
+        "competition",
+        "editorial",
+        "activist"
+      ],
+      "feature_rank": 999,
+      "sort_order": 8,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "mag-spread",
+      "slug": "mag-spread",
+      "title": "The Muse — Inside Spreads",
+      "eyebrow": "EDITORIAL · MAGAZINE LAYOUT",
+      "category": "Editorial",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Interior spreads from The Muse Pinterest magazine — fashion forecasting, sustainability, PINPOINT pop-up, look book, and Met Gala editorial pages.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-magazine-page.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page1.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page2.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page-2.webp",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page-3.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "editorial",
+        "magazine",
+        "layout",
+        "typography"
+      ],
+      "feature_rank": 999,
+      "sort_order": 9,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "popstarr-1",
+      "slug": "popstarr-1",
+      "title": "PopStarrRockStarr 01",
+      "eyebrow": "POSTER SERIES · EXPERIMENTAL",
+      "category": "Art direction",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Experimental poster visual from the PopStarrRockStarr series — bold, dimensional, collectible energy.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/popstarrrockstarr_1.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/popstarrrockstarr_1.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "poster",
+        "experimental",
+        "art"
+      ],
+      "feature_rank": 999,
+      "sort_order": 10,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "popstarr-2",
+      "slug": "popstarr-2",
+      "title": "PopStarrRockStarr 02",
+      "eyebrow": "POSTER SERIES · EXPERIMENTAL",
+      "category": "Art direction",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Experimental poster visual from the PopStarrRockStarr series.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/popstarrrockstarr_2.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/popstarrrockstarr_2.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "poster",
+        "experimental",
+        "art"
+      ],
+      "feature_rank": 999,
+      "sort_order": 11,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "popstarr-3",
+      "slug": "popstarr-3",
+      "title": "PopStarrRockStarr 03",
+      "eyebrow": "POSTER SERIES · EXPERIMENTAL",
+      "category": "Art direction",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Experimental poster visual from the PopStarrRockStarr series.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/popstarrrockstarr_3.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/popstarrrockstarr_3.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "poster",
+        "experimental",
+        "art"
+      ],
+      "feature_rank": 999,
+      "sort_order": 12,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "psa-988",
+      "slug": "psa-988",
+      "title": "988 Suicide & Crisis Lifeline — PSA",
+      "eyebrow": "PSA POSTER · PUBLIC HEALTH",
+      "category": "Campaigns",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Halftone duotone — close-cropped face, navy, cyan, purple. Hand-lettered: I'm Not Okay! The tension between the forced expression and the headline is the whole piece. Call 988.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_4005.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_4005.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "PSA",
+        "poster",
+        "advocacy"
+      ],
+      "feature_rank": 999,
+      "sort_order": 13,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "solvex-post",
+      "slug": "solvex-post",
+      "title": "SolveX — Brand Launch Social",
+      "eyebrow": "CLIENT · SOCIAL CAMPAIGN",
+      "category": "Campaigns",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Live @solvexintelligentsolutions carousel post — Meet SolveX concept. 80 likes. Dark black, neon lime + cyan, circuit board graphics.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_7085.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_7085.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "social",
+        "client",
+        "tech"
+      ],
+      "feature_rank": 999,
+      "sort_order": 14,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "flourandoats-live",
+      "slug": "flourandoats-live",
+      "title": "flourandoats — Live Post Screenshot",
+      "eyebrow": "CLIENT · SOCIAL · 807 LIKES",
+      "category": "Campaigns",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Live @flourandoats Instagram post. Flavor reveal carousel. 807 likes, 79 comments.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_7084.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_7084.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "social",
+        "client",
+        "food"
+      ],
+      "feature_rank": 999,
+      "sort_order": 15,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "fossil-blue",
+      "slug": "fossil-blue",
+      "title": "Burning Fossil Fuels — Blue",
+      "eyebrow": "ACTIVIST POSTER · EDITORIAL",
+      "category": "Art direction",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Hand-lettered psychedelic type in a cow print pattern. Burning Fossil Fuels is Killing Us Quicker Than The Cows. Slate blue colorway.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0507.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_0507.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "activist",
+        "poster",
+        "environmental"
+      ],
+      "feature_rank": 999,
+      "sort_order": 16,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "anthropologie-video",
+      "slug": "anthropologie-video",
+      "title": "Anthropologie — Autumn Marmalade",
+      "eyebrow": "SPEC · MOOD BOARD VIDEO",
+      "category": "Motion",
+      "client_type": "Speculative",
+      "role": "",
+      "summary": "Spec mood board video for Anthropologie's fall season. Concept: Autumn Marmalade. Animated 9:16 photo collage grid — deep oranges, rusts, and browns. Tagline: being with you is just as sweet.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/anthropologie-mood.webp",
+      "media": [
+        {
+          "type": "video",
+          "src": "/assets/media/anthropologie-mock-project.mp4",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "motion",
+        "mood board",
+        "spec",
+        "fashion"
+      ],
+      "feature_rank": 999,
+      "sort_order": 17,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "popup-shop-ad",
+      "slug": "popup-shop-ad",
+      "title": "PINPOINT — Pop-Up Shop Ad",
+      "eyebrow": "SPEC · VIDEO AD · PINTEREST",
+      "category": "Motion",
+      "client_type": "Speculative",
+      "role": "",
+      "summary": "Video ad for the PINPOINT Pop-Up Shop by Pinterest — the campaign activation embedded in The Muse magazine. Howard Grittis Student Center, Philly.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-pinterest-magazine-cover.webp",
+      "media": [
+        {
+          "type": "video",
+          "src": "/assets/media/pop-up-shop-mock-ad.mp4",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "motion",
+        "video",
+        "spec",
+        "campaign"
+      ],
+      "feature_rank": 999,
+      "sort_order": 18,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "popstarr-animated",
+      "slug": "popstarr-animated",
+      "title": "PopStarrRockStarr — Animated",
+      "eyebrow": "MOTION · ANIMATED POSTER",
+      "category": "Motion",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Animated pixel version of the PopStarrRockStarr poster series — dimensional, collectible, motion-forward.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/popstarrrockstarr_1.webp",
+      "media": [
+        {
+          "type": "video",
+          "src": "/assets/media/popstarrrockstarr_1_pixel_gif.mp4",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "motion",
+        "animation",
+        "art"
+      ],
+      "feature_rank": 999,
+      "sort_order": 19,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "madwrld-3d",
+      "slug": "madwrld-3d",
+      "title": "MadWrld — 3D Model",
+      "eyebrow": "3D · ORIGINAL SCULPT · INTERACTIVE",
+      "category": "Experiments",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Interactive 3D model — MadWrld brand object. Hand-sculpted in Nomad Sculpt. Spin, drag, and zoom.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0938.webp",
+      "media": [
+        {
+          "type": "model",
+          "src": "/assets/media/madwrld.glb",
+          "caption": "Interactive 3D model"
+        }
+      ],
+      "tags": [
+        "3D",
+        "nomad sculpt",
+        "interactive"
+      ],
+      "feature_rank": 999,
+      "sort_order": 20,
+      "status": "published",
+      "featured": false,
+      "model": "/assets/media/madwrld.glb"
+    },
+    {
+      "id": "m-prnt-deck",
+      "slug": "m-prnt-deck",
+      "title": "The M Prnt — Studio Deck",
+      "eyebrow": "STUDIO DECK · CREATIVE DIRECTION",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Madison's own studio brand. 15-slide deck presenting the full creative range — brand, site work, product media, posters, and motion-adjacent identity.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/maison-melange-logo.webp",
+      "media": [],
+      "tags": [
+        "studio",
+        "deck",
+        "direction"
+      ],
+      "feature_rank": 999,
+      "sort_order": 21,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "id": "mcdonalds-halloween",
+      "slug": "mcdonalds-halloween",
+      "title": "McDonald's — Halloween Spec",
+      "eyebrow": "SPEC · CONCEPTUAL ADVERTISING",
+      "category": "Archive",
+      "client_type": "Speculative",
+      "role": "",
+      "summary": "Single-concept spec poster. A floating lettuce leaf lit against black reads as a flying witch silhouette. Fresh Ingredients = Better Spells. One concept, no explanation needed.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0111.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_0111.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "spec",
+        "advertising",
+        "conceptual",
+        "food"
+      ],
+      "feature_rank": 999,
+      "sort_order": 22,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "fashion-board",
+      "slug": "fashion-board",
+      "title": "Fashion and Interiors References",
+      "eyebrow": "REFERENCE BOARD · DIRECTION",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "A taste board for color language, interiors, styling, shape, and energy.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/pending-upload-placeholder.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/pending-upload-placeholder.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "references",
+        "fashion",
+        "direction"
+      ],
+      "feature_rank": 999,
+      "sort_order": 23,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "id": "bwhi-wisdom",
+      "slug": "bwhi-wisdom",
+      "title": "BWHI — Wisdom",
+      "eyebrow": "NONPROFIT · POSTER",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "With every lesson comes wisdom. Golden marigold arrangement shaped as a natural afro. Donate Today.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/bwhi-mock-ad-2.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/bwhi-mock-ad-2.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "campaign",
+        "nonprofit",
+        "poster"
+      ],
+      "feature_rank": 999,
+      "sort_order": 24,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "bwhi-love",
+      "slug": "bwhi-love",
+      "title": "BWHI — Love",
+      "eyebrow": "NONPROFIT · POSTER",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "You deserve the love you give others. Figure curled in a heart-shaped wreath of blue hydrangeas. Partner with us.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/bwhi-mock-ad-3.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/bwhi-mock-ad-3.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "campaign",
+        "nonprofit",
+        "poster"
+      ],
+      "feature_rank": 999,
+      "sort_order": 25,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "fossil-pink",
+      "slug": "fossil-pink",
+      "title": "Burning Fossil Fuels — Pink",
+      "eyebrow": "ACTIVIST POSTER · EDITORIAL",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Same concept as the blue colorway — hot pink alternate.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0509.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/img_0509.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "activist",
+        "poster",
+        "environmental"
+      ],
+      "feature_rank": 999,
+      "sort_order": 26,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "pac-banner",
+      "slug": "pac-banner",
+      "title": "PAC Company — Logo Banner",
+      "eyebrow": "BRAND IDENTITY · CLIENT",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Horizontal banner format for PAC Company. Industrial label aesthetic — WARNING / PROPERTY IN PROGRESS. Acquire. Build. Elevate.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/untitled_artwork-1.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/untitled_artwork-1.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "brand identity",
+        "logo",
+        "client"
+      ],
+      "feature_rank": 999,
+      "sort_order": 27,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "mag-page-2",
+      "slug": "mag-page-2",
+      "title": "The Muse — Fashion Forecast",
+      "eyebrow": "EDITORIAL · MAGAZINE SPREAD",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Fashion Forecast spread from The Muse magazine — lightning motif, vertical stacked type, model editorial.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-magazine-page1.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page1.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "editorial",
+        "magazine",
+        "fashion"
+      ],
+      "feature_rank": 999,
+      "sort_order": 28,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "mag-page-3",
+      "slug": "mag-page-3",
+      "title": "The Muse — Muse of the Month",
+      "eyebrow": "EDITORIAL · MAGAZINE SPREAD",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Muse of the Month spread — orange-to-teal gradient, thought bubble graphic. Be the greatest version of yourself.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-magazine-page2.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page2.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "editorial",
+        "magazine",
+        "layout"
+      ],
+      "feature_rank": 999,
+      "sort_order": 29,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "mag-page-4",
+      "slug": "mag-page-4",
+      "title": "The Muse — PINPOINT Event Spread",
+      "eyebrow": "EDITORIAL · EVENT CAMPAIGN",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "PINPOINT Pop-Up Shop feature spread — Pinterest sustainability and event campaign.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-magazine-page-2.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page-2.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "editorial",
+        "magazine",
+        "campaign"
+      ],
+      "feature_rank": 999,
+      "sort_order": 30,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "mag-page-5",
+      "slug": "mag-page-5",
+      "title": "The Muse — Sustainability Edit",
+      "eyebrow": "EDITORIAL · MAGAZINE SPREAD",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Stay Sustainable and Thrift spreads from The Muse magazine.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/mock-magazine-page-3.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/mock-magazine-page-3.webp",
+          "caption": ""
+        }
+      ],
+      "tags": [
+        "editorial",
+        "magazine",
+        "sustainability"
+      ],
+      "feature_rank": 999,
+      "sort_order": 31,
+      "status": "published",
+      "featured": false
+    },
+    {
+      "id": "concert-promo",
+      "slug": "concert-promo",
+      "title": "Mock Concert Promo",
+      "eyebrow": "SPEC · MOTION · EVENT",
+      "category": "Archive",
+      "client_type": "Speculative",
+      "role": "",
+      "summary": "Mock concert promotional video. Event-scale motion design demonstrating range beyond product campaigns.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0938.webp",
+      "media": [],
+      "tags": [
+        "motion",
+        "video",
+        "spec",
+        "event"
+      ],
+      "feature_rank": 999,
+      "sort_order": 32,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "id": "silk-walkthrough",
+      "slug": "silk-walkthrough",
+      "title": "Silk Scheduling — Live Walkthrough",
+      "eyebrow": "SCREEN RECORDING · PRODUCT DEMO",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Screen recording of the live Silk Scheduling website — marketing site, hero, pricing, and Calendly booking flow.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/solvex-live-post.webp",
+      "media": [],
+      "tags": [
+        "screen recording",
+        "saas",
+        "product"
+      ],
+      "feature_rank": 999,
+      "sort_order": 33,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "id": "silk-backend",
+      "slug": "silk-backend",
+      "title": "Silk Scheduling — Airtable Backend",
+      "eyebrow": "SCREEN RECORDING · BACKEND DEMO",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Screen recording of the Airtable CRM backend — appointment management, Calendly API integration, booking status tracking.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/solvex-story.webp",
+      "media": [],
+      "tags": [
+        "screen recording",
+        "saas",
+        "airtable"
+      ],
+      "feature_rank": 999,
+      "sort_order": 34,
+      "status": "draft",
+      "featured": false
+    },
+    {
+      "id": "heinz-3d-1",
+      "slug": "heinz-3d-1",
+      "title": "Heinz Ketchup — 3D Model 1",
+      "eyebrow": "3D · ORIGINAL SCULPT · INTERACTIVE",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Interactive 3D sculpt of the Heinz ketchup packet — hand-built in Nomad Sculpt. Spin, drag, and zoom. This is the actual model the campaign posters were rendered from.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0507.webp",
+      "media": [],
+      "tags": [
+        "3D",
+        "nomad sculpt",
+        "interactive",
+        "heinz"
+      ],
+      "feature_rank": 999,
+      "sort_order": 35,
+      "status": "draft",
+      "featured": false,
+      "model": ""
+    },
+    {
+      "id": "heinz-3d-2",
+      "slug": "heinz-3d-2",
+      "title": "Heinz Ketchup — 3D Model 2",
+      "eyebrow": "3D · ORIGINAL SCULPT · INTERACTIVE",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "Second Heinz 3D sculpt variant — interactive model. Spin and explore the hand-sculpted form.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/img_0509.webp",
+      "media": [],
+      "tags": [
+        "3D",
+        "nomad sculpt",
+        "interactive",
+        "heinz"
+      ],
+      "feature_rank": 999,
+      "sort_order": 36,
+      "status": "draft",
+      "featured": false,
+      "model": ""
+    },
+    {
+      "id": "wrng-3d",
+      "slug": "wrng-3d",
+      "title": "WRNG — 3D Render",
+      "eyebrow": "3D · ORIGINAL SCULPT · INTERACTIVE",
+      "category": "Archive",
+      "client_type": "Creative work",
+      "role": "",
+      "summary": "WRNG brand 3D model — interactive. Large file, may take a moment to load. Hand-sculpted in Nomad Sculpt.",
+      "approach": "",
+      "outcome": "",
+      "year": "",
+      "cover": "/assets/media/pending-upload-placeholder.webp",
+      "media": [],
+      "tags": [
+        "3D",
+        "nomad sculpt",
+        "interactive",
+        "wrng"
+      ],
+      "feature_rank": 999,
+      "sort_order": 37,
+      "status": "draft",
+      "featured": false,
+      "model": ""
+    },
+    {
+      "id": "maison-melange-web",
+      "slug": "maison-melange-web",
+      "title": "Maison Mélange / Digital Flagship",
+      "eyebrow": "E-COMMERCE · SHOPIFY · FOUNDER BRAND",
+      "category": "Web & products",
+      "client_type": "Founder-led",
+      "role": "Shopify storefront · Identity · Product content · E-commerce",
+      "summary": "A fully launched botanical body-care storefront bringing Maison Mélange’s aesthetic into the buying journey. Built around brand identity, collections and commerce.",
+      "approach": "A brand-first Shopify experience that connects editorial imagery, a botanical identity and product discovery.",
+      "outcome": "Shopify storefront launched.",
+      "cover": "/assets/media/maison-editorial-cover.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/maison-editorial-cover.webp",
+          "caption": "Brand and product visual language"
+        }
+      ],
+      "tags": [
+        "Shopify",
+        "Commerce",
+        "Launch"
+      ],
+      "feature_rank": 99,
+      "featured": false,
+      "status": "published",
+      "site_url": "https://maisonmelange.com",
+      "sort_order": 700
+    },
+    {
+      "id": "silk-web",
+      "slug": "silk-web",
+      "title": "Silk / Experience & Systems",
+      "eyebrow": "SERVICE DESIGN · WEB · CRM WORKFLOWS",
+      "category": "Web & products",
+      "client_type": "Founder-led",
+      "role": "Brand identity · Booking experience · Operational workflows",
+      "summary": "A service and digital experience designed to make inquiries, scheduling and client follow-up feel seamless. Brand, web presence and supporting CRM/booking workflows.",
+      "approach": "Connect the front-facing experience to practical follow-through: inquiry, booking, communication, and arrival. The original portfolio documents a marketing site and an Airtable/Calendly CRM integration.",
+      "outcome": "Brand and marketing website developed; backend workflows documented in the original portfolio.",
+      "cover": "/assets/media/silk-logo.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/silk-logo.webp",
+          "caption": "Silk monogram and identity"
+        }
+      ],
+      "tags": [
+        "Operations",
+        "Web",
+        "CRM",
+        "Brand"
+      ],
+      "feature_rank": 99,
+      "featured": false,
+      "status": "published",
+      "site_url": "https://silkscheduling.com",
+      "sort_order": 701
+    },
+    {
+      "id": "staywell-web",
+      "slug": "staywell-web",
+      "title": "Staywellthy / Luxury Travel",
+      "eyebrow": "CLIENT · CUSTOM WEB BUILD · COMMERCE",
+      "category": "Web & products",
+      "client_type": "Client work",
+      "role": "Web design · Custom code · Domain setup · Booking experiences",
+      "summary": "Luxury travel client experience built around a video-led landing page, booking collections and a custom visual presentation.",
+      "approach": "An editorial digital destination designed for discovery and booking, with custom-code elements and Shopify integration documented in the original portfolio.",
+      "outcome": "Website and domain launched, as documented in the previous portfolio.",
+      "cover": "/assets/media/staywell-editorial-cover.webp",
+      "media": [
+        {
+          "type": "image",
+          "src": "/assets/media/staywell-editorial-cover.webp",
+          "caption": "Editorial representation of the travel brand, not a website screenshot"
+        }
+      ],
+      "tags": [
+        "Client",
+        "Web build",
+        "Shopify",
+        "Travel"
+      ],
+      "feature_rank": 99,
+      "featured": false,
+      "status": "published",
+      "site_url": "https://staywellthyluxurytravel.com",
+      "sort_order": 702
+    }
+  ]
+}
