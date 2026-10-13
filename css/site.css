@@ -95,3 +95,14 @@
 @media(max-width:850px){.featured-grid .project-card.featured.card-span-wide,.featured-grid .project-card.featured.card-span-half{grid-column:span 12}.case-media.case-layout-three{grid-template-columns:repeat(2,minmax(0,1fr))}.custom-inner{grid-template-columns:1fr}}
 @media(max-width:580px){.case-media,.case-media.case-layout-three,.case-media.case-layout-editorial{grid-template-columns:1fr}.case-media.case-layout-editorial .case-media-item{grid-column:1 / -1}.case-media.gallery-gap-airy{gap:22px}.case-media-item.media-span-full{grid-column:1/-1}.case-hero-view{font-size:9px}.custom-editorial{padding:75px 0}}
 @media(prefers-reduced-motion:reduce){#cursor-orb{display:none}}
+
+/* V2.3: platform-independent vector icons. No reliance on Unicode emoji glyphs. */
+.line-icon {
+  display: inline-block; width: 1em; height: 1em; min-width: 1em;
+  stroke: currentColor; fill: none; vertical-align: -0.12em;
+  flex: none; pointer-events: none; overflow: visible;
+}
+.tile-symbol .line-icon,.tile-arrow .line-icon,.card-icon .line-icon,.project-card-numeral .line-icon { display:block; }
+.motion-play .line-icon,.pdf-link .line-icon,.digital-actions .line-icon { vertical-align:-0.15em; }
+.word-band-track .line-icon { width: .8em; height:.8em; vertical-align:-0.06em; }
+.orbit-cross .line-icon { display:block; }

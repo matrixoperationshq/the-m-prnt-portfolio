@@ -1,4 +1,5 @@
 import {hasBackend,getClient,safeUrl} from './data-service.js';
+const REORDER_ICONS={up:`<svg class="line-icon line-icon-arrow-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>`,down:`<svg class="line-icon line-icon-arrow-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14m-7-7 7 7 7-7"/></svg>`};
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 let client, projects=[],settings={},current=null,selectedId=null,dirty=false,filterStatus='all';let persistedIds=new Set();
 let noticeTimer;
@@ -42,8 +43,8 @@ function renderMedia(){
   options.append(fieldLabel('Display width',fieldSelect(asset.span||'auto',[['auto','Normal column'],['full','Full-width gallery row']],val=>{asset.span=val;markDirty()})));
   middle.append(options);
   const actions=document.createElement('div');actions.className='row-actions';
-  for(const [text,delta] of [['↑',-1],['↓',1]]){
-   const btn=document.createElement('button');btn.type='button';btn.textContent=text;btn.title='Reorder gallery media';btn.disabled=index+delta<0||index+delta>=current.media.length;
+  for(const [direction,delta] of [['up',-1],['down',1]]){
+   const btn=document.createElement('button');btn.type='button';btn.innerHTML=REORDER_ICONS[direction];btn.setAttribute('aria-label',direction==='up'?'Move media earlier':'Move media later');btn.title='Reorder gallery media';btn.disabled=index+delta<0||index+delta>=current.media.length;
    btn.addEventListener('click',()=>{[current.media[index],current.media[index+delta]]=[current.media[index+delta],current.media[index]];markDirty();renderMedia()});actions.append(btn);
   }
   const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.className='remove';
@@ -80,7 +81,7 @@ function renderCustomSectionEditors(){
   row.append(fieldLabel('Placement',fieldSelect(block.placement||'after-work',[['after-work','After selected work'],['before-motion','Before motion + 3D'],['before-studio','Before studio']],v=>{block.placement=v;$('#custom-sections-state').textContent='Unsaved changes.'})));
   row.append(fieldLabel('Layout',fieldSelect(block.layout||'split',[['split','Text + image side by side'],['stacked','Stacked / full width']],v=>{block.layout=v;$('#custom-sections-state').textContent='Unsaved changes.'})));
   row.append(fieldLabel('Color theme',fieldSelect(block.theme||'light',[['light','Warm cream / light'],['dark','Deep violet / dark']],v=>{block.theme=v;$('#custom-sections-state').textContent='Unsaved changes.'})));
-  const moves=document.createElement('div');moves.className='block-actions';for(const [label,d] of [['↑ Move up',-1],['↓ Move down',1]]){const btn=document.createElement('button');btn.type='button';btn.className='subtle-button';btn.textContent=label;btn.disabled=index+d<0||index+d>=blocks.length;btn.addEventListener('click',()=>{[blocks[index],blocks[index+d]]=[blocks[index+d],blocks[index]];renderCustomSectionEditors();$('#custom-sections-state').textContent='Unsaved changes.'});moves.append(btn)}row.append(moves);list.append(row);
+  const moves=document.createElement('div');moves.className='block-actions';for(const [direction,d] of [['up',-1],['down',1]]){const btn=document.createElement('button');btn.type='button';btn.className='subtle-button';btn.innerHTML=REORDER_ICONS[direction]+' Move '+direction;btn.disabled=index+d<0||index+d>=blocks.length;btn.addEventListener('click',()=>{[blocks[index],blocks[index+d]]=[blocks[index+d],blocks[index]];renderCustomSectionEditors();$('#custom-sections-state').textContent='Unsaved changes.'});moves.append(btn)}row.append(moves);list.append(row);
  });
  if(!blocks.length){const empty=document.createElement('p');empty.className='fineprint';empty.textContent='No additional website sections yet. Add your first one below.';list.append(empty)}
 }

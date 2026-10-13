@@ -23,3 +23,14 @@
 .preview-card img.preview-ratio-landscape{height:auto;aspect-ratio:16/9;object-fit:cover}
 #custom-sections-state{font-size:12px;color:#ecc4e0;margin-top:16px}
 @media(max-width:680px){.gallery-row{grid-template-columns:45px minmax(0,1fr)}.gallery-row img{width:45px;height:60px}.gallery-row .row-actions{grid-column:2;grid-template-columns:repeat(3,1fr)}.gallery-media-options{grid-template-columns:1fr}}
+
+/* V2.3: platform-independent vector icons. No reliance on Unicode emoji glyphs. */
+.line-icon {
+  display: inline-block; width: 1em; height: 1em; min-width: 1em;
+  stroke: currentColor; fill: none; vertical-align: -0.12em;
+  flex: none; pointer-events: none; overflow: visible;
+}
+.tile-symbol .line-icon,.tile-arrow .line-icon,.card-icon .line-icon,.project-card-numeral .line-icon { display:block; }
+.motion-play .line-icon,.pdf-link .line-icon,.digital-actions .line-icon { vertical-align:-0.15em; }
+.word-band-track .line-icon { width: .8em; height:.8em; vertical-align:-0.06em; }
+.orbit-cross .line-icon { display:block; }
