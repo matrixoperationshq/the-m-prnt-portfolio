@@ -4,6 +4,35 @@ const $=q=>document.querySelector(q);
 const $$=q=>Array.from(document.querySelectorAll(q));
 const modal=$('#project-dialog');
 let allProjects=[];let activeFilter='All';
+let galleryOrderV25={},galleryModesV25={};
+const GALLERY_DEFAULT_MODES={featured:'compact',archive:'compact',digital:'editorial',concept:'compact',visual:'compact',motion:'editorial',three:'editorial'};
+function ordered(section,list){
+ const seq=Array.isArray(galleryOrderV25[section])?galleryOrderV25[section]:[];
+ if(!seq.length)return list;
+ const rank=new Map(seq.map((id,index)=>[id,index]));
+ return list.map((p,index)=>({p,index})).sort((a,b)=>{
+  const ia=rank.has(a.p.id)?rank.get(a.p.id):Number.MAX_SAFE_INTEGER;
+  const ib=rank.has(b.p.id)?rank.get(b.p.id):Number.MAX_SAFE_INTEGER;
+  return ia-ib||a.index-b.index;
+ }).map(x=>x.p);
+}
+function setGalleryPresentation(section,id){
+ const target=document.getElementById(id);if(!target)return;
+ const mode=['compact','editorial','carousel'].includes(galleryModesV25[section])?galleryModesV25[section]:GALLERY_DEFAULT_MODES[section];
+ target.classList.remove('gallery-layout-compact','gallery-layout-editorial','gallery-layout-carousel');
+ target.classList.add('gallery-layout-'+mode);
+ const navId='gallery-navigation-'+section;let nav=document.getElementById(navId);
+ if(mode!=='carousel'||!target.children.length||target.querySelector('.collection-empty,.loading-note')){if(nav)nav.remove();return}
+ if(!nav){
+  nav=document.createElement('div');nav.id=navId;nav.className='gallery-navigation';
+  const label=document.createElement('span');label.textContent='SWIPE TO EXPLORE';
+  const actions=document.createElement('div');
+  for(const [direction,txt] of [[-1,'←'],[1,'→']]){
+   const btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label',direction<0?'Previous artwork':'Next artwork');btn.textContent=txt;
+   btn.addEventListener('click',()=>target.scrollBy({left:direction*target.clientWidth*.72,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));actions.append(btn);
+  }nav.append(label,actions);target.parentNode.insertBefore(nav,target);
+ }
+}
 let toastTimer;
 const pick=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
 const ratio=v=>pick(v,['original','auto','square','portrait','landscape','classic'],'original');
@@ -24,21 +53,24 @@ function featuredCard(p,i){
 function miniCard(p,i){return `<article class="project-card mini card-ratio-${att(ratio(p.card_ratio))} card-fit-${att(fit(p.card_fit||'cover'))}" data-aura="${att(disciplineFor(p))}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="card-visual">${image(p.cover,p.title+' project image')}<span class="card-index">${esc(disciplineFor(p).toUpperCase())}</span><span class="card-icon" aria-hidden="true"><svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></span></div><div class="project-card-titleline"><div><h3>${displayTitle(p)}</h3><p>${esc((p.tags||[]).slice(0,3).join(' / '))}</p></div></div></article>`}
 function renderWork(){
  const publish=allProjects.filter(isUsable);
- const featured=publish.filter(p=>p.featured).sort((a,b)=>(a.feature_rank||999)-(b.feature_rank||999));
+ const featured=ordered('featured',publish.filter(p=>p.featured).sort((a,b)=>(a.feature_rank||999)-(b.feature_rank||999)));
  let filtered=activeFilter==='All'?featured:featured.filter(p=>disciplineFor(p)===activeFilter);
- if(activeFilter!=='All')filtered.sort((a,b)=>(a.feature_rank||999)-(b.feature_rank||999));
+ 
  $('#featured-grid').innerHTML=filtered.length?filtered.map(featuredCard).join(''):`<p class="loading-note">No published pieces in this collection yet. Explore another discipline.</p>`;
+ setGalleryPresentation('featured','featured-grid');
  // Only show creative/archive projects here. Websites and motion have their own curated sections.
- const others=publish.filter(p=>!p.featured && ['work','archive'].includes(locationFor(p))).slice(0,12);
+ const others=ordered('archive',publish.filter(p=>!p.featured && ['work','archive'].includes(locationFor(p)))).slice(0,12);
  $('#more-grid').innerHTML=activeFilter==='All'?others.map(miniCard).join(''):'';
+ setGalleryPresentation('archive','more-grid');
  $('.more-work-head').style.display=activeFilter==='All'&&others.length?'flex':'none';
  $('#all-count').textContent=String(featured.length).padStart(2,'0');
  $$('.filter-btn').forEach(b=>{const active=b.dataset.filter===activeFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false')});
 }
 
 function renderDigital(){
- const list=allProjects.filter(p=>isUsable(p)&&locationFor(p)==='digital');
- $('#digital-grid').innerHTML=list.map((p,i)=>`<article class="digital-card digital-card-${i+1}" data-aura="${att(disciplineFor(p))}"><div class="digital-visual">${image(p.cover,p.title+' brand presentation')}<div class="digital-number">0${i+1} / DIGITAL EXPERIENCE</div></div><div class="digital-info"><span class="digital-type">${esc(p.client_type||'DIGITAL BUILD')}</span><h3>${displayTitle(p)}</h3><p>${esc(p.summary||'')}</p><div class="digital-tags">${(p.tags||[]).slice(0,3).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="digital-actions"><button type="button" data-open="${att(p.id)}" class="digital-case">Explore the build <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></button>${safeUrl(p.site_url)?`<a href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">View website <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></a>`:''}</div></div></article>`).join('');
+ const list=ordered('digital',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='digital'));
+ $('#digital-grid').innerHTML=list.map((p,i)=>`<article class="digital-card digital-card-${i+1} card-ratio-${att(ratio(p.card_ratio))}" data-aura="${att(disciplineFor(p))}"><div class="digital-visual">${image(p.cover,p.title+' brand presentation')}<div class="digital-number">0${i+1} / DIGITAL EXPERIENCE</div></div><div class="digital-info"><span class="digital-type">${esc(p.client_type||'DIGITAL BUILD')}</span><h3>${displayTitle(p)}</h3><p>${esc(p.summary||'')}</p><div class="digital-tags">${(p.tags||[]).slice(0,3).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="digital-actions"><button type="button" data-open="${att(p.id)}" class="digital-case">Explore the build <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></button>${safeUrl(p.site_url)?`<a href="${att(safeUrl(p.site_url))}" target="_blank" rel="noopener noreferrer">View website <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></a>`:''}</div></div></article>`).join('');
+ setGalleryPresentation('digital','digital-grid');
 }
 // Two distinct creative archives with their own layouts, sourced from Supabase.
 const CARD_ARROW='<svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
@@ -50,9 +82,10 @@ function conceptCard(p,i){
   <div class="concept-meta"><span>${kind}</span><h3>${displayTitle(p)}</h3><p>${esc(p.eyebrow||disciplineFor(p))}</p></div></article>`;
 }
 function renderConcept(){
- const list=allProjects.filter(p=>isUsable(p)&&locationFor(p)==='concept');
+ const list=ordered('concept',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='concept'));
  const host=$('#concept-grid');
  host.innerHTML=list.length?list.map(conceptCard).join(''):'<p class="collection-empty">The next idea starts here. Spec campaigns and mock pitches will appear as you publish them from Studio Admin.</p>';
+ setGalleryPresentation('concept','concept-grid');
 }
 function visualCard(p,i){
  const shape=ratio(p.card_ratio||'original');
@@ -61,8 +94,9 @@ function visualCard(p,i){
  <div class="visual-card-meta"><span>${esc(disciplineFor(p))}</span><h3>${displayTitle(p)}</h3></div></article>`;
 }
 function renderVisual(){
- const list=allProjects.filter(p=>isUsable(p)&&locationFor(p)==='visual');
+ const list=ordered('visual',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='visual'));
  $('#visual-grid').innerHTML=list.length?list.map(visualCard).join(''):'<p class="collection-empty">An evolving wall of posters, illustrations and graphic experiments. Add your first piece through Studio Admin.</p>';
+ setGalleryPresentation('visual','visual-grid');
 }
 
 function motionCard(p){
@@ -75,8 +109,8 @@ function motionCard(p){
  return `<article class="motion-card" data-aura="${att(disciplineFor(p))}" data-open="${att(p.id)}" tabindex="0" role="button" aria-label="Explore ${att(p.title)}"><div class="motion-visual">${visual}<span class="motion-play">${model?'<svg class="line-icon line-icon-asterisk" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg> DRAG TO ROTATE':m&&m.type==='video'?'<svg class="line-icon line-icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></svg> WATCH / EXPLORE':'VIEW PROJECT'}</span></div><div class="motion-meta"><div><p>${esc(p.eyebrow||p.category)}</p><h3>${displayTitle(p)}</h3></div><span aria-hidden="true" class="motion-visit"><svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></span></div></article>`
 }
 function renderMotion(){
- const film=allProjects.filter(p=>isUsable(p)&&locationFor(p)==='motion');
- const three=allProjects.filter(p=>isUsable(p)&&locationFor(p)==='three');
+ const film=ordered('motion',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='motion'));
+ const three=ordered('three',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='three'));
  $('#motion-grid').innerHTML=film.map(motionCard).join('');
  $('#three-grid').innerHTML=three.map(motionCard).join('');
  // Leave the independent galleries visible, even when they are being curated.
@@ -84,6 +118,8 @@ function renderMotion(){
  $('#motion-three-collection').hidden=false;
  if(!film.length)$('#motion-grid').innerHTML='<p class="collection-empty">Motion & film pieces will appear here as you publish them.</p>';
  if(!three.length)$('#three-grid').innerHTML='<p class="collection-empty">Interactive models and spatial design will appear here as you publish them.</p>';
+ setGalleryPresentation('motion','motion-grid');
+ setGalleryPresentation('three','three-grid');
  $$('.motion-card video').forEach(v=>{v.addEventListener('mouseenter',()=>v.play().catch(()=>{}));v.addEventListener('mouseleave',()=>{v.pause();v.currentTime=0})});
 }
 
@@ -219,5 +255,5 @@ function launchSeamlessBanner(){
   rebuild();
 }
 
-async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;renderWork();renderDigital();renderConcept();renderVisual();renderMotion();renderCustomSections(s.customSections);const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;renderWork();renderDigital();renderConcept();renderVisual();renderMotion();renderCustomSections(s.customSections);const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();

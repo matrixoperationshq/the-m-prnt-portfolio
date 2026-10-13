@@ -233,3 +233,91 @@
 @media(max-width:850px){.concept-section,.visual-section{padding:95px 0}.concept-heading{align-items:start}.concept-heading h2,.visual-heading h2{font-size:clamp(57px,11vw,85px)}.concept-stamp{display:none}.visual-heading{display:block}.visual-heading p{margin-top:20px}.site-header .desktop-nav{display:none}}
 @media(max-width:580px){.concept-section,.visual-section{padding:76px 0 86px}.concept-heading{margin-bottom:34px}.concept-heading h2,.visual-heading h2{font-size:clamp(55px,13vw,78px)}.concept-grid,.visual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 12px}.concept-card,.concept-card:nth-child(n){grid-column:span 2;margin:0}.concept-card:nth-child(2n) .concept-art{aspect-ratio:1/1}.concept-meta h3{font-size:34px}.visual-card,.visual-card:nth-child(n){grid-column:span 1;margin-top:0}.visual-card:nth-child(3n){grid-column:span 2}.visual-card:nth-child(3n) .visual-art{aspect-ratio:4/3}.visual-card-meta h3{font-size:19px}.visual-heading{margin-bottom:30px}.visual-footnote{margin-top:40px}.concept-art{border-radius:12px}}
 @media(prefers-reduced-motion:reduce){.concept-art img,.visual-art img,.concept-arrow,.visual-open{transition:none!important}}
+
+/* V2.5 — Presentation modes saved independently for each live gallery. */
+.gallery-navigation {display:flex;align-items:center;justify-content:space-between;gap:16px;margin:8px 0 20px;color:inherit;font:700 10px var(--sans);letter-spacing:.15em;opacity:.85}
+.gallery-navigation>div {display:flex;gap:9px}
+.gallery-navigation button {width:37px;height:37px;display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;background:transparent;color:inherit;font:500 18px var(--sans);cursor:pointer;transition:transform .18s,background .18s}
+.gallery-navigation button:hover,.gallery-navigation button:focus-visible {transform:translateY(-2px);background:#d38aca30}
+
+/* Original is an actual intrinsic image height, not a letterboxed fixed-size frame. */
+.project-card.card-ratio-original .card-visual,
+.project-card.featured.card-ratio-original .card-visual,
+.project-card.featured.card-ratio-original:nth-child(n) .card-visual,
+.concept-card.card-ratio-original .concept-art,
+.concept-card.card-ratio-original:nth-child(n) .concept-art,
+.visual-card.visual-ratio-original .visual-art,
+.visual-card.visual-ratio-original:nth-child(n) .visual-art,
+.digital-card.card-ratio-original .digital-visual {height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important}
+.project-card.card-ratio-original .card-visual img,
+.concept-card.card-ratio-original .concept-art img,
+.visual-card.visual-ratio-original .visual-art img,
+.digital-card.card-ratio-original .digital-visual img {display:block;width:100%;height:auto!important;min-height:0;position:static!important;inset:auto!important;object-fit:contain!important;padding:0!important;max-width:100%}
+/* Leave normal size options unchanged for intentionally consistent cards. */
+
+/* Compact: masonry-style flow, with each artwork kept intact and without stagger margins. */
+.featured-grid.gallery-layout-compact,
+.more-grid.gallery-layout-compact,
+.concept-grid.gallery-layout-compact,
+.visual-grid.gallery-layout-compact {display:block!important;column-gap:18px;align-items:initial}
+.featured-grid.gallery-layout-compact,.concept-grid.gallery-layout-compact {column-count:2}
+.more-grid.gallery-layout-compact,.visual-grid.gallery-layout-compact {column-count:3}
+.featured-grid.gallery-layout-compact > .project-card,
+.more-grid.gallery-layout-compact > .project-card,
+.concept-grid.gallery-layout-compact > .concept-card,
+.visual-grid.gallery-layout-compact > .visual-card {display:inline-block!important;box-sizing:border-box;width:100%!important;max-width:100%;grid-column:auto!important;margin:0 0 24px!important;break-inside:avoid;vertical-align:top}
+.featured-grid.gallery-layout-compact .card-visual {height:auto;min-height:0}
+/* For editorial preset cards that have no ratio override, keep a polished common proportion. */
+.featured-grid.gallery-layout-compact .card-ratio-auto .card-visual {height:auto;aspect-ratio:4/3;min-height:0}
+.concept-grid.gallery-layout-compact .concept-card:nth-child(n) .concept-art {aspect-ratio:4/5}
+.visual-grid.gallery-layout-compact .visual-card:nth-child(n) .visual-art {aspect-ratio:4/5}
+/* Explicit shapes win over compact defaults. */
+.concept-grid.gallery-layout-compact .card-ratio-original:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-ratio-original:nth-child(n) .visual-art {aspect-ratio:auto!important}
+.concept-grid.gallery-layout-compact .card-ratio-square:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-ratio-square:nth-child(n) .visual-art {aspect-ratio:1}
+.concept-grid.gallery-layout-compact .card-ratio-landscape:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-ratio-landscape:nth-child(n) .visual-art {aspect-ratio:16/9}
+.concept-grid.gallery-layout-compact .card-ratio-classic:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-ratio-classic:nth-child(n) .visual-art {aspect-ratio:3/2}
+.concept-grid.gallery-layout-compact .card-ratio-portrait:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-ratio-portrait:nth-child(n) .visual-art {aspect-ratio:4/5}
+.digital-grid.gallery-layout-compact,.motion-grid.gallery-layout-compact {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:16px}
+.digital-grid.gallery-layout-compact .digital-card:last-child {grid-column:auto;display:flex}
+.digital-grid.gallery-layout-compact .digital-card:last-child .digital-visual {height:270px}
+.motion-grid.gallery-layout-compact {grid-template-columns:repeat(2,minmax(0,1fr))}
+
+/* Carousel: a real horizontal track with touch swiping, keyboard scrolling, and arrows. */
+.featured-grid.gallery-layout-carousel,.more-grid.gallery-layout-carousel,
+.digital-grid.gallery-layout-carousel,.concept-grid.gallery-layout-carousel,
+.visual-grid.gallery-layout-carousel,.motion-grid.gallery-layout-carousel {
+ display:flex!important;gap:18px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+ scroll-snap-type:x mandatory;scroll-padding-inline:2px;-webkit-overflow-scrolling:touch;
+ padding:8px 3px 25px;align-items:stretch;scrollbar-width:thin;
+}
+.gallery-layout-carousel > .project-card,.gallery-layout-carousel > .concept-card,
+.gallery-layout-carousel > .visual-card,.gallery-layout-carousel > .digital-card,
+.gallery-layout-carousel > .motion-card {flex:0 0 clamp(265px,34vw,495px)!important;width:clamp(265px,34vw,495px)!important;min-width:0;max-width:none;grid-column:auto!important;margin:0!important;scroll-snap-align:start}
+.gallery-layout-carousel > .visual-card {flex-basis:clamp(235px,27vw,380px)!important;width:clamp(235px,27vw,380px)!important}
+.gallery-layout-carousel > .digital-card,.gallery-layout-carousel > .motion-card {flex-basis:clamp(295px,39vw,540px)!important;width:clamp(295px,39vw,540px)!important}
+.gallery-layout-carousel .card-visual {height:auto;min-height:0;aspect-ratio:4/3}
+.gallery-layout-carousel .concept-card:nth-child(n) .concept-art {aspect-ratio:4/5}
+.gallery-layout-carousel .visual-card:nth-child(n) .visual-art {aspect-ratio:4/5}
+.gallery-layout-carousel .card-ratio-original .card-visual,
+.gallery-layout-carousel .card-ratio-original:nth-child(n) .concept-art,
+.gallery-layout-carousel .visual-ratio-original:nth-child(n) .visual-art {aspect-ratio:auto!important}
+@media(max-width:850px){
+ .featured-grid.gallery-layout-compact,.concept-grid.gallery-layout-compact{column-count:2}
+ .more-grid.gallery-layout-compact,.visual-grid.gallery-layout-compact{column-count:2}
+ .digital-grid.gallery-layout-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:580px){
+ .featured-grid.gallery-layout-compact,.concept-grid.gallery-layout-compact{column-count:1}
+ .more-grid.gallery-layout-compact,.visual-grid.gallery-layout-compact{column-count:2;column-gap:11px}
+ .more-grid.gallery-layout-compact > .project-card,.visual-grid.gallery-layout-compact > .visual-card{margin-bottom:15px!important}
+ .digital-grid.gallery-layout-compact,.motion-grid.gallery-layout-compact{grid-template-columns:1fr}
+ .gallery-layout-carousel > .project-card,.gallery-layout-carousel > .concept-card,
+ .gallery-layout-carousel > .visual-card,.gallery-layout-carousel > .digital-card,
+ .gallery-layout-carousel > .motion-card {flex-basis:min(78vw,360px)!important;width:min(78vw,360px)!important}
+ .gallery-navigation {margin-top:12px}
+}

@@ -68,8 +68,8 @@ function updatePlacementPreview(){
  $('#editor-preview-placement').textContent=name.toUpperCase();
  document.querySelectorAll('.placement-choice').forEach(el=>el.classList.toggle('is-selected',!!el.querySelector('input:checked')));
 }
-function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-rank',current.feature_rank===999?'99':String(current.feature_rank||99));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
-function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.feature_rank=parseInt(getVal('edit-rank'),10)||99;current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
+function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
+function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
 function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-landscape');if(['square','portrait','landscape'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover'}
 function renderMedia(){
  const list=$('#gallery-editor');list.replaceChildren();
@@ -213,12 +213,85 @@ async function history(){if(!current)return;const res=await client.from('portfol
 function loadSettingsForm(){for(const id of ['subtitle','about','aboutExtra','email','instagram','linkedin'])setVal('setting-'+id,settings[id]||'')}
 async function saveSettings(){const entries=['subtitle','about','aboutExtra','email','instagram','linkedin'].map(key=>({key,value:getVal('setting-'+key)}));if(entries.find(e=>['instagram','linkedin'].includes(e.key)&&e.value&&!safeUrl(e.value))){notice('Social links must use secure HTTPS URLs.',true);return}const res=await client.from('portfolio_settings').upsert(entries,{onConflict:'key'});if(res.error){notice(res.error.message,true);return}entries.forEach(e=>settings[e.key]=e.value);$('#settings-save-state').textContent='Saved to Supabase · updates are public';notice('Studio copy saved.')}
 function exportBackup(){const backup={exportedAt:new Date().toISOString(),projects,settings};const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='the-m-prnt-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+
+// V2.5: independent, publishable presentation settings; existing projects are untouched.
+const ARRANGE_DEFAULTS={featured:'compact',digital:'editorial',concept:'compact',visual:'compact',motion:'editorial',three:'editorial',archive:'compact'};
+let arrangeDraftOrder={},arrangeDraftModes={};
+function arrangerProjects(section){
+ const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?(!p.featured&&['work','archive'].includes(locationFor(p))):locationFor(p)===section));
+ const sequence=arrangeDraftOrder[section]||[];
+ if(!sequence.length)return visible;
+ const ranks=new Map(sequence.map((id,i)=>[id,i]));
+ return visible.map((p,i)=>({p,i})).sort((a,b)=>(ranks.has(a.p.id)?ranks.get(a.p.id):999999)-(ranks.has(b.p.id)?ranks.get(b.p.id):999999)||a.i-b.i).map(x=>x.p);
+}
+function showArrange(){
+ if(dirty&&!confirm('You have unsaved project edits. Continue to the gallery arranger without saving them?'))return;
+ arrangeDraftOrder=structuredClone(settings.galleryOrderV25||{});
+ arrangeDraftModes={...ARRANGE_DEFAULTS,...(settings.galleryModesV25||{})};
+ $('#arrange-section').value='featured';renderArranger();$('#arrange-dialog').showModal();
+}
+function renderArranger(){
+ const section=$('#arrange-section').value;
+ $('#arrange-mode').value=arrangeDraftModes[section]||ARRANGE_DEFAULTS[section];
+ const descriptions={compact:'Compact layout: cards keep their own image proportions and stack closely, without empty grid rows.',editorial:'Editorial layout: your existing art-directed asymmetric arrangement.',carousel:'Horizontal gallery: visitors swipe or use arrow buttons to explore.'};
+ $('#arrange-explanation').textContent=descriptions[$('#arrange-mode').value];
+ $('#arrange-status').textContent='Drag cards to reorder, or use the arrow buttons. Save to publish changes.';
+ const list=$('#arrange-list');list.replaceChildren();
+ const arr=arrangerProjects(section);
+ if(!arr.length){const msg=document.createElement('p');msg.className='arrange-empty';msg.textContent='No published projects in this section yet. Assign and publish projects in the editor first.';list.append(msg);return}
+ arr.forEach((p,i)=>{
+  const row=document.createElement('div');row.className='arrange-item';row.dataset.id=p.id;row.setAttribute('role','listitem');row.draggable=true;
+  const handle=document.createElement('span');handle.className='arrange-handle';handle.textContent='⋮⋮';handle.setAttribute('aria-hidden','true');
+  const thumb=document.createElement('img');updateImage(thumb,p.cover);thumb.alt='';
+  const title=document.createElement('div');title.className='arrange-item-name';const strong=document.createElement('strong');strong.textContent=p.title||'Untitled';const info=document.createElement('small');info.textContent=disciplineFor(p);title.append(strong,info);
+  const buttons=document.createElement('div');buttons.className='arrange-item-buttons';
+  for(const [diff,label,symbol] of [[-1,'Move earlier','↑'],[1,'Move later','↓']]){
+   const button=document.createElement('button');button.type='button';button.textContent=symbol;button.setAttribute('aria-label',label+': '+p.title);button.disabled=(i+diff<0||i+diff>=arr.length);
+   button.addEventListener('click',()=>repositionArranger(p.id,i+diff));buttons.append(button)
+  }
+  row.append(handle,thumb,title,buttons);
+  row.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',p.id);row.classList.add('is-dragging')});
+  row.addEventListener('dragend',()=>{row.classList.remove('is-dragging');list.querySelectorAll('.is-target').forEach(el=>el.classList.remove('is-target'))});
+  row.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';row.classList.add('is-target')});
+  row.addEventListener('dragleave',()=>row.classList.remove('is-target'));
+  row.addEventListener('drop',e=>{e.preventDefault();row.classList.remove('is-target');const id=e.dataTransfer.getData('text/plain');if(id&&id!==p.id)repositionArranger(id,i)});
+  list.append(row)
+ });
+}
+function repositionArranger(id,index){
+ const section=$('#arrange-section').value;const ids=arrangerProjects(section).map(p=>p.id);
+ const old=ids.indexOf(id);if(old<0)return;
+ ids.splice(old,1);ids.splice(Math.max(0,Math.min(index,ids.length)),0,id);
+ arrangeDraftOrder[section]=ids;
+ renderArranger();$('#arrange-status').textContent='New order ready. Click Save layout & order to publish.';
+}
+async function saveArranger(){
+ const btn=$('#save-arrange');btn.disabled=true;$('#arrange-status').textContent='Saving layout to Supabase…';
+ try{
+  const result=await client.from('portfolio_settings').upsert([
+   {key:'galleryOrderV25',value:arrangeDraftOrder},
+   {key:'galleryModesV25',value:arrangeDraftModes}
+  ],{onConflict:'key'});
+  if(result.error)throw result.error;
+  settings.galleryOrderV25=structuredClone(arrangeDraftOrder);settings.galleryModesV25={...arrangeDraftModes};
+  $('#arrange-status').textContent='Published! Refresh the public portfolio to see the new arrangement.';
+  notice('Your gallery order and layout were saved to Supabase.');
+ }catch(e){console.error(e);$('#arrange-status').textContent='Could not save: '+e.message;notice('Gallery settings were not saved.',true)}
+ finally{btn.disabled=false}
+}
+
 function attachListeners(){
  $('#login-form').addEventListener('submit',async e=>{e.preventDefault();authMessage('Signing in…');$('#login-btn').disabled=true;try{const res=await client.auth.signInWithPassword({email:getVal('login-email'),password:getVal('login-password')});if(res.error)throw res.error;if(!(await checkAuthorization())){await client.auth.signOut();throw Error('This account is not authorized as a portfolio admin.')}authMessage('');await openDashboard()}catch(err){authMessage(err.message||'Login failed')}finally{$('#login-btn').disabled=false}});
  $('#signout').addEventListener('click',async()=>{if(dirty&&!confirm('Discard unsaved edits?'))return;await client.auth.signOut();current=null;show('login-view')});
  $('#project-search').addEventListener('input',renderList);$('#library-placement-filter').addEventListener('change',renderList);$$('.sidebar-filters button').forEach(b=>b.addEventListener('click',()=>{filterStatus=b.dataset.status;$$('.sidebar-filters button').forEach(x=>x.classList.toggle('active',x===b));renderList()}));
  $('#add-text-block').addEventListener('click',()=>{if(!current)return;current.story_blocks??=[];current.story_blocks.push({type:'text',heading:'',body:''});markDirty();renderStoryBlocks()});$('#add-image-block').addEventListener('click',()=>{if(!current)return;current.story_blocks??=[];current.story_blocks.push({type:'image',heading:'',src:''});markDirty();renderStoryBlocks()});
- $('#add-project').addEventListener('click',addProject);$('#save-project').addEventListener('click',saveProject);$('#project-up').addEventListener('click',()=>orderProject(-1));$('#project-down').addEventListener('click',()=>orderProject(1));
+ $('#open-arrange').addEventListener('click',showArrange);
+ $('#close-arrange').addEventListener('click',()=>$('#arrange-dialog').close());
+ $('#arrange-dialog').addEventListener('click',e=>{if(e.target===$('#arrange-dialog'))$('#arrange-dialog').close()});
+ $('#arrange-section').addEventListener('change',renderArranger);
+ $('#arrange-mode').addEventListener('change',()=>{arrangeDraftModes[$('#arrange-section').value]=$('#arrange-mode').value;renderArranger();$('#arrange-status').textContent='New layout ready. Save to publish.'});
+ $('#save-arrange').addEventListener('click',saveArranger);
+ $('#add-project').addEventListener('click',addProject);$('#save-project').addEventListener('click',saveProject);
  $$('input[id^="edit-"],textarea[id^="edit-"],select[id^="edit-"]').forEach(input=>{if(input.id==='edit-cover')return;input.addEventListener('input',syncForm);input.addEventListener('change',syncForm)});
  document.querySelectorAll('input[name="site-section"]').forEach(radio=>radio.addEventListener('change',()=>{setPlacement(radio.value);syncForm()}));
  $('#edit-category').addEventListener('change',()=>{if(!locationTouched)setPlacement(suggestedLocation(getVal('edit-category')),false);syncForm()});
