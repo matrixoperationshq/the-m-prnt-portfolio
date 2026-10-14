@@ -615,3 +615,30 @@
 .native-gallery-grid.gallery-layout-editorial .client-card{break-inside:avoid;margin-bottom:clamp(12px,2vw,28px);display:inline-block;width:100%}
 @media(max-width:950px){.native-gallery-grid.gallery-layout-editorial{columns:2}}
 @media(max-width:600px){.native-gallery-grid.gallery-layout-editorial{columns:1}}
+
+/* V2.12: Independent Creative Work & Social galleries within the existing V2 identity. */
+#creative[hidden],#social[hidden],.creative-nav-link[hidden],.social-nav-link[hidden]{display:none!important}
+#creative .client-grid,#social .client-grid{min-height:0}
+#creative .section-intro,#social .section-intro{display:flex;justify-content:space-between;align-items:end;gap:25px}
+#creative .section-intro>p,#social .section-intro>p{max-width:335px;line-height:1.75}
+#social{background:linear-gradient(140deg,#eee4f0 0%,#f5e9ee 55%,#f1e7e4 100%);color:#281a2c}
+#social .client-art{background:#e4d8e6}
+#social .client-card-meta>span{color:#a84187}
+@media(max-width:730px){#creative .section-intro,#social .section-intro{display:block}#creative .section-intro>p,#social .section-intro>p{margin-top:18px}}
+
+/* Systems Lab deeper case-study logic: challenge > response > interactive logic > honest stage. */
+.systems-demo-v212{display:flex;flex-direction:column;gap:0}
+.systems-demo-topline{display:flex;align-items:start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px}
+.systems-demo-topline .systems-demo-index{margin:4px 0 0}
+.systems-stage{display:inline-block;max-width:100%;border:1px solid #e69fc459;color:#eab9d8;background:#ab4a7b1e;border-radius:30px;font-size:10px;letter-spacing:.13em;font-weight:700;padding:9px 12px;line-height:1.35}
+.systems-demo-v212 .systems-demo-intro{min-height:0;margin-bottom:24px}
+.systems-insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;border:1px solid #edcade33;border-radius:15px;overflow:hidden;background:#dd98c037}
+.systems-insight{min-width:0;padding:20px;background:#1c1325}
+.systems-insight-label,.systems-flow-label{display:block;color:#ed9dc9;font-size:10px;letter-spacing:.17em;font-weight:700;line-height:1.4}
+.systems-insight p{color:#eee4ef;font-size:13px;line-height:1.75;margin:11px 0 0}
+.systems-flow-label{margin-top:27px}
+.systems-demo-v212 .systems-step-rail{margin:14px 0 12px}
+.systems-demo-proof{display:grid;grid-template-columns:1fr;gap:1px;background:#edcade30;border:1px solid #edcade30;border-radius:15px;overflow:hidden;margin-top:15px}
+.systems-demo-proof .systems-insight{background:#211629;padding:14px 19px}
+.systems-demo-proof .systems-insight p{font-size:12px;line-height:1.6;margin-top:6px}
+@media(max-width:550px){.systems-insight-grid{grid-template-columns:1fr}.systems-insight{padding:16px}.systems-demo-topline{display:block}.systems-demo-topline .systems-stage{margin-top:10px}}

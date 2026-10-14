@@ -22,10 +22,10 @@
   <div class="site-wrap">
     <header class="site-header" id="top">
       <a href="#top" class="brand-link" aria-label="The M Prnt — return to top"><img src="/assets/brand/mh-monogram.webp" alt="" class="brand-monogram"><span>the M prnt<span class="brand-period">.</span></span></a>
-      <nav class="desktop-nav" aria-label="Main navigation"><a href="#work">work</a><a href="#digital">web builds</a><a href="#systems" class="systems-nav-link" hidden>systems lab</a><a href="#client" class="client-nav-link" hidden>client work</a><a href="#concept">concepts</a><a href="#visual">posters</a><a href="#motion">motion</a><a href="#three">3d</a><a href="#studio">studio</a><a href="#contact">contact <span aria-hidden="true"><svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></nav>
+      <nav class="desktop-nav" aria-label="Main navigation"><a href="#work">work</a><a href="#creative" class="creative-nav-link" hidden>creative</a><a href="#digital">web builds</a><a href="#systems" class="systems-nav-link" hidden>systems lab</a><a href="#client" class="client-nav-link" hidden>client work</a><a href="#social" class="social-nav-link" hidden>social</a><a href="#concept">concepts</a><a href="#visual">posters</a><a href="#motion">motion</a><a href="#three">3d</a><a href="#studio">studio</a><a href="#contact">contact <span aria-hidden="true"><svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></nav>
       <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open menu" aria-controls="mobile-nav" aria-expanded="false"><span></span><span></span></button>
     </header>
-    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden><a href="#work">work</a><a href="#digital">web builds</a><a href="#systems" class="systems-nav-link" hidden>systems lab</a><a href="#client" class="client-nav-link" hidden>client work</a><a href="#concept">concepts</a><a href="#visual">posters</a><a href="#motion">motion</a><a href="#three">3d</a><a href="#studio">studio</a><a href="#contact">contact</a></nav>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden><a href="#work">work</a><a href="#creative" class="creative-nav-link" hidden>creative</a><a href="#digital">web builds</a><a href="#systems" class="systems-nav-link" hidden>systems lab</a><a href="#client" class="client-nav-link" hidden>client work</a><a href="#social" class="social-nav-link" hidden>social</a><a href="#concept">concepts</a><a href="#visual">posters</a><a href="#motion">motion</a><a href="#three">3d</a><a href="#studio">studio</a><a href="#contact">contact</a></nav>
 
     <main>
       <section class="hero" aria-labelledby="hero-title">
@@ -62,6 +62,10 @@
       </section>
 
       <div id="custom-after-work" class="custom-section-group" aria-label="Additional studio projects"></div>
+      <!-- Separate Creative Work gallery. Selected Work above remains independent. -->
+      <section class="client-section native-gallery-section native-gallery-theme-light" id="creative" aria-labelledby="creative-title" hidden>
+        <div class="layout-container"><div class="section-intro native-gallery-intro"><div><p class="eyebrow section-eyebrow" data-managed-eyebrow>CREATIVE DIRECTION / ART DIRECTION</p><h2 id="creative-title" data-managed-heading>Creative <em>Work.</em></h2></div><p data-managed-description>Brand worlds, design commissions and art-directed explorations, presented beyond the featured selection.</p></div><div id="creative-grid" class="client-grid" aria-live="polite"></div></div>
+      </section>
       <section class="digital-section" id="digital" aria-labelledby="digital-title"><div class="layout-container"><div class="section-intro digital-intro"><div><p class="eyebrow section-eyebrow">02 / CONCEPT TO CODE TO LAUNCH</p><h2 id="digital-title">Designed. Built.<br><em>Out in the world.</em></h2></div><p>The work doesn't stop at an artboard. These are digital experiences with real platforms, connected tools, and thoughtful user journeys behind them.</p></div><div id="digital-grid" class="digital-grid"></div><div class="digital-footer"><span>STRATEGY <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg> IDENTITY <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg> EXPERIENCE <svg class="line-icon line-icon-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg> EXECUTION</span><span>THREE DIFFERENT PROBLEMS. THREE COMPLETE DESIGN SYSTEMS.</span></div></div></section>
 
       <!-- V2.10 ADDITIVE SECTION: hidden until published from Studio Admin -->
@@ -85,6 +89,10 @@
           <div id="client-grid" class="client-grid" aria-live="polite"></div>
           <p class="client-footnote">COMMISSIONED WORK / CAMPAIGNS / IDENTITY / DESIGN IN PRACTICE</p>
         </div>
+      </section>
+      <!-- Dedicated social gallery, sized for posts, portrait campaigns, stories and video. -->
+      <section class="client-section social-section" id="social" aria-labelledby="social-title" hidden>
+        <div class="layout-container"><div class="section-intro native-gallery-intro"><div><p class="eyebrow section-eyebrow" data-managed-eyebrow>CONTENT / IN MOTION</p><h2 id="social-title" data-managed-heading>Social <em>& content.</em></h2></div><p data-managed-description>Social posts, swipeable carousels, digital campaigns and everyday brand storytelling.</p></div><div id="social-grid" class="client-grid social-grid" aria-live="polite"></div></div>
       </section>
       <div id="custom-before-concept" class="custom-section-group" aria-label="Additional concept studio stories"></div>
       <section class="concept-section" id="concept" aria-labelledby="concept-title"><div class="layout-container">

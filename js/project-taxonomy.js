@@ -4,6 +4,7 @@ export const DISCIPLINES = [
   ['Campaigns & Advertising','Campaigns & advertising'],
   ['Spec Campaigns & Concepts','Spec campaigns & pitches'],
   ['Posters & Graphic Art','Posters, typography & graphic art'],
+  ['Social & Content','Social posts, digital campaigns and content design'],
   ['Websites & Digital','Websites & digital products'],
   ['3D & Interactive','3D design & interactive work'],
   ['Motion & Film','Motion design & video'],
@@ -12,9 +13,10 @@ export const DISCIPLINES = [
   ['Illustration & Experiments','Illustration & experiments']
 ];
 export const LOCATIONS = [
-  ['work','Creative Work','Curated brand identity and complete creative projects'],
+  ['creative','Creative Work','Brand identity, art direction and finished creative projects'],
   ['digital','Digital Experiences','Websites, commerce, UX and digital systems'],
   ['client','Client Work','Commissioned ads, brand marks, flyers and client collateral'],
+  ['social','Social & Content','Social posts, campaign carousels, stories and digital content'],
   ['concept','The Concept Lab','Spec ads, mock campaigns, pitches and creative experiments'],
   ['visual','Visual Studies','Posters, illustrations, graphics and standalone designs'],
   ['motion','Motion & Film','Animations, films and motion design'],
@@ -31,6 +33,7 @@ const legacy = {
   'Art direction':'Editorial & Art Direction',
   'Editorial':'Editorial & Art Direction',
   'Posters':'Posters & Graphic Art',
+  'Social':'Social & Content',
   'Motion':'Motion & Film'
 };
 export function has3D(project){
@@ -53,9 +56,11 @@ function isWebEvidence(project){
 }
 export function locationFor(project){
   // Explicit destination always wins. Legacy projects retain their previous routing.
+  if(project.site_section==='work')return 'creative'; // Backward compatibility: work was once both featured and Creative Work.
   if(LOCATIONS.some(item=>item[0]===project.site_section))return project.site_section;
   const category=project.category||'';
   if(category==='Web & products'||category==='Websites & Digital')return 'digital';
+  if(category==='Social & Content')return 'social';
   if(category==='Spec Campaigns & Concepts')return 'concept';
   if(category==='Posters & Graphic Art')return 'visual';
   if(category==='Motion'||category==='Motion & Film')return 'motion';
@@ -64,7 +69,7 @@ export function locationFor(project){
   if(category==='Experiments'&&hasMotion(project))return 'motion';
   if(category==='Editorial'&&isWebEvidence(project))return 'digital';
   if(category==='Archive')return 'archive';
-  return 'work';
+  return 'creative';
 }
 export function locationLabel(project){
   return (LOCATIONS.find(item=>item[0]===locationFor(project))||LOCATIONS[0])[1];
@@ -74,8 +79,9 @@ export function suggestedLocation(discipline){
   if(discipline==='3D & Interactive')return 'three';
   if(discipline==='Motion & Film')return 'motion';
   if(discipline==='Spec Campaigns & Concepts')return 'concept';
+  if(discipline==='Social & Content')return 'social';
   if(discipline==='Posters & Graphic Art'||discipline==='Illustration & Experiments')return 'visual';
-  return 'work';
+  return 'creative';
 }
 
 // Additional native galleries load from portfolio_settings after authentication.

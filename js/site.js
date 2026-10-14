@@ -11,7 +11,7 @@ let allProjects=[];let activeFilter='All';
 let galleryOrderV25={},galleryModesV25={};
 // Selected Work has an independent global frame, not the section-card ratio.
 let featuredFrameV28='portrait';
-const GALLERY_DEFAULT_MODES={featured:'compact',archive:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial'};
+const GALLERY_DEFAULT_MODES={featured:'compact',archive:'compact',creative:'editorial',social:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial'};
 function ordered(section,list){
  const seq=Array.isArray(galleryOrderV25[section])?galleryOrderV25[section]:[];
  if(!seq.length)return list;
@@ -72,7 +72,7 @@ function renderWork(){
  $('#featured-grid').innerHTML=filtered.length?filtered.map(featuredCard).join(''):`<p class="loading-note">No published pieces in this collection yet. Explore another discipline.</p>`;
  setGalleryPresentation('featured','featured-grid');
  // Only show creative/archive projects here. Websites and motion have their own curated sections.
- const others=ordered('archive',publish.filter(p=>!p.featured && ['work','archive'].includes(locationFor(p)))).slice(0,12);
+ const others=ordered('archive',publish.filter(p=>!p.featured && locationFor(p)==='archive')).slice(0,12);
  $('#more-grid').innerHTML=activeFilter==='All'?others.map(miniCard).join(''):'';
  setGalleryPresentation('archive','more-grid');
  $('.more-work-head').style.display=activeFilter==='All'&&others.length?'flex':'none';
@@ -94,6 +94,18 @@ function clientCard(p,i){
   <div class="client-card-meta"><span>${esc(label)}</span><h3>${displayTitle(p)}</h3>${p.role?`<p>${esc(p.role)}</p>`:''}</div>
  </article>`;
 }
+// V2.12: Creative Work and Social & Content are real galleries, not featured aliases.
+function renderIndependentGallery(sectionId,gridId,location,mode){
+ const host=document.getElementById(sectionId),grid=document.getElementById(gridId);
+ if(!host||!grid)return 0;
+ const list=ordered(location,allProjects.filter(p=>isUsable(p)&&locationFor(p)===location));
+ grid.innerHTML=list.map(clientCard).join('');
+ if(list.length)setGalleryPresentation(mode||location,gridId);
+ host.hidden=!list.length;
+ return list.length;
+}
+function renderCreative(){return renderIndependentGallery('creative','creative-grid','creative')}
+function renderSocial(){return renderIndependentGallery('social','social-grid','social')}
 function renderClient(){
  const list=ordered('client',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='client'));
  const section=$('#client');if(!section)return;
@@ -273,7 +285,7 @@ function renderCustomSections(sections){
 }
 function launchAura(){
  const orb=$('#cursor-orb');if(!orb||matchMedia('(pointer: coarse)').matches){if(orb)orb.hidden=true;return;}
- const palette={'Brand Identity':'224,85,151','Campaigns & Advertising':'239,98,115','Strategy & Concepts':'131,85,201','Websites & Digital':'78,155,221','Motion & Film':'182,89,222','3D & Interactive':'130,94,239','Editorial & Art Direction':'212,122,124','Illustration & Experiments':'226,117,183'};
+ const palette={'Brand Identity':'224,85,151','Campaigns & Advertising':'239,98,115','Strategy & Concepts':'131,85,201','Websites & Digital':'78,155,221','Motion & Film':'182,89,222','3D & Interactive':'130,94,239','Social & Content':'232,115,166','Editorial & Art Direction':'212,122,124','Illustration & Experiments':'226,117,183'};
  let x=-999,y=-999;
  document.addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;document.documentElement.style.setProperty('--mouse-x',x+'px');document.documentElement.style.setProperty('--mouse-y',y+'px')},{passive:true});
  document.addEventListener('pointerover',e=>{
@@ -322,5 +334,5 @@ function launchSeamlessBanner(){
   rebuild();
 }
 
-async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};setCustomLocations(normalizeSections(s.sectionManagerV29).custom);featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderDigital();renderClient();renderConcept();renderVisual();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);renderNativeGalleries(s.sectionManagerV29);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};setCustomLocations(normalizeSections(s.sectionManagerV29).custom);featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderCreative();renderDigital();renderClient();renderSocial();renderConcept();renderVisual();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);renderNativeGalleries(s.sectionManagerV29);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withCreative:!!document.querySelector('#creative-grid .client-card'),withSocial:!!document.querySelector('#social-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();

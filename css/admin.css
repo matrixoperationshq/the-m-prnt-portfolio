@@ -222,3 +222,15 @@
 .section-manager-field select{width:100%;background:#100a17;color:#f6ecf4;border:1px solid #65536c;border-radius:8px;min-height:40px;padding:8px}
 #legacy-sections-panel[hidden]{display:none!important}
 @media(max-width:640px){.section-manager-new{margin-inline:10px}.section-manager-new .button{width:100%}}
+
+/* V2.12: explicit separation between hiding and removing website sections. */
+.section-manager-actions .section-remove{border-color:#b56a8c80;color:#f3b8d0;background:#2d1829}
+.section-manager-actions .section-remove:hover,.section-manager-actions .section-remove:focus-visible{background:#51203d}
+.section-manager-removed{padding:20px 25px 12px;border-top:1px solid #ffffff22;margin-top:15px}
+.section-manager-removed[hidden]{display:none!important}
+.section-manager-removed>.eyebrow{margin-bottom:12px}
+.section-removed-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:12px 14px;margin-bottom:8px;border-radius:10px;background:#28192e;border:1px solid #ffffff22}
+.section-removed-row strong{font-size:13px;color:#dfcde4}
+.section-removed-row button{background:#42304b;color:#f7e5f4;border:1px solid #b893c2;border-radius:8px;min-height:36px;padding:8px 12px;cursor:pointer}
+.systems-editor-card label textarea{max-width:100%}
+@media(max-width:650px){.section-manager-removed{padding:16px 12px}.section-manager-actions .section-remove{width:100%}}

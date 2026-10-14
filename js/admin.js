@@ -258,7 +258,7 @@ async function uploadOne(file,cover=false){
 async function uploadFiles(files,cover){if(!current||!files?.length)return;const node=$('#upload-state');for(let i=0;i<files.length;i++){node.textContent=`Uploading ${i+1} of ${files.length}: ${files[i].name}…`;try{await uploadOne(files[i],cover);node.textContent=`Uploaded ${i+1} of ${files.length}. Remember to save.`}catch(e){console.error(e);node.textContent='Upload failed: '+e.message;notice(node.textContent,true);return}}notice('Media uploaded. Save changes to attach it to the live project.')}
 function projectPayload(p){const copy=cleanProject(p);delete copy.sort_order;return copy}
 async function saveProject(){if(!current)return;syncForm();if(!current.title){notice('Project title is required.',true);return}if(current.site_url&&!safeUrl(current.site_url)){notice('Website URL must use HTTPS.',true);return}if(current.status==='published'&&current.primary_visual==='video'&&!(current.media||[]).some(m=>m.type==='video'&&m.src===current.primary_video_src)){notice('Choose an uploaded video as the main visual before publishing.',true);return}if(current.status==='published'&&!safeUrl(current.cover)){notice('Published projects require a valid cover image.',true);return}if(current.status==='published'&&current.category==='Experiments'&&!safeUrl(current.model)){notice('3D experiments need a real GLB model to publish.',true);return}if(current.status==='published'&&current.category==='Motion'&&!current.media?.some(m=>m.type==='video'&&safeUrl(m.src))){notice('Motion projects need a playable video to publish.',true);return}const btn=$('#save-project');btn.disabled=true;$('#save-state').textContent='Saving to database…';try{const previous=projects.find(p=>p.id===current.id);if(previous&&persistedIds.has(current.id)){const rev=await client.from('portfolio_revisions').insert({project_id:current.id,previous_data:projectPayload(previous),previous_status:previous.status,previous_order:previous.sort_order});if(rev.error)throw rev.error}const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const order=current.sort_order??maxOrder;const result=await client.from('portfolio_projects').upsert({id:current.id,data:projectPayload(current),status:current.status,sort_order:order},{onConflict:'id'}).select('id').single();if(result.error)throw result.error;persistedIds.add(current.id);current.sort_order=order;const index=projects.findIndex(p=>p.id===current.id);if(index===-1)projects.push(cleanProject(current));else projects[index]=cleanProject(current);dirty=false;renderList();$('#save-state').textContent=current.status==='published'?'Published · saved to database':'Saved as '+current.status;notice('Saved to Supabase. '+(current.status==='published'?'Live site is now updated.':'This record is not public.'))}catch(e){console.error(e);$('#save-state').textContent='Save failed';notice('Save failed: '+e.message,true)}finally{btn.disabled=false}}
-async function addProject(){if(dirty&&!confirm('Discard unsaved changes?'))return;const id='project-'+crypto.randomUUID().slice(0,8);const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const p={id,slug:id,title:'New project',eyebrow:'CREATIVE WORK',category:'Brand Identity',site_section:'work',client_type:'Creative work',role:'',summary:'',approach:'',outcome:'',cover:'',media:[],tags:[],feature_rank:99,featured:false,status:'draft',sort_order:maxOrder};projects.push(p);selectProject(id);dirty=true;$('#save-state').textContent='New draft · not saved yet';$('#edit-title').focus()}
+async function addProject(){if(dirty&&!confirm('Discard unsaved changes?'))return;const id='project-'+crypto.randomUUID().slice(0,8);const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const p={id,slug:id,title:'New project',eyebrow:'CREATIVE WORK',category:'Brand Identity',site_section:'creative',client_type:'Creative work',role:'',summary:'',approach:'',outcome:'',cover:'',media:[],tags:[],feature_rank:99,featured:false,status:'draft',sort_order:maxOrder};projects.push(p);selectProject(id);dirty=true;$('#save-state').textContent='New draft · not saved yet';$('#edit-title').focus()}
 async function orderProject(direction){if(!current)return;const idx=projects.findIndex(p=>p.id===current.id);const other=projects[idx+direction];if(!other)return;if(dirty&&!confirm('Save your changes before reordering?'))return;const currentOrder=current.sort_order;const otherOrder=other.sort_order;const a=await client.from('portfolio_projects').update({sort_order:otherOrder}).eq('id',current.id);if(a.error){notice(a.error.message,true);return}const b=await client.from('portfolio_projects').update({sort_order:currentOrder}).eq('id',other.id);if(b.error){notice('One reorder step failed. Refresh to check the saved order.',true);await loadData();renderList();return}current.sort_order=otherOrder;other.sort_order=currentOrder;projects.sort((a,b)=>a.sort_order-b.sort_order);renderList();notice('Project order updated.')}
 async function archiveProject(){if(!current)return;$('#edit-status').value='archived';await saveProject()}
 async function deleteProject(){if(!current)return;const phrase=prompt('To permanently delete this project record, type DELETE. Uploaded media files will NOT be removed.');if(phrase!=='DELETE')return;try{const res=await client.from('portfolio_projects').delete().eq('id',current.id);if(res.error)throw res.error;projects=projects.filter(p=>p.id!==current.id);persistedIds.delete(current.id);selectedId=null;current=null;dirty=false;renderList();$('#editor-content').hidden=true;$('#editor-empty').hidden=false;$('#editor-heading').textContent='Select a project';notice('Project record deleted. Stored media was left intact.')}catch(e){notice('Delete failed: '+e.message,true)}}
@@ -269,11 +269,11 @@ async function saveSettings(){const entries=['subtitle','about','aboutExtra','em
 function exportBackup(){const backup={exportedAt:new Date().toISOString(),projects,settings};const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='the-m-prnt-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 
 // V2.5: independent, publishable presentation settings; existing projects are untouched.
-const ARRANGE_DEFAULTS={featured:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial',archive:'compact'};
+const ARRANGE_DEFAULTS={featured:'compact',creative:'editorial',social:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial',archive:'compact'};
 let arrangeDraftOrder={},arrangeDraftModes={};
 let arrangeDraftFeaturedFrame='portrait';
 function arrangerProjects(section){
- const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?(!p.featured&&['work','archive'].includes(locationFor(p))):locationFor(p)===section));
+ const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?(!p.featured&&locationFor(p)==='archive'):locationFor(p)===section));
  const sequence=arrangeDraftOrder[section]||[];
  if(!sequence.length)return visible;
  const ranks=new Map(sequence.map((id,i)=>[id,i]));
@@ -459,12 +459,12 @@ function attachListeners(){
 // V2.10 - Systems Lab has its own optional public setting.
 function stepToText(items){return (items||[]).map(s=>s.title+' | '+s.detail).join('\n')}
 function textToSteps(text){return text.split(/\r?\n/).map(line=>{const i=line.indexOf('|');return {title:(i<0?line:line.slice(0,i)).trim().slice(0,70),detail:(i<0?'':line.slice(i+1)).trim().slice(0,280)}}).filter(x=>x.title).slice(0,7)}
-function populateSystemsEditor(){const data=normalizeSystems(settings.systemsLabV210);$('#systems-enabled').checked=data.enabled;for(const [target,value] of [['systems-eyebrow-input',data.eyebrow],['systems-title-input',data.title],['systems-intro-input',data.intro]])setVal(target,value);
- for(let i=0;i<2;i++){const id=i?'matrix':'silk';setVal('system-'+id+'-title',data.demos[i].name);setVal('system-'+id+'-description',data.demos[i].description);setVal('system-'+id+'-steps',stepToText(data.demos[i].steps))}}
-async function saveSystemsLab(){const enabled=$('#systems-enabled').checked;const demos=['silk','matrix'].map(id=>({name:getVal('system-'+id+'-title'),description:getVal('system-'+id+'-description'),steps:textToSteps(getVal('system-'+id+'-steps'))}));if(enabled&&demos.some(d=>!d.steps.length)){notice('Add at least one workflow step to each published demo.',true);return}
+function populateSystemsEditor(input=settings.systemsLabV210){const data=normalizeSystems(input);$('#systems-enabled').checked=data.enabled;for(const [target,value] of [['systems-eyebrow-input',data.eyebrow],['systems-title-input',data.title],['systems-intro-input',data.intro]])setVal(target,value);
+ for(let i=0;i<2;i++){const id=i?'matrix':'silk';setVal('system-'+id+'-title',data.demos[i].name);setVal('system-'+id+'-description',data.demos[i].description);setVal('system-'+id+'-steps',stepToText(data.demos[i].steps));for(const field of ['status','challenge','approach','skills','boundary'])setVal('system-'+id+'-'+field,data.demos[i][field])}}
+async function saveSystemsLab(){const enabled=$('#systems-enabled').checked;const demos=['silk','matrix'].map(id=>({name:getVal('system-'+id+'-title'),description:getVal('system-'+id+'-description'),status:getVal('system-'+id+'-status'),challenge:getVal('system-'+id+'-challenge'),approach:getVal('system-'+id+'-approach'),skills:getVal('system-'+id+'-skills'),boundary:getVal('system-'+id+'-boundary'),steps:textToSteps(getVal('system-'+id+'-steps'))}));if(enabled&&demos.some(d=>!d.steps.length)){notice('Add at least one workflow step to each published demo.',true);return}
  const value=normalizeSystems({enabled,eyebrow:getVal('systems-eyebrow-input'),title:getVal('systems-title-input'),intro:getVal('systems-intro-input'),demos});
  const b=$('#save-systems');b.disabled=true;$('#systems-save-state').textContent='Saving…';try{const r=await client.from('portfolio_settings').upsert({key:'systemsLabV210',value},{onConflict:'key'});if(r.error)throw r.error;settings.systemsLabV210=value;$('#systems-save-state').textContent=value.enabled?'Published to Systems Lab · reload the public site.':'Saved as hidden · public site unchanged.';notice('Systems Lab saved to Supabase.')}catch(e){console.error(e);$('#systems-save-state').textContent='Save failed: '+e.message;notice('Could not save Systems Lab.',true)}finally{b.disabled=false}}
-function wireSystemsEditor(){const b=$('#toggle-systems');if(!b)return;b.addEventListener('click',()=>{const panel=$('#systems-editor-content');panel.hidden=!panel.hidden;b.setAttribute('aria-expanded',String(!panel.hidden))});$('#save-systems').addEventListener('click',saveSystemsLab)}
+function wireSystemsEditor(){const b=$('#toggle-systems');if(!b)return;b.addEventListener('click',()=>{const panel=$('#systems-editor-content');panel.hidden=!panel.hidden;b.setAttribute('aria-expanded',String(!panel.hidden))});$('#save-systems').addEventListener('click',saveSystemsLab);$('#systems-load-examples').addEventListener('click',()=>{if(!confirm('Replace the unsaved Systems Lab editor fields with the new problem-solving examples? This will not change the public site until you Save Systems Lab.'))return;const wasEnabled=$('#systems-enabled').checked;populateSystemsEditor({...SYSTEMS_DEFAULT,enabled:wasEnabled});$('#systems-save-state').textContent='Refined example copy loaded in editor. Review and Save Systems Lab to publish.'})}
 // V2.9 SECTION ORGANIZER — only changes the public presentation; all projects stay in Supabase.
 let sectionDraft=null;
 let sectionsDragging=null;
@@ -497,6 +497,7 @@ function renderSectionRows(){
  holder.replaceChildren();
  sectionDraft.order.forEach((id,index)=>{
   const def=sectionDefinitions(sectionDraft).find(s=>s.id===id);if(!def)return;
+  if(sectionDraft.entries[id]?.removed)return;
   const entry=sectionDraft.entries[id];
   const card=document.createElement('article');card.className='section-manager-item';card.draggable=true;card.dataset.sectionId=id;
   const header=document.createElement('div');header.className='section-manager-row-head';
@@ -516,6 +517,23 @@ function renderSectionRows(){
   const toggle=document.createElement('button');toggle.type='button';toggle.className='section-visibility';
   toggle.textContent=entry.visible?'Visible ✓':'Hidden — Restore';toggle.setAttribute('aria-pressed',String(entry.visible));
   toggle.addEventListener('click',()=>{entry.visible=!entry.visible;renderSectionRows();sectionChanges()});actions.append(toggle);
+  const remove=document.createElement('button');remove.type='button';remove.className='section-remove';
+  remove.textContent=isCustomGalleryId(id)?'Remove / delete':'Remove section';
+  remove.title='Remove this section from the active organization; empty custom galleries can be permanently deleted.';
+  remove.addEventListener('click',()=>{
+   const count=projects.filter(p=>id==='work'?!!p.featured:id==='motion'?['motion','three'].includes(locationFor(p)):locationFor(p)===id).length;
+   if(isCustomGalleryId(id)&&count===0){
+    if(!confirm('Permanently delete empty gallery “'+def.name+'”? This cannot be undone.'))return;
+    sectionDraft.custom=sectionDraft.custom.filter(c=>c.id!==id);
+    sectionDraft.order=sectionDraft.order.filter(v=>v!==id);
+    delete sectionDraft.entries[id];
+    renderSectionRows();sectionChanges('Empty custom gallery deleted. Save to apply.');return;
+   }
+   const warning=count?` ${count} assigned project(s) will remain saved in Supabase but will no longer be shown in this section until restored or reassigned.`:'';
+   if(!confirm('Remove “'+def.name+'” from the active organization?'+warning+' You can restore the section later.'))return;
+   entry.removed=true;entry.visible=false;
+   renderSectionRows();sectionChanges('Section removed from active organization. Save to apply; projects remain stored and the section can be restored.');
+  });actions.append(remove);
   header.append(handle,heading,actions);card.append(header);
   const fields=document.createElement('div');fields.className='section-manager-fields';
   fields.append(sectionInput('Menu label',entry.navLabel,def.nav,value=>entry.navLabel=value));
@@ -540,6 +558,18 @@ function renderSectionRows(){
   card.addEventListener('dragend',()=>{sectionsDragging=null;document.querySelectorAll('.section-is-dragged,.section-drop-target').forEach(el=>el.classList.remove('section-is-dragged','section-drop-target'))});
   holder.append(card);
  });
+ const removedSection=$('#section-manager-removed'),removedList=$('#section-removed-list');
+ if(removedSection&&removedList){
+  removedList.replaceChildren();
+  for(const def of sectionDefinitions(sectionDraft)){
+   const entry=sectionDraft.entries[def.id];if(!entry?.removed)continue;
+   const row=document.createElement('div');row.className='section-removed-row';
+   const name=document.createElement('strong');name.textContent=def.name;
+   const restore=document.createElement('button');restore.type='button';restore.textContent='Restore section';restore.addEventListener('click',()=>{entry.removed=false;entry.visible=false;renderSectionRows();sectionChanges('Restored to organization as hidden. Save to apply.')});
+   row.append(name,restore);removedList.append(row);
+  }
+  removedSection.hidden=!removedList.childElementCount;
+ }
 }
 async function saveSectionManager(){
  if(!client)return;
@@ -567,7 +597,7 @@ function initSectionManager(){
   if(sectionDraft.custom.length>=20){sectionChanges('Maximum of 20 custom galleries. Hide unused galleries or rename an existing one.');return}
   const id='collection-'+crypto.randomUUID();
   sectionDraft.custom.push({id,name:'New gallery'});sectionDraft.order.push(id);
-  sectionDraft.entries[id]={visible:false,navLabel:'',heading:'',eyebrow:'',description:'',theme:'light'};
+  sectionDraft.entries[id]={removed:false,visible:false,navLabel:'',heading:'',eyebrow:'',description:'',theme:'light'};
   renderSectionRows();sectionChanges('New gallery added as hidden. Name it and save, then assign projects in the editor.');
   $('#section-manager-list').lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'});
  });
