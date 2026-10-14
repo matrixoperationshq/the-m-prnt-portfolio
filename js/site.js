@@ -270,8 +270,17 @@ function renderNativeGalleries(raw){
  }
 }
 
+// Suppress one obsolete, duplicated legacy panel. The proper Client Work section
+// and dedicated Social & Content gallery are rendered separately and untouched.
+function isObsoleteSocialPanel(section){
+ if(!section||typeof section!=='object')return false;
+ const clean=value=>String(value||'').toLowerCase().replace(/\s+/g,' ').trim();
+ const eyebrow=clean(section.eyebrow),title=clean(section.title),body=clean(section.body);
+ return title.includes('designed for the brief') && title.includes('made to stand out') &&
+  (eyebrow.includes('social media')||body.includes('from brand identities and promotional campaigns'));
+}
 function renderCustomSections(sections){
- const list=Array.isArray(sections)?sections:[];
+ const list=(Array.isArray(sections)?sections:[]).filter(section=>!isObsoleteSocialPanel(section));
  for(const placement of ['after-work','before-concept','before-visual','before-motion','before-three','before-studio']){
   const host=$('#custom-'+placement);if(!host)continue;
   const subset=list.filter(section=>section&&section.placement===placement&&section.title);

@@ -68,6 +68,9 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
    if(summary&&entry.description)summary.textContent=entry.description;
   }
  }
+ // Public chapter numbers follow the same SAVED section order used by Studio Admin.
+ // Number only sections that are actually shown to visitors; drafts/hidden sections do not leave gaps.
+ syncPublicSectionNumbers(settings);
  marker.remove();
  // Static markup cannot be deleted from the source. A permanent built-in tombstone suppresses it everywhere.
  for(const def of SECTION_DEFS){if(settings.entries[def.id]?.deleted){const el=document.getElementById(def.id);if(el){el.hidden=true;el.classList.add('managed-section-hidden');}}}
@@ -92,6 +95,44 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
    link.classList.toggle('managed-section-hidden',!entry.visible||entry.removed||!available);
    if(href!=='three')link.textContent=entry.navLabel||def.nav;
   }
+ }
+}
+
+/** Recalculate public-facing chapter numbers after every managed section reorder.
+ *  Historical V2 markup has hard-coded 01/02/03/05/07 labels; never trust those after an edit.
+ *  Motion & Film / 3D & Interaction retain their local 01/02 subsections under one chapter.
+ */
+export function syncPublicSectionNumbers(raw){
+ const settings=normalizeSections(raw);
+ const selectors={
+  work:'.section-intro .section-eyebrow',
+  creative:'[data-managed-eyebrow]',
+  digital:'.digital-intro .section-eyebrow',
+  systems:'#systems-eyebrow',
+  client:'#client-label',
+  social:'[data-managed-eyebrow]',
+  concept:'.concept-heading .eyebrow',
+  visual:'.visual-heading .eyebrow',
+  more:'[data-managed-eyebrow]',
+  motion:'.section-intro .section-eyebrow',
+  studio:'.studio-left > .eyebrow'
+ };
+ let n=0;
+ for(const id of settings.order){
+  const section=document.getElementById(id);
+  if(!section||section.hidden||section.classList.contains('managed-section-hidden')||section.dataset.sectionVisible==='false')continue;
+  const eyebrow=section.querySelector(selectors[id]||'[data-managed-eyebrow],.section-eyebrow,.eyebrow');
+  if(!eyebrow)continue;
+  const copy=(eyebrow.textContent||'').replace(/^\s*\d{1,3}\s*\/\s*/, '').trim();
+  if(!copy)continue;
+  n++;
+  eyebrow.textContent=String(n).padStart(2,'0')+' / '+copy;
+ }
+ // Contact is a final page section, but it is not a user-managed portfolio gallery.
+ const footer=document.querySelector('#contact > .layout-container > .eyebrow');
+ if(footer){
+  const copy=(footer.textContent||'').replace(/^\s*\d{1,3}\s*\/\s*/, '').trim();
+  if(copy)footer.textContent=String(n+1).padStart(2,'0')+' / '+copy;
  }
 }
 
