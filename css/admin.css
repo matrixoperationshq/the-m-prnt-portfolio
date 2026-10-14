@@ -242,3 +242,9 @@
 .placement-retired{border:1px dashed #d67d9a;background:#4d253b}
 .section-removed-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .section-removed-row strong{margin-right:auto}
+
+/* V2.15: temporary-removal recovery stays tucked away; permanent deletions never reappear. */
+.section-manager-removed{padding:12px 25px;border-top:1px solid #ffffff18;margin:12px 0 0}
+.section-manager-removed>summary{cursor:pointer;color:#e7c4de;font-size:12px;font-weight:700;padding:8px 0}
+.section-manager-removed:not([open]) #section-removed-list{display:none}
+.section-manager-actions .section-delete{border-color:#a9537355;color:#ffc0d0}

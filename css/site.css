@@ -642,3 +642,41 @@
 .systems-demo-proof .systems-insight{background:#211629;padding:14px 19px}
 .systems-demo-proof .systems-insight p{font-size:12px;line-height:1.6;margin-top:6px}
 @media(max-width:550px){.systems-insight-grid{grid-template-columns:1fr}.systems-insight{padding:16px}.systems-demo-topline{display:block}.systems-demo-topline .systems-stage{margin-top:10px}}
+
+/* V2.15 / Reliable collection layouts. Sparse galleries fill the width instead of stacking into one narrow column. */
+.client-grid.gallery-layout-editorial.gallery-small-set,
+.client-grid.gallery-layout-compact.gallery-small-set,
+.native-gallery-grid.gallery-layout-editorial.gallery-small-set {
+  display:grid!important;columns:auto!important;column-count:auto!important;column-fill:initial!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:clamp(14px,2vw,28px);
+}
+.client-grid.gallery-layout-editorial.gallery-small-set>.client-card,
+.client-grid.gallery-layout-compact.gallery-small-set>.client-card,
+.native-gallery-grid.gallery-layout-editorial.gallery-small-set>.client-card {
+  display:block!important;width:100%!important;max-width:100%!important;min-width:0;
+  margin:0!important;grid-column:auto!important;break-inside:auto;transform:none;
+}
+.client-grid.gallery-small-set[data-card-count="1"]{grid-template-columns:minmax(0,min(100%,460px));justify-content:center}
+.client-grid.gallery-small-set[data-card-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.client-grid.gallery-small-set[data-card-count="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.client-grid.gallery-layout-editorial:not(.gallery-small-set)>.client-card:nth-child(n){margin-top:0!important}
+/* Compact galleries deliberately prioritize consistent, evenly filled columns. */
+.client-grid.gallery-layout-compact:not(.gallery-small-set){display:grid!important;columns:auto!important;column-count:auto!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.client-grid.gallery-layout-compact:not(.gallery-small-set)>.client-card{display:block!important;width:100%!important;margin:0!important;break-inside:auto}
+/* Restore V2 theme choices to ALL managed sections, without altering defaults. */
+.managed-theme-light{background:#f6f0ea!important;color:#281a2d!important}
+.managed-theme-lavender{background:#ece2ef!important;color:#281a2d!important}
+.managed-theme-dark{background:radial-gradient(ellipse at 72% 19%,#382344 0%,#1a1122 62%,#100b18 100%)!important;color:#fff2f8!important}
+.managed-theme-dark .section-intro h2,.managed-theme-dark .client-heading h2,.managed-theme-dark .studio-left h2,.managed-theme-dark .client-card-meta h3,.managed-theme-dark .project-card-titleline h3,.managed-theme-dark .digital-info h3{color:#fff2f8!important}
+.managed-theme-dark .section-intro>p,.managed-theme-dark .client-heading>p,.managed-theme-dark .client-card-meta p,.managed-theme-dark .studio-intro,.managed-theme-dark .digital-info p{color:#d3bed5!important}
+.managed-theme-dark .eyebrow,.managed-theme-dark .client-card-meta>span{color:#f2a5c9!important}
+@media(max-width:850px){
+ .client-grid.gallery-layout-compact:not(.gallery-small-set){grid-template-columns:repeat(2,minmax(0,1fr))}
+ .client-grid.gallery-small-set[data-card-count="3"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:570px){
+ .client-grid.gallery-layout-editorial.gallery-small-set,.client-grid.gallery-layout-compact.gallery-small-set,.native-gallery-grid.gallery-layout-editorial.gallery-small-set{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .client-grid.gallery-layout-compact:not(.gallery-small-set){grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .client-grid.gallery-small-set[data-card-count="1"]{grid-template-columns:minmax(0,100%)}
+ .client-grid.gallery-small-set[data-card-count="3"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

@@ -516,7 +516,7 @@ function sectionChanges(message='Unpublished section changes. Save to update the
 function sectionMove(id,toIndex){
  if(!sectionDraft)return;
  const active=sectionDraft.order.filter(v=>!sectionDraft.entries[v]?.removed);
- const removed=sectionDraft.order.filter(v=>sectionDraft.entries[v]?.removed);
+ const removed=sectionDraft.order.filter(v=>sectionDraft.entries[v]?.removed&&!sectionDraft.entries[v]?.deleted);
  const old=active.indexOf(id);if(old===-1)return;
  active.splice(old,1);
  active.splice(Math.max(0,Math.min(active.length,toIndex)),0,id);
@@ -537,7 +537,7 @@ function sectionProjectCount(id){
  return projects.filter(p=>id==='work'?!!p.featured:id==='motion'?['motion','three'].includes(locationFor(p)):id==='more'?locationFor(p)==='archive':locationFor(p)===id).length;
 }
 function requestDeleteSection(id,title){
- if(!isCustomGalleryId(id))return;
+ if(!sectionDraft?.entries[id])return;
  const count=sectionProjectCount(id);
  if(count){
   sectionChanges(`Cannot permanently delete “${title}”: ${count} project(s) are assigned, including drafts or archived records. Reassign them first. Nothing was deleted.`);
@@ -546,10 +546,15 @@ function requestDeleteSection(id,title){
  }
  const phrase=prompt(`PERMANENTLY DELETE “${title}”?\nThis cannot be undone after saving.\nNo portfolio projects will be deleted.\n\nType DELETE to confirm:`);
  if(phrase!=='DELETE'){sectionChanges('Deletion cancelled. Type DELETE exactly to confirm a permanent deletion.');return}
- sectionDraft.custom=sectionDraft.custom.filter(x=>x.id!==id);
+ if(isCustomGalleryId(id)){
+  sectionDraft.custom=sectionDraft.custom.filter(x=>x.id!==id);
+  delete sectionDraft.entries[id];
+ }else{
+  // Built-in HTML/CSS remains in GitHub, but this permanent tombstone removes it from the public site, admin, menus and restoration controls.
+  sectionDraft.entries[id].deleted=true;sectionDraft.entries[id].removed=true;sectionDraft.entries[id].visible=false;
+ }
  sectionDraft.order=sectionDraft.order.filter(x=>x!==id);
- delete sectionDraft.entries[id];
- renderSectionRows();sectionChanges('Gallery deletion pending. Click Save website sections to commit. No projects were deleted.');
+ renderSectionRows();sectionChanges('Permanent section deletion pending. Save website sections to apply. Portfolio projects were not deleted.');
 }
 function renderSectionRows(){
  const holder=$('#section-manager-list');if(!holder||!sectionDraft)return;
@@ -577,7 +582,7 @@ function renderSectionRows(){
   toggle.textContent=entry.visible?'Visible ✓':'Hidden — Restore';toggle.setAttribute('aria-pressed',String(entry.visible));
   toggle.addEventListener('click',()=>{entry.visible=!entry.visible;renderSectionRows();sectionChanges()});actions.append(toggle);
   const remove=document.createElement('button');remove.type='button';remove.className='section-remove';
-  remove.textContent='Remove from organizer';
+  remove.textContent='Remove temporarily';
   remove.title='Hide from website and remove from active menus. Restorable later.';
   remove.addEventListener('click',()=>{
    const count=sectionProjectCount(id);
@@ -586,8 +591,8 @@ function renderSectionRows(){
    entry.removed=true;entry.visible=false;
    renderSectionRows();sectionChanges('Removed from active organizer. Projects are preserved. Save to apply.');
   });actions.append(remove);
-  if(isCustomGalleryId(id)){
-   const del=document.createElement('button');del.type='button';del.className='section-remove section-delete';del.textContent='Delete permanently';
+  {
+   const del=document.createElement('button');del.type='button';del.className='section-remove section-delete';del.textContent='Delete forever';
    del.addEventListener('click',()=>requestDeleteSection(id,def.name));actions.append(del);
   }
   header.append(handle,heading,actions);card.append(header);
@@ -599,9 +604,11 @@ function renderSectionRows(){
   fields.append(sectionInput('Admin note · private',entry.adminNote,'Describe what belongs here (only visible to you)',value=>{entry.adminNote=value;summary.textContent=value||def.summary},true));
   if(isCustomGalleryId(id)){
    fields.append(sectionInput('Section name',def.name,'Gallery name',value=>{const item=sectionDraft.custom.find(c=>c.id===id);if(item)item.name=value.slice(0,70)}));
+  }
+  {
    const themeLabel=document.createElement('label');themeLabel.className='section-manager-field';
    const heading=document.createElement('span');heading.textContent='Section appearance';
-   const selector=document.createElement('select');for(const [v,t] of [['light','Warm cream'],['dark','Dark plum'],['lavender','Soft lavender']]){const opt=document.createElement('option');opt.value=v;opt.textContent=t;selector.append(opt)}
+   const selector=document.createElement('select');for(const [v,t] of [['inherit','Original V2 section color'],['light','Warm cream'],['lavender','Soft lavender'],['dark','Dark plum']]){const opt=document.createElement('option');opt.value=v;opt.textContent=t;selector.append(opt)}
    selector.value=entry.theme;selector.addEventListener('change',()=>{entry.theme=selector.value;sectionChanges()});
    themeLabel.append(heading,selector);fields.append(themeLabel);
   }
@@ -624,13 +631,12 @@ function renderSectionRows(){
    const name=document.createElement('strong');name.textContent=def.name;
    const restore=document.createElement('button');restore.type='button';restore.textContent='Restore section';restore.addEventListener('click',()=>{entry.removed=false;entry.visible=false;renderSectionRows();sectionChanges('Restored to organization as hidden. Save to apply.')});
    row.append(name,restore);
-   if(isCustomGalleryId(def.id)){
-    const removePermanently=document.createElement('button');removePermanently.type='button';removePermanently.className='section-remove';removePermanently.textContent='Delete permanently';
-    removePermanently.addEventListener('click',()=>requestDeleteSection(def.id,def.name));row.append(removePermanently);
-   }
+   const removePermanently=document.createElement('button');removePermanently.type='button';removePermanently.className='section-remove';removePermanently.textContent='Delete forever';
+   removePermanently.addEventListener('click',()=>requestDeleteSection(def.id,def.name));row.append(removePermanently);
    removedList.append(row);
   }
   removedSection.hidden=!removedList.childElementCount;
+  const removedCount=document.getElementById('section-removed-count');if(removedCount)removedCount.textContent=String(removedList.childElementCount);
  }
 }
 async function saveSectionManager(){
@@ -667,7 +673,7 @@ function initSectionManager(){
   if(sectionDraft.custom.length>=20){sectionChanges('Maximum of 20 custom galleries. Hide unused galleries or rename an existing one.');return}
   const id='collection-'+crypto.randomUUID();
   sectionDraft.custom.push({id,name:'New gallery'});sectionDraft.order.push(id);
-  sectionDraft.entries[id]={removed:false,visible:false,navLabel:'',heading:'',eyebrow:'',description:'',adminNote:'',theme:'light'};
+  sectionDraft.entries[id]={removed:false,deleted:false,visible:false,navLabel:'',heading:'',eyebrow:'',description:'',adminNote:'',theme:'light'};
   renderSectionRows();sectionChanges('New gallery added as hidden. Name it and save, then assign projects in the editor.');
   $('#section-manager-list').lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'});
  });

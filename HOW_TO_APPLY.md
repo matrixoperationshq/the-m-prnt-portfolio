@@ -1,54 +1,67 @@
-# The M Prnt V2.14 — Section Organizer Consistency & Safe Deletion
+# The M Prnt V2.15 — Gallery Layout, Backgrounds and Permanent Section Deletion
 
-This is a small additive patch for the V2.13 source. It does not redesign the public portfolio, replace its Supabase configuration, or modify your existing database rows on installation.
+**A focused update to V2.14, not a redesign.** Keeps the original homepage, *moves* animation, cursor glow, Client Work, Systems Lab, Supabase content, galleries and video controls.
 
-## Updated files (preserve these folder paths)
+## Replace these six files in the same locations in GitHub
 
-- `js/admin.js`
-- `js/section-settings.js`
 - `js/site.js`
+- `js/section-settings.js`
+- `js/admin.js`
 - `admin/index.html`
+- `css/site.css`
 - `css/admin.css`
 
-## Install
+Do **not** replace `js/config.js`, import new SQL, or upload this ZIP as a single repository file. Unzip it first, then upload its actual files into their respective locations. Don't install an older V2.14 after this update.
 
-1. In Studio Admin, use **Export backup JSON** first. Also keep a copy of the current `main` commit in GitHub (or note its commit hash).
-2. Unzip the package. In GitHub, replace ONLY the five listed files, preserving their exact paths. Do not upload the folder itself into the repository as an extra nested folder.
-3. Commit to `main` and wait for Netlify to report a successful deployment.
-4. Hard-refresh the Studio Admin. Existing Supabase data is unchanged until you deliberately save section settings.
+## Installation
 
-## What's fixed
+1. Export your Studio Admin **backup JSON** and note the current GitHub commit SHA before installing.
+2. Open `https://github.com/matrixoperationshq/the-m-prnt-portfolio`, replace the six files above, and commit to `main`.
+3. Confirm the matching Netlify deployment succeeds. Hard-refresh the admin and public website (Mac: Command + Shift + R).
+4. Test with ONE section before changing many settings.
 
-- The project destination selector, section-filter dropdown and Arrange Galleries now follow the same saved *Manage site sections* ordering.
-- Removed sections no longer appear as ordinary project destinations or as gallery arranger choices. Hidden sections remain accessible in the admin (they are not public).
-- New **Admin note · private** field stores organization notes, separate from the public-facing section description. The existing placeholder "Your own collection of portfolio projects" can be replaced with a useful private note.
-- Section manager up/down movement moves across the **active** list consistently when removed sections exist.
-- Custom galleries have separate reversible **Remove from organizer** and irreversible **Delete permanently** controls. Deleting requires typing `DELETE` exactly.
-- Permanent deletion is *blocked* when **any** published, draft, or archived project points to that custom section. No project is ever deleted as a side effect. Move each project into its intended destination, save it, and retry deletion.
-- The *Removed from organization* area still shows removed sections for restoration. Removed custom sections can be permanently deleted from there if empty.
-- Duplicate active section names are rejected on save. Rename or remove the extra gallery rather than allowing two identical destinations.
-- Projects still assigned to a removed destination show a warning in the editor; saving them requires choosing a valid active section.
+## What changed
 
-## Clean up the duplicate Social & Content section
+### 1. More predictable gallery placement
 
-1. Open **Manage site sections** and identify the built-in **Social & Content** (ID `social` behind the scenes) and the other custom gallery also called **Social & Content**. The custom one has **Section name** and **Section appearance** fields.
-2. Check whether the custom gallery contains projects, including drafts/archived. In the project library you can filter to the custom gallery **before removing it**. Reassign each project to the built-in Social & Content and **Save changes** on each project.
-3. Return to **Manage site sections**. Click **Delete permanently** on the custom duplicate. It checks the project count and requires you to type `DELETE`.
-4. Click **Save website sections** to commit the deletion. The duplicate disappears from the active destination selector and arranger. The built-in Social & Content and its projects remain.
+For collections with 2–4 items, **Compact** and **Editorial Flow** now use a balanced, responsive grid instead of CSS columns that could render both items vertically in a narrow left strip. Artwork ratios remain independent of Selected Work. **Carousel** remains horizontally swipeable. Larger Compact galleries use a regular responsive grid; larger Editorial galleries retain proportional, varied-height columns. These overrides apply to Creative Work, Social & Content, Client Work, More Work and custom galleries using the shared gallery styles.
 
-You can instead **Remove from organizer** to temporarily take it out of the main lists; it will remain in the *Removed from organization* area until restored or permanently deleted.
+### 2. Background colors for ALL sections
 
-## Test after Netlify deploy
+Go to **Studio Admin → Manage site sections**. Each active section now has **Section appearance**:
+- **Original V2 section color** (default for built-ins; retains its original look)
+- **Warm cream**
+- **Soft lavender**
+- **Dark plum**
 
-1. Move Creative Work up and down, save, then check the ordering in the **Show projects from** and **Arrange galleries** dropdowns.
-2. Set the built-in Social & Content's private Admin note, save, close and reopen Manage site sections. Confirm your note remains and the public heading is unchanged.
-3. Ensure permanent delete refuses a section with assigned projects. After reassigning them, type an incorrect confirmation first (should cancel), then type `DELETE` and save (should remove only the custom gallery).
-4. Confirm that the homepage's *moves* effect and current project gallery appearances are unchanged.
+Change one, click **Save website sections**, refresh the public website. A custom gallery still defaults to warm cream. Section appearance doesn't alter your actual artwork or cropping.
 
-## Testing status
+### 3. Temporary removal versus deletion
 
-JavaScript syntax and pure section-order/visibility normalization checks passed locally, as did static verification of the Admin markup and delete handler. Full authenticated Supabase writes and browser UI could not be exercised in the isolated environment and must be verified after deployment.
+- **Hide** leaves a section in Admin and removes it from the public website.
+- **Remove temporarily** takes it out of the active organizer and public navigation. A compact **Temporarily removed sections** disclosure (collapsed by default) allows recovery.
+- **Delete forever** requires typing the exact word `DELETE`. It is **blocked if ANY published, draft or archived projects are assigned**. Move those projects elsewhere first.
+
+For custom galleries, permanent deletion removes their custom definition entirely from the saved section settings. For built-in sections, whose HTML is part of the website source, deletion saves a permanent tombstone: that section disappears from the public page, navigation, project destinations, arranger, and restoration list. The underlying source code remains available in GitHub until changed by a developer. This avoids deleting any uploaded assets or project records.
+
+**Important:** `Remove temporarily` is not deletion; it deliberately stays recoverable. Use **Delete forever** to make an empty section disappear entirely from the Admin organizer. Already-removed sections can be permanently deleted by opening the collapsed recovery list and clicking Delete forever.
+
+### 4. Existing settings are preserved
+
+Previous gallery settings and project assignments are not rewritten. Section settings gain only an optional deletion flag and theme choice. Existing sections default to their original V2 background unless you've chosen otherwise.
+
+## Checklist after deployment
+
+- In **Manage site sections**, find Creative Work, select **Soft lavender**, save and refresh. The section background should change without affecting the artwork's crop.
+- With two Creative Work projects, choose **Editorial Flow** and save. On desktop, the two artworks should appear side by side, not in a single skinny left column. Test **Compact**, then **Carousel**, and test the page on mobile.
+- Choose an unwanted EMPTY custom section. Click **Delete forever**, type `DELETE`, save. It should not appear in the active list, hidden list, project dropdown or arranger after a refresh.
+- Test a section WITH projects; deletion must refuse it and preserve those projects.
+- Check the original hero, scrolling banner, Featured cards, Client Work and Systems Lab.
+
+## Tested / untested
+
+Verified: JS parsing for the three changed modules, CSS stylesheet parsing, section-data normalization/tombstone persistence and ordered destinations. In an isolated Chromium CSS layout test, two different images displayed side by side at 1440px in Compact and Editorial mode; Carousel displayed as a horizontal flex row; all modes were also checked at 390px. The local environment blocked navigation to an actual test website, so authenticated Supabase saving and full production-browser behavior **still require verification after deployment**.
 
 ## Rollback
 
-If the deployed admin has an error, use GitHub **Revert** on the V2.14 update commit or redeploy the last known good commit. The update doesn't change database schema and requires no SQL migration.
+Revert the V2.15 commit in GitHub (or redeploy the previous Netlify commit). CSS and JS revert, but settings you deliberately save in Supabase are independent of GitHub deployments. To reverse a saved permanent built-in tombstone, restore the `sectionManagerV29` setting from your exported JSON or arrange a targeted correction; simply reverting the code doesn't undo database changes. Never expose Supabase private or service-role keys.

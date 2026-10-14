@@ -27,6 +27,10 @@ function setGalleryPresentation(section,id){
  const mode=['compact','editorial','carousel'].includes(galleryModesV25[section])?galleryModesV25[section]:(GALLERY_DEFAULT_MODES[section]||'compact');
  target.classList.remove('gallery-layout-compact','gallery-layout-editorial','gallery-layout-carousel');
  target.classList.add('gallery-layout-'+mode);
+ // A sparse masonry collection should spread sideways, not produce a vertical strip with an empty right side.
+ const count=Array.from(target.children).filter(n=>n.matches('article')).length;
+ target.dataset.cardCount=String(count);
+ target.classList.toggle('gallery-small-set',count>0&&count<=4);
  const navId='gallery-navigation-'+section;let nav=document.getElementById(navId);
  if(mode!=='carousel'||!target.children.length||target.querySelector('.collection-empty,.loading-note')){if(nav)nav.remove();return}
  if(!nav){

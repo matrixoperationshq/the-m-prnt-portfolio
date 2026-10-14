@@ -39,11 +39,11 @@ export function normalizeSections(raw){
  if(!order.includes('systems')){unique.splice(unique.indexOf('systems'),1);unique.splice(unique.indexOf('digital')+1,0,'systems')}
  const entries={};
  for(const def of defs){const source=input.entries?.[def.id]||{};
-  entries[def.id]={removed:source.removed===true,visible:source.visible!==false,navLabel:clean(source.navLabel,28),heading:clean(source.heading,115),eyebrow:clean(source.eyebrow,110),description:clean(source.description,350),adminNote:clean(source.adminNote,300),theme:['light','dark','lavender'].includes(source.theme)?source.theme:'light'};
+  entries[def.id]={removed:source.removed===true||source.deleted===true,deleted:source.deleted===true,visible:source.visible!==false&&source.deleted!==true,navLabel:clean(source.navLabel,28),heading:clean(source.heading,115),eyebrow:clean(source.eyebrow,110),description:clean(source.description,350),adminNote:clean(source.adminNote,300),theme:['inherit','light','dark','lavender'].includes(source.theme)?source.theme:(isCustomGalleryId(def.id)?'light':'inherit')};
  }
- return {order:unique,entries,custom};
+ return {order:unique.filter(id=>!entries[id]?.deleted),entries,custom};
 }
-export function sectionDefinitions(raw){const settings=normalizeSections(raw);return [...SECTION_DEFS,...settings.custom.map(item=>({id:item.id,name:item.name,nav:item.name.toLowerCase(),headingId:'',summary:'Your own collection of portfolio projects'}))]}
+export function sectionDefinitions(raw){const settings=normalizeSections(raw);return [...SECTION_DEFS,...settings.custom.map(item=>({id:item.id,name:item.name,nav:item.name.toLowerCase(),headingId:'',summary:'Your own collection of portfolio projects'}))].filter(def=>!settings.entries[def.id]?.deleted)}
 export function applySectionSettings(raw,{withClient=false,withSystems=false,withCreative=false,withSocial=false,withMore=false}={}){
  const settings=normalizeSections(raw),defs=sectionDefinitions(settings);
  const main=document.querySelector('main'),reference=document.getElementById('work');if(!main||!reference)return;
@@ -51,10 +51,13 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
  for(const id of settings.order){
   const element=document.getElementById(id),def=defs.find(d=>d.id===id);if(!element||!def)continue;
   main.insertBefore(element,marker);
-  const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
+  const entry=settings.entries[id];if(!entry)continue;const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
   element.hidden=!entry.visible||entry.removed||!available;
   element.classList.toggle('managed-section-hidden',!entry.visible||entry.removed||!available);
   element.dataset.sectionVisible=String(entry.visible&&!entry.removed&&available);
+  // Apply owner-selected backgrounds to every built-in or custom section. Inherit preserves the V2 design.
+  element.classList.remove('managed-theme-light','managed-theme-lavender','managed-theme-dark');
+  if(entry.theme!=='inherit')element.classList.add('managed-theme-'+entry.theme);
   const heading=element.querySelector('[data-managed-heading]')||(def.headingId?document.getElementById(def.headingId):null);
   if(heading&&entry.heading)heading.textContent=entry.heading;
   const intro=element.querySelector('.section-intro,.client-heading,.systems-lab-intro,.studio-left');
@@ -66,6 +69,8 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
   }
  }
  marker.remove();
+ // Static markup cannot be deleted from the source. A permanent built-in tombstone suppresses it everywhere.
+ for(const def of SECTION_DEFS){if(settings.entries[def.id]?.deleted){const el=document.getElementById(def.id);if(el){el.hidden=true;el.classList.add('managed-section-hidden');}}}
  for(const nav of document.querySelectorAll('.desktop-nav,.mobile-nav')){
   const contact=nav.querySelector('a[href="#contact"]');if(!contact)continue;
   // Build custom links from the *same* section definitions as the project editor.
@@ -81,8 +86,8 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
   }
   for(const link of nav.querySelectorAll('a[href^="#"]')){
    const href=link.getAttribute('href').slice(1),id=href==='three'?'motion':href;
-   const def=defs.find(d=>d.id===id);if(!def)continue;
-   const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
+   const def=defs.find(d=>d.id===id);if(!def){if(SECTION_DEFS.some(d=>d.id===id)){link.hidden=true;link.classList.add('managed-section-hidden')}continue;}
+   const entry=settings.entries[id];if(!entry)continue;const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
    link.hidden=!entry.visible||entry.removed||!available;
    link.classList.toggle('managed-section-hidden',!entry.visible||entry.removed||!available);
    if(href!=='three')link.textContent=entry.navLabel||def.nav;
