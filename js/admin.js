@@ -46,7 +46,7 @@ function markDirty(){dirty=true;$('#save-state').textContent='Unsaved changes';}
 function fieldSelect(value,options,onChange){const el=document.createElement('select');for(const [v,label] of options){const op=document.createElement('option');op.value=v;op.textContent=label;el.append(op)}el.value=value;el.addEventListener('change',()=>onChange(el.value));return el}
 function fieldLabel(title,el){const label=document.createElement('label');label.textContent=title;label.append(el);return label}
 function fieldInput(value,onChange,multi=false){const el=document.createElement(multi?'textarea':'input');el.value=value||'';el.addEventListener('input',()=>onChange(el.value));if(multi)el.rows=3;return el}
-const shapeOptions=[['original','Original / entire image'],['square','Square · 1:1'],['portrait','Portrait · 4:5'],['landscape','Landscape · 16:9'],['classic','Classic · 3:2']];
+const shapeOptions=[['original','Original / entire image'],['square','Square · 1:1'],['portrait','Portrait · 4:5'],['portrait34','Portrait · 3:4'],['portrait23','Tall portrait · 2:3'],['social916','Social / story tall · 9:16'],['landscape','Landscape · 16:9'],['classic','Classic · 3:2']];
 const fitOptions=[['contain','Fit entire image'],['cover','Fill frame / crop']];
 
 function selectProject(id){const item=projects.find(p=>p.id===id);if(!item)return;selectedId=id;current=cleanProject(item);dirty=false;populateForm();renderList();$('#editor-empty').hidden=true;$('#editor-content').hidden=false;$('#save-project').disabled=false;$('#editor-heading').textContent=current.title||'Untitled project';$('#save-state').textContent='Saved on server';}
@@ -71,7 +71,17 @@ function updatePlacementPreview(){
 }
 function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
 function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
-function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-landscape');if(['square','portrait','landscape'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover';preview.style.objectPosition='';preview.style.transform='';preview.style.transformOrigin='';if(current.card_ratio!=='original'&&current.card_fit==='cover'){preview.style.cssText += imageCropCss(current.card_crop)}}
+function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-portrait34','preview-ratio-portrait23','preview-ratio-social916','preview-ratio-landscape','preview-ratio-classic','preview-ratio-original');if(['square','portrait','portrait34','portrait23','social916','landscape','classic','original'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover';preview.style.objectPosition='';preview.style.transform='';preview.style.transformOrigin='';if(current.card_ratio!=='original'&&current.card_fit==='cover'){preview.style.cssText += imageCropCss(current.card_crop)}
+ const selected=$('#editor-featured-preview');const featImg=$('#editor-featured-preview-img');
+ selected.hidden=!current.featured;
+ if(current.featured){
+  updateImage(featImg,current.cover);
+  const shape=['original','square','portrait','portrait34','portrait23','social916','landscape','classic'].includes(settings.featuredFrameV28)?settings.featuredFrameV28:'portrait';
+  const wrap=$('#editor-featured-frame');wrap.className='editor-featured-frame editor-featured-'+shape;
+  featImg.style.cssText=shape==='original'?'':imageCropCss(current.featured_crop);
+  $('#editor-featured-caption').textContent='Selected Work crop · '+({'portrait':'4:5','portrait34':'3:4','portrait23':'2:3','social916':'9:16','square':'1:1','landscape':'16:9','classic':'3:2','original':'Original'}[shape]);
+ }
+}
 function renderMedia(){
  const list=$('#gallery-editor');list.replaceChildren();
  (current.media||[]).forEach((asset,index)=>{
@@ -220,6 +230,7 @@ function exportBackup(){const backup={exportedAt:new Date().toISOString(),projec
 // V2.5: independent, publishable presentation settings; existing projects are untouched.
 const ARRANGE_DEFAULTS={featured:'compact',digital:'editorial',client:'compact',concept:'compact',visual:'compact',motion:'editorial',three:'editorial',archive:'compact'};
 let arrangeDraftOrder={},arrangeDraftModes={};
+let arrangeDraftFeaturedFrame='portrait';
 function arrangerProjects(section){
  const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?(!p.featured&&['work','archive'].includes(locationFor(p))):locationFor(p)===section));
  const sequence=arrangeDraftOrder[section]||[];
@@ -231,12 +242,15 @@ function showArrange(){
  if(dirty&&!confirm('You have unsaved project edits. Continue to the gallery arranger without saving them?'))return;
  arrangeDraftOrder=structuredClone(settings.galleryOrderV25||{});
  arrangeDraftModes={...ARRANGE_DEFAULTS,...(settings.galleryModesV25||{})};
+ arrangeDraftFeaturedFrame=['original','square','portrait','portrait34','portrait23','social916','landscape','classic'].includes(settings.featuredFrameV28)?settings.featuredFrameV28:'portrait';
  $('#arrange-section').value='featured';renderArranger();$('#arrange-dialog').showModal();
 }
 function renderArranger(){
  const section=$('#arrange-section').value;
  $('#arrange-mode').value=arrangeDraftModes[section]||ARRANGE_DEFAULTS[section];
- const descriptions={compact:'Compact layout: cards keep their own image proportions and stack closely, without empty grid rows.',editorial:'Editorial layout: your existing art-directed asymmetric arrangement.',carousel:'Horizontal gallery: visitors swipe or use arrow buttons to explore.'};
+ $('#arrange-featured-frame').hidden=section!=='featured';
+ $('#arrange-featured-shape').value=arrangeDraftFeaturedFrame;
+ const descriptions={compact:'Compact: tight, balanced masonry. Projects in Selected Work share the chosen Featured frame.',editorial:'Editorial flow: expressive image heights in consistent columns. Cards pack without the old staggered empty slots.',carousel:'Horizontal gallery: visitors swipe or use arrow buttons to explore.'};
  $('#arrange-explanation').textContent=descriptions[$('#arrange-mode').value];
  $('#arrange-status').textContent='Drag cards to reorder, or use the arrow buttons. Save to publish changes.';
  const list=$('#arrange-list');list.replaceChildren();
@@ -273,10 +287,11 @@ async function saveArranger(){
  try{
   const result=await client.from('portfolio_settings').upsert([
    {key:'galleryOrderV25',value:arrangeDraftOrder},
-   {key:'galleryModesV25',value:arrangeDraftModes}
+   {key:'galleryModesV25',value:arrangeDraftModes},
+   {key:'featuredFrameV28',value:arrangeDraftFeaturedFrame}
   ],{onConflict:'key'});
   if(result.error)throw result.error;
-  settings.galleryOrderV25=structuredClone(arrangeDraftOrder);settings.galleryModesV25={...arrangeDraftModes};
+  settings.galleryOrderV25=structuredClone(arrangeDraftOrder);settings.galleryModesV25={...arrangeDraftModes};settings.featuredFrameV28=arrangeDraftFeaturedFrame;
   $('#arrange-status').textContent='Published! Refresh the public portfolio to see the new arrangement.';
   notice('Your gallery order and layout were saved to Supabase.');
  }catch(e){console.error(e);$('#arrange-status').textContent='Could not save: '+e.message;notice('Gallery settings were not saved.',true)}
@@ -285,7 +300,7 @@ async function saveArranger(){
 
 // V2.7 — visual crop editor (positions saved to the project, original upload untouched).
 let editingCrop=null;
-const cropShapeOptions=[['original','Original / show entire image'],['square','Square · 1:1'],['portrait','Portrait · 4:5'],['landscape','Landscape · 16:9'],['classic','Classic · 3:2']];
+const cropShapeOptions=[['original','Original / show entire image'],['square','Square · 1:1'],['portrait','Portrait · 4:5'],['portrait34','Portrait · 3:4'],['portrait23','Tall portrait · 2:3'],['social916','Social / story tall · 9:16'],['landscape','Landscape · 16:9'],['classic','Classic · 3:2']];
 function cropSource(){return editingCrop?.kind==='gallery'?current.media?.[editingCrop.index]?.src:current?.cover}
 function closeCropEditor(){const dlg=$('#crop-dialog');if(dlg?.open)dlg.close();editingCrop=null}
 function updateCropPreview(){
@@ -294,6 +309,8 @@ function updateCropPreview(){
  const shape=$('#crop-shape').value;
  frame.classList.toggle('crop-original',shape==='original');
  if(shape!=='original')frame.style.aspectRatio=String(CROP_ASPECTS[shape]||4/5);
+ // Tall story frames remain fully visible inside the crop editor.
+ frame.style.maxWidth=shape==='social916'?'min(100%,285px)':shape==='portrait23'?'min(100%,350px)':shape==='portrait34'?'min(100%,400px)':'';
  else frame.style.aspectRatio='auto';
  const c=normalizedCrop(editingCrop.crop);
  const original=shape==='original';
@@ -310,11 +327,13 @@ function openCropEditor(kind,index=-1){
  if(!item)return;
  const url=kind==='gallery'?item.src:current.cover;
  if(!safeUrl(url)){notice('Please upload or set a valid image before cropping.',true);return}
- const config=kind==='gallery'?{shape:item.ratio||'original',crop:item.crop}:kind==='hero'?{shape:current.hero_ratio||'original',crop:current.hero_crop}:{shape:current.card_ratio||'portrait',crop:current.card_crop};
+ const config=kind==='gallery'?{shape:item.ratio||'original',crop:item.crop}:kind==='hero'?{shape:current.hero_ratio||'original',crop:current.hero_crop}:kind==='featured'?{shape:settings.featuredFrameV28||'portrait',crop:current.featured_crop}:{shape:current.card_ratio||'portrait',crop:current.card_crop};
  editingCrop={kind,index,crop:normalizedCrop(config.crop)};
- $('#crop-title').textContent=(kind==='card'?'Homepage card':kind==='hero'?'Case-study cover':'Gallery image')+' / '+(current.title||'Artwork');
+ $('#crop-title').textContent=(kind==='featured'?'Selected Work only':kind==='card'?'Project section card':kind==='hero'?'Case-study cover':'Gallery image')+' / '+(current.title||'Artwork');
+ $('#crop-shape').disabled=kind==='featured';
+ $('#crop-frame-lock-note').hidden=kind!=='featured';
  $('#crop-preview-img').src=url;
- $('#crop-shape').value=['square','portrait','landscape','classic','original'].includes(config.shape)?config.shape:'portrait';
+ $('#crop-shape').value=['square','portrait','portrait34','portrait23','social916','landscape','classic','original'].includes(config.shape)?config.shape:'portrait';
  updateCropPreview();$('#crop-dialog').showModal();
 }
 function applyCrop(){
@@ -324,6 +343,9 @@ function applyCrop(){
   const item=current.media?.[index];if(!item)return;
   item.ratio=shape;item.fit=shape==='original'?'contain':'cover';item.crop=normalizedCrop(crop);
   renderMedia();
+ }else if(kind==='featured'){
+  // Completely independent of current.card_crop, shape and gallery display.
+  current.featured_crop=normalizedCrop(crop);
  }else if(kind==='hero'){
   current.hero_ratio=shape;current.hero_fit=shape==='original'?'contain':'cover';current.hero_crop=normalizedCrop(crop);
   $('#edit-hero-ratio').value=shape;$('#edit-hero-fit').value=current.hero_fit;
@@ -336,6 +358,7 @@ function applyCrop(){
 function configureCropEditor(){
  const dlg=$('#crop-dialog'),frame=$('#crop-frame'),img=$('#crop-preview-img');
  $('#crop-open-card').addEventListener('click',()=>openCropEditor('card'));
+ $('#crop-open-featured').addEventListener('click',()=>openCropEditor('featured'));
  $('#crop-open-hero').addEventListener('click',()=>openCropEditor('hero'));
  $('#crop-close').addEventListener('click',closeCropEditor);
  $('#crop-cancel').addEventListener('click',closeCropEditor);
@@ -373,6 +396,7 @@ function attachListeners(){
  $('#arrange-dialog').addEventListener('click',e=>{if(e.target===$('#arrange-dialog'))$('#arrange-dialog').close()});
  $('#arrange-section').addEventListener('change',renderArranger);
  $('#arrange-mode').addEventListener('change',()=>{arrangeDraftModes[$('#arrange-section').value]=$('#arrange-mode').value;renderArranger();$('#arrange-status').textContent='New layout ready. Save to publish.'});
+ $('#arrange-featured-shape').addEventListener('change',e=>{arrangeDraftFeaturedFrame=e.target.value;$('#arrange-status').textContent='Featured-only frame changed. Save layout & order to publish.';});
  $('#save-arrange').addEventListener('click',saveArranger);
  $('#add-project').addEventListener('click',addProject);$('#save-project').addEventListener('click',saveProject);
  $$('input[id^="edit-"],textarea[id^="edit-"],select[id^="edit-"]').forEach(input=>{if(input.id==='edit-cover')return;input.addEventListener('input',syncForm);input.addEventListener('change',syncForm)});

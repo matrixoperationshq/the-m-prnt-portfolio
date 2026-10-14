@@ -146,3 +146,31 @@
 .crop-footer span{font-size:11px;color:#baa6be}.crop-footer>div{display:flex;gap:8px}
 @media(max-width:730px){.crop-workspace{grid-template-columns:1fr}.crop-frame{width:min(100%,310px)}.crop-controls{gap:12px}.crop-footer{align-items:stretch;flex-direction:column}.crop-footer>div{justify-content:flex-end}.crop-dialog{max-height:calc(100dvh - 12px)}}
 @media(prefers-reduced-motion:reduce){.crop-frame img{transition:none!important}}
+
+
+/* V2.8: featured framing, independent from project section artwork. */
+.featured-frame-choice{margin:15px 0 16px;padding:17px 19px;border-radius:12px;background:linear-gradient(115deg,#50304970,#29162d85);border:1px solid #f1a8d43c;display:grid;grid-template-columns:minmax(225px,1fr) minmax(200px,.85fr);gap:18px;align-items:end;}
+.featured-frame-choice[hidden],.editor-featured-preview[hidden],.crop-frame-lock-note[hidden]{display:none!important;}
+.featured-frame-choice label{color:#f9dce9;font-size:12px;font-weight:700;display:grid;gap:9px;}
+.featured-frame-choice select{min-width:0;max-width:100%;width:100%;}
+.featured-frame-choice p{font-size:11px;line-height:1.65;color:#d6c2d3;margin:0;}
+.editor-featured-preview{border:1px solid #ec9dd543;border-radius:12px;background:#1d1327;padding:14px;margin-top:15px;}
+.editor-featured-preview>span{display:block;color:#eeacd4;font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:10px;}
+.editor-featured-frame{width:min(100%,245px);aspect-ratio:4/5;overflow:hidden;position:relative;background:#100c18;border-radius:7px;}
+.editor-featured-frame.editor-featured-square{aspect-ratio:1}.editor-featured-frame.editor-featured-classic{aspect-ratio:3/2}.editor-featured-frame.editor-featured-landscape{aspect-ratio:16/9}.editor-featured-frame.editor-featured-original{aspect-ratio:auto;}
+.editor-featured-frame img{width:100%;height:100%;inset:0;position:absolute;display:block;object-fit:cover;}
+.editor-featured-frame.editor-featured-original img{position:static;height:auto;transform:none!important;object-fit:contain;}
+.editor-featured-preview small{font-size:11px;color:#c1aac4;display:block;margin-top:11px;line-height:1.5;}
+.crop-frame-lock-note{font-size:12px;color:#f8d9eb;background:#4a294163;border:1px solid #da8cba55;border-radius:9px;padding:10px 13px;margin:15px 0;}
+@media(max-width:760px){.featured-frame-choice{grid-template-columns:1fr;}}
+
+
+/* V2.8 shape extension: 3:4, 2:3 and 9:16 tall portrait framing. */
+.editor-featured-frame.editor-featured-portrait34 {aspect-ratio:3/4;}
+.preview-card img.preview-ratio-portrait34 {height:auto;aspect-ratio:3/4;object-fit:cover;}
+.editor-featured-frame.editor-featured-portrait23 {aspect-ratio:2/3;}
+.preview-card img.preview-ratio-portrait23 {height:auto;aspect-ratio:2/3;object-fit:cover;}
+.editor-featured-frame.editor-featured-social916 {aspect-ratio:9/16;}
+.preview-card img.preview-ratio-social916 {height:auto;aspect-ratio:9/16;object-fit:cover;}
+.preview-card img.preview-ratio-classic {height:auto;aspect-ratio:3/2;object-fit:cover;}
+.preview-card img.preview-ratio-original {height:auto;max-height:300px;object-fit:contain;}

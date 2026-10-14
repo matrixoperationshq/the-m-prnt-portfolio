@@ -1,6 +1,6 @@
 // V2.7 reusable non-destructive crop values. Projects store only presentation metadata.
-export const CROP_RATIOS = ['original','square','portrait','landscape','classic'];
-export const CROP_ASPECTS = { square:1, portrait:4/5, landscape:16/9, classic:3/2 };
+export const CROP_RATIOS = ['original','square','portrait','portrait34','portrait23','social916','landscape','classic'];
+export const CROP_ASPECTS = { square:1, portrait:4/5, portrait34:3/4, portrait23:2/3, social916:9/16, landscape:16/9, classic:3/2 };
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 export function normalizedCrop(value) {
  const c=value && typeof value==='object' ? value : {};

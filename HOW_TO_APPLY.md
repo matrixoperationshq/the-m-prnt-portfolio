@@ -1,41 +1,65 @@
-# The M Prnt — V2.7 / Drag-to-Crop Studio
+# The M Prnt V2.8 — Complete Frame Shapes + Independent Featured Controls
 
-This update builds on V2.6, including Client Work and the flexible galleries. It adds non-destructive image crop controls inside Studio Admin.
+This is the **complete V2.8 replacement update**, not a standalone patch. It includes V2.7 drag-to-crop, independent Selected Work (Featured) framing, editorial masonry flow, and all previously included gallery destinations and controls.
 
-## What you can edit
+## More frame shapes, everywhere you need them
 
-- **Homepage/project cards:** Choose the original proportions, 1:1 square, 4:5 portrait, 16:9 landscape, or 3:2 classic. Click **Adjust homepage crop** to drag artwork into position and zoom.
-- **Case-study cover:** Click **Adjust case-study cover** to choose an independent frame and crop; original full-resolution artwork remains accessible through *View Full Image*.
-- **Case-study gallery images:** Click **Adjust crop** beside any image in the media library. Non-image assets (GLB, video, PDF) are left alone.
-- **Undo/re-edit:** Reopen any crop, use Reset, or choose Original / full artwork. The crop only changes presentation metadata, not the source upload.
+| Studio label | Ratio | Best for |
+|---|---|---|
+| Original artwork | Natural image proportion | No cropping |
+| Square | 1:1 | Brand marks, matched grids |
+| Portrait | 4:5 | Social feed work, general portfolios |
+| **Portrait** | **3:4** | Portrait illustration and photography |
+| **Tall portrait** | **2:3** | Posters, print design, vertical campaigns |
+| **Social / story tall** | **9:16** | Story, Reel, vertical video stills |
+| Classic landscape | 3:2 | Photography and landscape compositions |
+| Wide landscape | 16:9 | Video frames and wide design |
 
-## Install to your connected GitHub / Netlify website
+The three **bold** rows are new in this edition. All prior values remain valid.
 
-1. **Save a backup.** In GitHub, keep a copy of your current `main` commit, and in Studio Admin use **Export backup JSON**. The current live Supabase content will not be altered by installing the code.
-2. Unzip `The_M_Prnt_V2_7_Drag_To_Crop_Studio.zip` on your computer.
-3. Replace these existing files **at their matching repository paths**:
+- **Selected Work:** Studio Admin → **Arrange galleries** → Selected Work → **Featured-only frame**. One setting updates all Featured cards. Your projects' ordinary gallery-card ratios do **not** change. Use **Adjust Selected Work crop** on each project for individualized drag-position and zoom.
+- **Regular project image cards:** Open a project → **Project Display** → **Project section card shape** and optionally **Adjust section card crop**.
+- **Project detail hero:** Open a project → **Case-study lead image shape** and/or **Adjust case-study cover**.
+- **Media gallery:** In the project's media library, choose each image's shape, or click its crop editor.
+- **Original:** Shows the un-cropped artwork. Choose Fill / Crop and drag to reposition only when a defined frame is selected.
+
+Any frame can be changed later without altering the original uploaded asset. The chosen metadata is saved in your existing Supabase project JSON and portfolio settings. No SQL/database migration or re-upload is needed.
+
+## Install using GitHub → Netlify
+
+1. In Studio Admin, **Export backup JSON**. Back up your current GitHub branch before changing files (e.g. create a backup branch).
+2. Extract the ZIP and upload the **eight website paths** to their corresponding locations in your existing repository:
+
+   - `index.html`
    - `admin/index.html`
-   - `js/admin.js`
-   - `js/site.js`
-   - `css/admin.css`
    - `css/site.css`
-4. **Add this new file** at its matching path: `js/crop-utils.js`.
-5. Commit all six file changes to your repository's `main` branch. Do not upload the ZIP as a single file. Netlify will automatically deploy the changes.
-6. Do **not** replace `js/config.js` and do not re-run Supabase SQL. Your Supabase connection and data stay intact.
-7. Once the new Netlify deploy is published, hard-refresh the public site and `/admin/` (Mac Chrome: Cmd+Shift+R).
+   - `css/admin.css`
+   - `js/site.js`
+   - `js/admin.js`
+   - `js/project-taxonomy.js`
+   - `js/crop-utils.js`
 
-## Try your first 4:5 crop
+3. Do **not** upload the enclosing extracted folder as a folder within the repository; put files at their matching paths.
+4. Do **not** replace `js/config.js` or your Supabase credentials. That file is intentionally **not** in this package. No changes to the storage bucket are required.
+5. Commit the changed files to the Netlify-deployed branch (usually `main`), wait for a successful deploy, and hard-refresh (Command + Shift + R on Mac).
 
-1. In Studio Admin, choose a poster project.
-2. Open **Project Display → Adjust homepage crop**.
-3. Select **Portrait · 4:5**, drag the image and use **Zoom** to align the design. Click **Apply crop**.
-4. Crucial: click the main **Save changes** button at the top of the project editor to publish the framing to Supabase.
-5. Refresh the public website and inspect that project's card. You may independently use **Adjust case-study cover** if you want the full project view framed differently.
+## Test on the actual website
 
-## Notes
+1. Studio Admin → Arrange galleries → Selected Work → set **Social / story tall · 9:16** → Save layout & order. Confirm Featured cards are tall on your public site.
+2. Open a project from Featured, choose **Adjust Selected Work crop**, drag to position, Apply crop, and Save changes. Confirm its **regular section card remains unchanged**.
+3. For a regular section card, choose **Tall portrait · 2:3**; check the card ratio without affecting Selected Work.
+4. Change a case-study cover to **Portrait · 3:4**; check the modal displays the entire intended frame.
+5. Try a gallery image with 9:16 and verify zoom, drag, and saved positioning.
+6. Try Editorial Flow, Compact, and Carousel with one of the new shapes; verify the desired responsive presentation.
 
-- Crop settings live in each project's `data` JSON (`card_crop`, `hero_crop`, or `media[].crop`). No database migration or new storage bucket is required.
-- Saved crop is expressed by X/Y focal position and zoom, so the browser recreates it responsively. The original files are not modified, downloaded, or overwritten.
-- Cropping does not change image resolution. For huge originals, web-optimized cover assets may load faster, but are optional.
-- The existing `Original / show entire image` option still displays the full uncut image.
-- The new JavaScript was syntax-tested and the crop math was unit-checked. The authenticated live-browser interaction and cross-device visual match need to be confirmed after installation.
+## What remains unchanged
+
+- All 41 existing portfolio projects, your live Supabase database, admin credentials and uploaded files.
+- Separate Selected Work and regular-section sizing/cropping.
+- Client Work, Concept Lab, Visual Studies, Web Builds, Motion, and 3D sections.
+- Compact, Editorial Flow and horizontal Carousel options.
+- Drag-to-reorder gallery arrangement, responsive layouts, the continuous ticker and the SVG icons.
+
+## Verification and rollback
+
+JavaScript syntax, HTML selectors/options, and CSS computed aspect-ratios were checked at 1440px and 390px widths with local Chromium. Supabase-authenticated saving still requires your account and must be verified after deployment. To roll back, revert the eight files in GitHub. This release contains no SQL migration.

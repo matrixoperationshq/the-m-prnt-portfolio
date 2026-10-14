@@ -377,3 +377,149 @@
 .motion-card.card-ratio-square .motion-visual{height:auto;aspect-ratio:1}
 .motion-card.card-ratio-landscape .motion-visual{height:auto;aspect-ratio:16/9}
 .motion-card.card-ratio-classic .motion-visual{height:auto;aspect-ratio:3/2}
+
+
+/* V2.8 / Selected Work framing is completely independent of each project's section card. */
+.featured-grid .project-card.featured.featured-independent-frame {grid-column:auto; width:100%;}
+.featured-grid .project-card.featured.featured-independent-frame > .card-visual {
+  position:relative; width:100%; height:auto!important; min-height:0!important; max-height:none!important; overflow:hidden;
+}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-portrait > .card-visual {aspect-ratio:4/5!important;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-square > .card-visual {aspect-ratio:1!important;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-classic > .card-visual {aspect-ratio:3/2!important;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-landscape > .card-visual {aspect-ratio:16/9!important;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-original > .card-visual {aspect-ratio:auto!important;}
+.featured-grid .project-card.featured.featured-independent-frame > .card-visual > img {
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;
+  padding:0!important;object-fit:cover!important;display:block!important;
+}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-original > .card-visual > img {
+  position:static!important;width:100%!important;height:auto!important;max-width:100%!important;object-fit:contain!important;transform:none!important;
+}
+/* Editorial flow: proportional artworks in balanced, predictable-width masonry columns.
+   No arbitrary nth-child margins, grid-row blank areas, or manual staggering. */
+.featured-grid.gallery-layout-editorial,
+.more-grid.gallery-layout-editorial,
+.concept-grid.gallery-layout-editorial,
+.visual-grid.gallery-layout-editorial,
+.client-grid.gallery-layout-editorial {display:block!important;column-count:2;column-gap:clamp(15px,2vw,26px);column-fill:balance;}
+.more-grid.gallery-layout-editorial,.visual-grid.gallery-layout-editorial,.client-grid.gallery-layout-editorial {column-count:3;}
+.featured-grid.gallery-layout-editorial > .project-card,
+.more-grid.gallery-layout-editorial > .project-card,
+.concept-grid.gallery-layout-editorial > .concept-card,
+.visual-grid.gallery-layout-editorial > .visual-card,
+.client-grid.gallery-layout-editorial > .client-card {
+ display:inline-block!important;width:100%!important;max-width:100%!important;box-sizing:border-box;vertical-align:top;
+ grid-column:auto!important;float:none!important;break-inside:avoid;page-break-inside:avoid;
+ margin:0 0 22px!important;transform:none;
+}
+.gallery-layout-editorial .card-span-wide,.gallery-layout-editorial .card-span-half {width:100%!important;grid-column:auto!important;}
+/* Restore natural shape variation for editorial auto cards rather than fixed preset rows. */
+.featured-grid.gallery-layout-editorial .project-card.featured.featured-independent-frame > .card-visual {min-height:0!important;}
+.concept-grid.gallery-layout-editorial .concept-card:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card:nth-child(n) .visual-art {height:auto;min-height:0;}
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-original:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-original:nth-child(n) .visual-art {aspect-ratio:auto!important;}
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-square:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-square:nth-child(n) .visual-art {aspect-ratio:1!important;}
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-portrait:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-portrait:nth-child(n) .visual-art {aspect-ratio:4/5!important;}
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-landscape:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-landscape:nth-child(n) .visual-art {aspect-ratio:16/9!important;}
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-classic:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-classic:nth-child(n) .visual-art {aspect-ratio:3/2!important;}
+/* Sections with richer content keep the grid but remove forced stagger and row spans. */
+.digital-grid.gallery-layout-editorial {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;}
+.digital-grid.gallery-layout-editorial > .digital-card:last-child {grid-column:auto;display:flex;}
+.digital-grid.gallery-layout-editorial .digital-card:last-child .digital-visual {height:350px;}
+.motion-grid.gallery-layout-editorial {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;}
+.motion-grid.gallery-layout-editorial > .motion-card:nth-child(n) {grid-column:auto;}
+@media(max-width:900px){
+ .more-grid.gallery-layout-editorial,.visual-grid.gallery-layout-editorial,.client-grid.gallery-layout-editorial {column-count:2;}
+ .digital-grid.gallery-layout-editorial {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:640px){
+ .featured-grid.gallery-layout-editorial,.concept-grid.gallery-layout-editorial {column-count:1;}
+ .more-grid.gallery-layout-editorial,.visual-grid.gallery-layout-editorial,.client-grid.gallery-layout-editorial {column-count:2;column-gap:12px;}
+ .featured-grid.gallery-layout-editorial > .project-card,
+ .more-grid.gallery-layout-editorial > .project-card,
+ .concept-grid.gallery-layout-editorial > .concept-card,
+ .visual-grid.gallery-layout-editorial > .visual-card,
+ .client-grid.gallery-layout-editorial > .client-card {margin-bottom:15px!important;}
+ .motion-grid.gallery-layout-editorial,.digital-grid.gallery-layout-editorial{grid-template-columns:1fr;}
+}
+
+
+/* V2.8 shape extension: tall portrait and story formats for every gallery surface. */
+
+/* portrait34 = 3/4 */
+.project-card.card-ratio-portrait34 .card-visual,
+.project-card.featured.card-ratio-portrait34 .card-visual {aspect-ratio:3/4;height:auto;min-height:0;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-portrait34 > .card-visual {aspect-ratio:3/4!important;}
+.concept-card.card-ratio-portrait34 .concept-art,
+.visual-card.visual-ratio-portrait34 .visual-art,
+.client-card.client-ratio-portrait34 .client-art,
+.motion-card.card-ratio-portrait34 .motion-visual,
+.digital-card.card-ratio-portrait34 .digital-visual {aspect-ratio:3/4;height:auto!important;min-height:0;}
+.case-hero-wrap.hero-ratio-portrait34,
+.case-media-item.media-ratio-portrait34 .case-media-image-link {aspect-ratio:3/4;}
+/* Overrides early decorative stagger, compact and carousel frame defaults. */
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-portrait34:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-portrait34:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-compact .concept-card.card-ratio-portrait34:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-card.visual-ratio-portrait34:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-carousel .concept-card.card-ratio-portrait34:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-carousel .visual-card.visual-ratio-portrait34:nth-child(n) .visual-art,
+.client-grid.gallery-layout-carousel .client-card.client-ratio-portrait34 .client-art,
+.gallery-layout-carousel .project-card.card-ratio-portrait34 .card-visual,
+.gallery-layout-carousel .motion-card.card-ratio-portrait34 .motion-visual {aspect-ratio:3/4!important;height:auto!important;}
+
+/* portrait23 = 2/3 */
+.project-card.card-ratio-portrait23 .card-visual,
+.project-card.featured.card-ratio-portrait23 .card-visual {aspect-ratio:2/3;height:auto;min-height:0;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-portrait23 > .card-visual {aspect-ratio:2/3!important;}
+.concept-card.card-ratio-portrait23 .concept-art,
+.visual-card.visual-ratio-portrait23 .visual-art,
+.client-card.client-ratio-portrait23 .client-art,
+.motion-card.card-ratio-portrait23 .motion-visual,
+.digital-card.card-ratio-portrait23 .digital-visual {aspect-ratio:2/3;height:auto!important;min-height:0;}
+.case-hero-wrap.hero-ratio-portrait23,
+.case-media-item.media-ratio-portrait23 .case-media-image-link {aspect-ratio:2/3;}
+/* Overrides early decorative stagger, compact and carousel frame defaults. */
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-portrait23:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-portrait23:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-compact .concept-card.card-ratio-portrait23:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-card.visual-ratio-portrait23:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-carousel .concept-card.card-ratio-portrait23:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-carousel .visual-card.visual-ratio-portrait23:nth-child(n) .visual-art,
+.client-grid.gallery-layout-carousel .client-card.client-ratio-portrait23 .client-art,
+.gallery-layout-carousel .project-card.card-ratio-portrait23 .card-visual,
+.gallery-layout-carousel .motion-card.card-ratio-portrait23 .motion-visual {aspect-ratio:2/3!important;height:auto!important;}
+
+/* social916 = 9/16 */
+.project-card.card-ratio-social916 .card-visual,
+.project-card.featured.card-ratio-social916 .card-visual {aspect-ratio:9/16;height:auto;min-height:0;}
+.featured-grid .project-card.featured.featured-independent-frame.card-ratio-social916 > .card-visual {aspect-ratio:9/16!important;}
+.concept-card.card-ratio-social916 .concept-art,
+.visual-card.visual-ratio-social916 .visual-art,
+.client-card.client-ratio-social916 .client-art,
+.motion-card.card-ratio-social916 .motion-visual,
+.digital-card.card-ratio-social916 .digital-visual {aspect-ratio:9/16;height:auto!important;min-height:0;}
+.case-hero-wrap.hero-ratio-social916,
+.case-media-item.media-ratio-social916 .case-media-image-link {aspect-ratio:9/16;}
+/* Overrides early decorative stagger, compact and carousel frame defaults. */
+.concept-grid.gallery-layout-editorial .concept-card.card-ratio-social916:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-editorial .visual-card.visual-ratio-social916:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-compact .concept-card.card-ratio-social916:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-compact .visual-card.visual-ratio-social916:nth-child(n) .visual-art,
+.concept-grid.gallery-layout-carousel .concept-card.card-ratio-social916:nth-child(n) .concept-art,
+.visual-grid.gallery-layout-carousel .visual-card.visual-ratio-social916:nth-child(n) .visual-art,
+.client-grid.gallery-layout-carousel .client-card.client-ratio-social916 .client-art,
+.gallery-layout-carousel .project-card.card-ratio-social916 .card-visual,
+.gallery-layout-carousel .motion-card.card-ratio-social916 .motion-visual {aspect-ratio:9/16!important;height:auto!important;}
+
+/* Keep vertical case-study artwork comfortably readable in the modal.
+   The frame retains its exact ratio; it simply does not stretch full dialog width. */
+.case-hero-wrap.hero-ratio-portrait34{max-width:min(100%,660px);margin-inline:auto}
+.case-hero-wrap.hero-ratio-portrait23{max-width:min(100%,540px);margin-inline:auto}
+.case-hero-wrap.hero-ratio-social916{max-width:min(100%,370px);margin-inline:auto}
