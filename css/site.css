@@ -523,3 +523,79 @@
 .case-hero-wrap.hero-ratio-portrait34{max-width:min(100%,660px);margin-inline:auto}
 .case-hero-wrap.hero-ratio-portrait23{max-width:min(100%,540px);margin-inline:auto}
 .case-hero-wrap.hero-ratio-social916{max-width:min(100%,370px);margin-inline:auto}
+
+/* V2.9 — fix previously ignored individual gallery frame ratios.
+   Preserves independent Selected Work framing and drag-to-crop positions. */
+.managed-section-hidden, .desktop-nav a.managed-section-hidden, .mobile-nav a.managed-section-hidden{display:none!important}
+.digital-grid .digital-card{display:flex!important;flex-direction:column!important;grid-column:auto!important;grid-row:auto!important;min-width:0;align-self:start}
+.digital-grid .digital-card .digital-visual{flex:none;min-width:0;position:relative;overflow:hidden}
+.digital-grid .digital-card .digital-visual img{box-sizing:border-box;padding:0!important;background:transparent!important}
+.digital-grid .digital-card.card-fit-contain .digital-visual img{object-fit:contain!important}
+.digital-grid .digital-card.card-fit-cover .digital-visual img{object-fit:cover!important}
+.digital-grid .digital-card.card-ratio-original .digital-visual{height:auto!important;max-height:none!important;aspect-ratio:auto!important}
+.digital-grid .digital-card.card-ratio-original .digital-visual img{position:relative!important;width:100%!important;height:auto!important;display:block;object-fit:contain!important;transform:none!important}
+/* Specificity defeats older mobile, compact, last-child and stagger rules. */
+.digital-grid .digital-card.card-ratio-square .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-square .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-square:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-square .digital-visual{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-square .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-portrait .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-portrait .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-portrait:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-portrait .digital-visual{aspect-ratio:4/5!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-portrait .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-portrait34 .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-portrait34 .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-portrait34:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-portrait34 .digital-visual{aspect-ratio:3/4!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-portrait34 .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-portrait23 .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-portrait23 .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-portrait23:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-portrait23 .digital-visual{aspect-ratio:2/3!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-portrait23 .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-social916 .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-social916 .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-social916:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-social916 .digital-visual{aspect-ratio:9/16!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-social916 .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-classic .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-classic .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-classic:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-classic .digital-visual{aspect-ratio:3/2!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-classic .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+.digital-grid .digital-card.card-ratio-landscape .digital-visual, .digital-grid.gallery-layout-compact .digital-card.card-ratio-landscape .digital-visual, .digital-grid.gallery-layout-editorial .digital-card.card-ratio-landscape:last-child .digital-visual, .digital-grid.gallery-layout-carousel .digital-card.card-ratio-landscape .digital-visual{aspect-ratio:16/9!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-ratio-landscape .digital-visual img{width:100%!important;height:100%!important;position:absolute!important;inset:0!important}
+
+.client-grid .client-card.client-ratio-original .client-art,.concept-grid .concept-card.card-ratio-original .concept-art,.visual-grid .visual-card.visual-ratio-original .visual-art{aspect-ratio:auto!important;height:auto!important;min-height:0!important}
+.client-grid .client-card.client-ratio-original .client-art img,.concept-grid .concept-card.card-ratio-original .concept-art img,.visual-grid .visual-card.visual-ratio-original .visual-art img{position:relative!important;display:block!important;width:100%!important;height:auto!important;object-fit:contain!important;padding:0!important}
+
+/* Every non-featured location honors the SAME saved per-project frame ratio.
+   This supersedes old nth-child art-direction defaults on all layout presets. */
+.more-grid .project-card.card-ratio-square .card-visual,.featured-grid .project-card.featured.card-ratio-square .card-visual,.concept-grid .concept-card.card-ratio-square .concept-art,.visual-grid .visual-card.visual-ratio-square .visual-art,.client-grid .client-card.client-ratio-square .client-art,.motion-grid .motion-card.card-ratio-square .motion-visual{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-portrait .card-visual,.featured-grid .project-card.featured.card-ratio-portrait .card-visual,.concept-grid .concept-card.card-ratio-portrait .concept-art,.visual-grid .visual-card.visual-ratio-portrait .visual-art,.client-grid .client-card.client-ratio-portrait .client-art,.motion-grid .motion-card.card-ratio-portrait .motion-visual{aspect-ratio:4/5!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-portrait34 .card-visual,.featured-grid .project-card.featured.card-ratio-portrait34 .card-visual,.concept-grid .concept-card.card-ratio-portrait34 .concept-art,.visual-grid .visual-card.visual-ratio-portrait34 .visual-art,.client-grid .client-card.client-ratio-portrait34 .client-art,.motion-grid .motion-card.card-ratio-portrait34 .motion-visual{aspect-ratio:3/4!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-portrait23 .card-visual,.featured-grid .project-card.featured.card-ratio-portrait23 .card-visual,.concept-grid .concept-card.card-ratio-portrait23 .concept-art,.visual-grid .visual-card.visual-ratio-portrait23 .visual-art,.client-grid .client-card.client-ratio-portrait23 .client-art,.motion-grid .motion-card.card-ratio-portrait23 .motion-visual{aspect-ratio:2/3!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-social916 .card-visual,.featured-grid .project-card.featured.card-ratio-social916 .card-visual,.concept-grid .concept-card.card-ratio-social916 .concept-art,.visual-grid .visual-card.visual-ratio-social916 .visual-art,.client-grid .client-card.client-ratio-social916 .client-art,.motion-grid .motion-card.card-ratio-social916 .motion-visual{aspect-ratio:9/16!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-classic .card-visual,.featured-grid .project-card.featured.card-ratio-classic .card-visual,.concept-grid .concept-card.card-ratio-classic .concept-art,.visual-grid .visual-card.visual-ratio-classic .visual-art,.client-grid .client-card.client-ratio-classic .client-art,.motion-grid .motion-card.card-ratio-classic .motion-visual{aspect-ratio:3/2!important;height:auto!important;min-height:0!important;max-height:none!important}
+.more-grid .project-card.card-ratio-landscape .card-visual,.featured-grid .project-card.featured.card-ratio-landscape .card-visual,.concept-grid .concept-card.card-ratio-landscape .concept-art,.visual-grid .visual-card.visual-ratio-landscape .visual-art,.client-grid .client-card.client-ratio-landscape .client-art,.motion-grid .motion-card.card-ratio-landscape .motion-visual{aspect-ratio:16/9!important;height:auto!important;min-height:0!important;max-height:none!important}
+.digital-grid .digital-card.card-fit-contain .digital-visual img{object-fit:contain!important}
+.concept-grid .concept-card.card-fit-contain .concept-art img{object-fit:contain!important}
+.visual-grid .visual-card.card-fit-contain .visual-art img{object-fit:contain!important}
+.more-grid .project-card.card-fit-contain .card-visual img{object-fit:contain!important}
+.client-grid .client-card.client-fit-contain .client-art img{object-fit:contain!important}
+
+/* V2.10 additive: original V2 hero / marquee / cards are intentionally untouched. */
+.systems-lab-section{padding:clamp(82px,9vw,146px) 0;background:radial-gradient(ellipse at 85% 20%,rgba(128,70,164,.27),transparent 53%),radial-gradient(ellipse at 12% 80%,rgba(116,36,79,.22),transparent 50%),#140d1c;color:#f6eef2;position:relative}
+.systems-lab-section[hidden],.systems-nav-link[hidden]{display:none!important}
+.systems-lab-intro{display:grid;grid-template-columns:1.3fr .6fr;align-items:end;gap:38px;margin-bottom:48px}
+.systems-lab-intro .eyebrow{color:#e180ba;font-size:11px;font-weight:700;letter-spacing:.16em;margin-bottom:24px}
+.systems-lab-intro h2{max-width:810px;font-family:'Playfair Display',Georgia,serif;font-size:clamp(40px,5.7vw,80px);line-height:1.05;letter-spacing:-.05em}
+.systems-lab-intro h2 em{color:#e578b6;font-style:italic}
+.systems-lab-intro >p{color:#c5b6c9;max-width:330px;line-height:1.75;font-size:15px;margin-left:auto}
+.systems-lab-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.systems-demo{padding:clamp(24px,3vw,40px);background:linear-gradient(145deg,rgba(84,46,95,.64),rgba(23,17,32,.85));border:1px solid rgba(231,184,218,.22);border-radius:23px;min-width:0;box-shadow:0 24px 75px rgba(0,0,0,.1)}
+.systems-demo-index{font-size:10px;letter-spacing:.18em;color:#d8a5d5;margin-bottom:23px;font-weight:700}
+.systems-demo h3{font:600 clamp(24px,2.6vw,36px)/1.16 'Playfair Display',Georgia,serif;margin:0 0 12px;color:#fcf5fa}
+.systems-demo-intro{color:#c6b9c9;font-size:14px;line-height:1.6;min-height:45px}
+.systems-step-rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:32px 0 15px}
+.systems-step-button{appearance:none;border:1px solid rgba(230,198,220,.25);border-radius:12px;background:rgba(8,6,15,.3);color:#dcd0e0;text-align:left;padding:12px 9px;min-height:85px;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.systems-step-button small{display:block;color:#b8a8be;font-size:10px;letter-spacing:.08em;margin-bottom:10px}
+.systems-step-button span{font-size:12px;font-weight:600;line-height:1.35;display:block;overflow-wrap:anywhere}
+.systems-step-button:hover,.systems-step-button:focus-visible,.systems-step-button.is-active{border-color:#f09aca;background:linear-gradient(155deg,#a13c7b,#5d327f);color:#fff}
+.systems-step-detail{border:1px solid rgba(232,190,221,.2);border-radius:15px;background:#170e20;padding:20px 22px;min-height:130px}
+.systems-step-detail strong{font:600 22px 'Playfair Display',Georgia,serif;color:#f6dbe9}
+.systems-step-detail p{font-size:13px;line-height:1.7;color:#c9bacc;margin:9px 0 0}
+.systems-disclaimer{font-size:10px;letter-spacing:.15em;color:#aa92b5;margin-top:25px}
+.studio-video{position:relative;overflow:hidden;background:#160f1b;border-radius:16px}
+.studio-video video{display:block;width:100%;max-height:min(72vh,780px);object-fit:contain;background:#160f1b}
+.studio-audio-toggle{position:absolute;right:14px;top:14px;z-index:2;appearance:none;border:1px solid rgba(255,255,255,.45);background:rgba(26,16,32,.83);color:#fff;border-radius:28px;cursor:pointer;padding:10px 15px;font-size:12px;font-weight:700;backdrop-filter:blur(10px)}
+.studio-audio-toggle:hover,.studio-audio-toggle:focus-visible{background:#7d3c77}
+.case-lead-video{width:100%;margin-bottom:25px}.case-lead-video .studio-video video{aspect-ratio:16/9;max-height:68vh}
+.studio-card-video{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+@media(max-width:850px){.systems-lab-intro{grid-template-columns:1fr;gap:15px}.systems-lab-intro>p{margin-left:0}.systems-lab-grid{grid-template-columns:1fr}}
+@media(max-width:480px){.systems-step-rail{grid-template-columns:repeat(2,minmax(0,1fr))}.systems-step-button{min-height:70px}.systems-lab-section{padding:70px 0}}
+@media(prefers-reduced-motion:reduce){.systems-step-button{transition:none}}

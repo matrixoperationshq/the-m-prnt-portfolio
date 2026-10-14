@@ -1,3 +1,5 @@
+import {SYSTEMS_DEFAULT,normalizeSystems} from './systems-lab.js';
+import {SECTION_DEFS, SECTION_SETTINGS_KEY, normalizeSections} from './section-settings.js';
 import {disciplineFor,locationFor,locationLabel,suggestedLocation,LOCATIONS} from './project-taxonomy.js';
 import {hasBackend,getClient,safeUrl} from './data-service.js';
 import {CROP_ASPECTS, normalizedCrop, imageCropCss, dragCrop} from './crop-utils.js';
@@ -15,7 +17,7 @@ function authMessage(message){$('#login-error').textContent=message}
 async function checkAuthorization(){const {data:{user},error}=await client.auth.getUser();if(error||!user)return false;const result=await client.from('portfolio_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(result.error)throw result.error;return !!result.data}
 async function begin(){if(!hasBackend()){show('setup-view');return}try{client=await getClient();if(await checkAuthorization())await openDashboard();else show('login-view')}catch(e){console.error(e);show('login-view');authMessage('Could not connect to Supabase. Check the public project URL, key, schema and network.')}}
 async function openDashboard(){show('dashboard');await loadData();renderList();if(projects.length)selectProject(projects[0].id)}
-async function loadData(){const [records,copy]=await Promise.all([client.from('portfolio_projects').select('id,data,status,sort_order').order('sort_order',{ascending:true}),client.from('portfolio_settings').select('key,value')]);if(records.error)throw records.error;if(copy.error)throw copy.error;projects=(records.data||[]).map(r=>({...r.data,id:r.id,status:r.status,sort_order:r.sort_order}));persistedIds=new Set(projects.map(p=>p.id));settings=Object.fromEntries((copy.data||[]).map(r=>[r.key,r.value]));loadSettingsForm();renderCustomSectionEditors()}
+async function loadData(){const [records,copy]=await Promise.all([client.from('portfolio_projects').select('id,data,status,sort_order').order('sort_order',{ascending:true}),client.from('portfolio_settings').select('key,value')]);if(records.error)throw records.error;if(copy.error)throw copy.error;projects=(records.data||[]).map(r=>({...r.data,id:r.id,status:r.status,sort_order:r.sort_order}));persistedIds=new Set(projects.map(p=>p.id));settings=Object.fromEntries((copy.data||[]).map(r=>[r.key,r.value]));loadSettingsForm();populateSystemsEditor();renderCustomSectionEditors();resetSectionDraft()}
 function renderList(){
  const query=getVal('project-search').toLowerCase();
  const locationFilter=$('#library-placement-filter').value;
@@ -69,8 +71,8 @@ function updatePlacementPreview(){
  $('#editor-preview-placement').textContent=name.toUpperCase();
  document.querySelectorAll('.placement-choice').forEach(el=>el.classList.toggle('is-selected',!!el.querySelector('input:checked')));
 }
-function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
-function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
+function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderPrimaryMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
+function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;current.primary_visual=$('#edit-primary-visual').value;current.primary_video_src=$('#edit-primary-video').value;current.video_autoplay=$('#edit-video-autoplay').checked;current.video_card_preview=$('#edit-video-card').checked;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
 function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-portrait34','preview-ratio-portrait23','preview-ratio-social916','preview-ratio-landscape','preview-ratio-classic','preview-ratio-original');if(['square','portrait','portrait34','portrait23','social916','landscape','classic','original'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover';preview.style.objectPosition='';preview.style.transform='';preview.style.transformOrigin='';if(current.card_ratio!=='original'&&current.card_fit==='cover'){preview.style.cssText += imageCropCss(current.card_crop)}
  const selected=$('#editor-featured-preview');const featImg=$('#editor-featured-preview-img');
  selected.hidden=!current.featured;
@@ -81,6 +83,23 @@ function renderPreview(){if(!current)return;updateImage($('#editor-preview-img')
   featImg.style.cssText=shape==='original'?'':imageCropCss(current.featured_crop);
   $('#editor-featured-caption').textContent='Selected Work crop · '+({'portrait':'4:5','portrait34':'3:4','portrait23':'2:3','social916':'9:16','square':'1:1','landscape':'16:9','classic':'3:2','original':'Original'}[shape]);
  }
+}
+function renderPrimaryMedia(){
+ if(!current)return;
+ const videoSelect=$('#edit-primary-video');
+ const videos=(current.media||[]).filter(m=>m.type==='video'&&safeUrl(m.src));
+ videoSelect.replaceChildren(new Option('Select an uploaded video',''));
+ for(const media of videos){const name=media.caption||media.src.split('/').pop().slice(0,55);videoSelect.add(new Option(name,media.src))}
+ $('#edit-primary-visual').value=current.primary_visual||(safeUrl(current.model)?'model':'image');
+ $('#edit-video-autoplay').checked=!!current.video_autoplay;
+ $('#edit-video-card').checked=!!current.video_card_preview;
+ videoSelect.value=videos.some(m=>m.src===current.primary_video_src)?current.primary_video_src:videos[0]?.src||'';
+ current.primary_video_src=videoSelect.value;
+ const mode=$('#edit-primary-visual').value;
+ videoSelect.disabled=mode!=='video';
+ $('#edit-video-autoplay').disabled=mode!=='video';
+ $('#edit-video-card').disabled=mode!=='video';
+ $('#main-visual-help').textContent=mode==='video'?('Video sound starts muted. '+(videos.length?'Select a video, then Save changes.':'Upload a video to Media Library below first.')):mode==='model'?'Uses the uploaded GLB when available.':'Current cover image remains the main visual.';
 }
 function renderMedia(){
  const list=$('#gallery-editor');list.replaceChildren();
@@ -212,11 +231,11 @@ async function uploadOne(file,cover=false){
   if(!safeUrl(current.cover)&&type==='image'){current.cover=url;setVal('edit-cover',url)}
   if(type==='model')current.model=url;
  }
- dirty=true;renderMedia();renderPreview();$('#save-state').textContent='Upload complete. Save to publish metadata.';
+ dirty=true;renderMedia();renderPrimaryMedia();renderPreview();$('#save-state').textContent='Upload complete. Save to publish metadata.';
 }
 async function uploadFiles(files,cover){if(!current||!files?.length)return;const node=$('#upload-state');for(let i=0;i<files.length;i++){node.textContent=`Uploading ${i+1} of ${files.length}: ${files[i].name}…`;try{await uploadOne(files[i],cover);node.textContent=`Uploaded ${i+1} of ${files.length}. Remember to save.`}catch(e){console.error(e);node.textContent='Upload failed: '+e.message;notice(node.textContent,true);return}}notice('Media uploaded. Save changes to attach it to the live project.')}
 function projectPayload(p){const copy=cleanProject(p);delete copy.sort_order;return copy}
-async function saveProject(){if(!current)return;syncForm();if(!current.title){notice('Project title is required.',true);return}if(current.site_url&&!safeUrl(current.site_url)){notice('Website URL must use HTTPS.',true);return}if(current.status==='published'&&!safeUrl(current.cover)){notice('Published projects require a valid cover image.',true);return}if(current.status==='published'&&current.category==='Experiments'&&!safeUrl(current.model)){notice('3D experiments need a real GLB model to publish.',true);return}if(current.status==='published'&&current.category==='Motion'&&!current.media?.some(m=>m.type==='video'&&safeUrl(m.src))){notice('Motion projects need a playable video to publish.',true);return}const btn=$('#save-project');btn.disabled=true;$('#save-state').textContent='Saving to database…';try{const previous=projects.find(p=>p.id===current.id);if(previous&&persistedIds.has(current.id)){const rev=await client.from('portfolio_revisions').insert({project_id:current.id,previous_data:projectPayload(previous),previous_status:previous.status,previous_order:previous.sort_order});if(rev.error)throw rev.error}const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const order=current.sort_order??maxOrder;const result=await client.from('portfolio_projects').upsert({id:current.id,data:projectPayload(current),status:current.status,sort_order:order},{onConflict:'id'}).select('id').single();if(result.error)throw result.error;persistedIds.add(current.id);current.sort_order=order;const index=projects.findIndex(p=>p.id===current.id);if(index===-1)projects.push(cleanProject(current));else projects[index]=cleanProject(current);dirty=false;renderList();$('#save-state').textContent=current.status==='published'?'Published · saved to database':'Saved as '+current.status;notice('Saved to Supabase. '+(current.status==='published'?'Live site is now updated.':'This record is not public.'))}catch(e){console.error(e);$('#save-state').textContent='Save failed';notice('Save failed: '+e.message,true)}finally{btn.disabled=false}}
+async function saveProject(){if(!current)return;syncForm();if(!current.title){notice('Project title is required.',true);return}if(current.site_url&&!safeUrl(current.site_url)){notice('Website URL must use HTTPS.',true);return}if(current.status==='published'&&current.primary_visual==='video'&&!(current.media||[]).some(m=>m.type==='video'&&m.src===current.primary_video_src)){notice('Choose an uploaded video as the main visual before publishing.',true);return}if(current.status==='published'&&!safeUrl(current.cover)){notice('Published projects require a valid cover image.',true);return}if(current.status==='published'&&current.category==='Experiments'&&!safeUrl(current.model)){notice('3D experiments need a real GLB model to publish.',true);return}if(current.status==='published'&&current.category==='Motion'&&!current.media?.some(m=>m.type==='video'&&safeUrl(m.src))){notice('Motion projects need a playable video to publish.',true);return}const btn=$('#save-project');btn.disabled=true;$('#save-state').textContent='Saving to database…';try{const previous=projects.find(p=>p.id===current.id);if(previous&&persistedIds.has(current.id)){const rev=await client.from('portfolio_revisions').insert({project_id:current.id,previous_data:projectPayload(previous),previous_status:previous.status,previous_order:previous.sort_order});if(rev.error)throw rev.error}const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const order=current.sort_order??maxOrder;const result=await client.from('portfolio_projects').upsert({id:current.id,data:projectPayload(current),status:current.status,sort_order:order},{onConflict:'id'}).select('id').single();if(result.error)throw result.error;persistedIds.add(current.id);current.sort_order=order;const index=projects.findIndex(p=>p.id===current.id);if(index===-1)projects.push(cleanProject(current));else projects[index]=cleanProject(current);dirty=false;renderList();$('#save-state').textContent=current.status==='published'?'Published · saved to database':'Saved as '+current.status;notice('Saved to Supabase. '+(current.status==='published'?'Live site is now updated.':'This record is not public.'))}catch(e){console.error(e);$('#save-state').textContent='Save failed';notice('Save failed: '+e.message,true)}finally{btn.disabled=false}}
 async function addProject(){if(dirty&&!confirm('Discard unsaved changes?'))return;const id='project-'+crypto.randomUUID().slice(0,8);const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const p={id,slug:id,title:'New project',eyebrow:'CREATIVE WORK',category:'Brand Identity',site_section:'work',client_type:'Creative work',role:'',summary:'',approach:'',outcome:'',cover:'',media:[],tags:[],feature_rank:99,featured:false,status:'draft',sort_order:maxOrder};projects.push(p);selectProject(id);dirty=true;$('#save-state').textContent='New draft · not saved yet';$('#edit-title').focus()}
 async function orderProject(direction){if(!current)return;const idx=projects.findIndex(p=>p.id===current.id);const other=projects[idx+direction];if(!other)return;if(dirty&&!confirm('Save your changes before reordering?'))return;const currentOrder=current.sort_order;const otherOrder=other.sort_order;const a=await client.from('portfolio_projects').update({sort_order:otherOrder}).eq('id',current.id);if(a.error){notice(a.error.message,true);return}const b=await client.from('portfolio_projects').update({sort_order:currentOrder}).eq('id',other.id);if(b.error){notice('One reorder step failed. Refresh to check the saved order.',true);await loadData();renderList();return}current.sort_order=otherOrder;other.sort_order=currentOrder;projects.sort((a,b)=>a.sort_order-b.sort_order);renderList();notice('Project order updated.')}
 async function archiveProject(){if(!current)return;$('#edit-status').value='archived';await saveProject()}
@@ -403,6 +422,10 @@ function attachListeners(){
  document.querySelectorAll('input[name="site-section"]').forEach(radio=>radio.addEventListener('change',()=>{setPlacement(radio.value);syncForm()}));
  $('#edit-category').addEventListener('change',()=>{if(!locationTouched)setPlacement(suggestedLocation(getVal('edit-category')),false);syncForm()});
  $('#edit-cover').addEventListener('change',syncForm);
+ $('#edit-primary-visual').addEventListener('change',()=>{syncForm();renderPrimaryMedia()});
+ $('#edit-primary-video').addEventListener('change',syncForm);
+ $('#edit-video-autoplay').addEventListener('change',syncForm);
+ $('#edit-video-card').addEventListener('change',syncForm);
  $('#cover-upload').addEventListener('change',async e=>{await uploadFiles([...e.target.files],true);e.target.value=''});$('#gallery-upload').addEventListener('change',async e=>{await uploadFiles([...e.target.files],false);e.target.value=''});
  $('#add-url-media').addEventListener('click',()=>{if(!current)return;const url=prompt('Paste a secure HTTPS media URL:');if(!url)return;if(!safeUrl(url)){notice('Please use a secure HTTPS URL.',true);return}const type=prompt('Type: image, video, pdf, or model?','image');if(!['image','video','pdf','model'].includes(type)){notice('Unsupported type',true);return}current.media??=[];current.media.push({type,src:url,caption:''});if(type==='model')current.model=url;dirty=true;renderMedia();notice('Media URL added. Save changes to publish.')});
  $('#archive-project').addEventListener('click',archiveProject);$('#delete-project').addEventListener('click',deleteProject);$('#view-history').addEventListener('click',history);$('#export-data').addEventListener('click',exportBackup);
@@ -410,4 +433,106 @@ function attachListeners(){
  $('#toggle-settings').addEventListener('click',()=>{$('#settings-content').hidden=!$('#settings-content').hidden});$('#save-settings').addEventListener('click',saveSettings);
  window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 }
-attachListeners();begin();
+
+// V2.10 - Systems Lab has its own optional public setting.
+function stepToText(items){return (items||[]).map(s=>s.title+' | '+s.detail).join('\n')}
+function textToSteps(text){return text.split(/\r?\n/).map(line=>{const i=line.indexOf('|');return {title:(i<0?line:line.slice(0,i)).trim().slice(0,70),detail:(i<0?'':line.slice(i+1)).trim().slice(0,280)}}).filter(x=>x.title).slice(0,7)}
+function populateSystemsEditor(){const data=normalizeSystems(settings.systemsLabV210);$('#systems-enabled').checked=data.enabled;for(const [target,value] of [['systems-eyebrow-input',data.eyebrow],['systems-title-input',data.title],['systems-intro-input',data.intro]])setVal(target,value);
+ for(let i=0;i<2;i++){const id=i?'matrix':'silk';setVal('system-'+id+'-title',data.demos[i].name);setVal('system-'+id+'-description',data.demos[i].description);setVal('system-'+id+'-steps',stepToText(data.demos[i].steps))}}
+async function saveSystemsLab(){const enabled=$('#systems-enabled').checked;const demos=['silk','matrix'].map(id=>({name:getVal('system-'+id+'-title'),description:getVal('system-'+id+'-description'),steps:textToSteps(getVal('system-'+id+'-steps'))}));if(enabled&&demos.some(d=>!d.steps.length)){notice('Add at least one workflow step to each published demo.',true);return}
+ const value=normalizeSystems({enabled,eyebrow:getVal('systems-eyebrow-input'),title:getVal('systems-title-input'),intro:getVal('systems-intro-input'),demos});
+ const b=$('#save-systems');b.disabled=true;$('#systems-save-state').textContent='Saving…';try{const r=await client.from('portfolio_settings').upsert({key:'systemsLabV210',value},{onConflict:'key'});if(r.error)throw r.error;settings.systemsLabV210=value;$('#systems-save-state').textContent=value.enabled?'Published to Systems Lab · reload the public site.':'Saved as hidden · public site unchanged.';notice('Systems Lab saved to Supabase.')}catch(e){console.error(e);$('#systems-save-state').textContent='Save failed: '+e.message;notice('Could not save Systems Lab.',true)}finally{b.disabled=false}}
+function wireSystemsEditor(){const b=$('#toggle-systems');if(!b)return;b.addEventListener('click',()=>{const panel=$('#systems-editor-content');panel.hidden=!panel.hidden;b.setAttribute('aria-expanded',String(!panel.hidden))});$('#save-systems').addEventListener('click',saveSystemsLab)}
+// V2.9 SECTION ORGANIZER — only changes the public presentation; all projects stay in Supabase.
+let sectionDraft=null;
+let sectionsDragging=null;
+function resetSectionDraft(){
+ sectionDraft=normalizeSections(settings[SECTION_SETTINGS_KEY]);
+ renderSectionRows();
+}
+function sectionChanges(message='Unpublished section changes. Save to update the site.'){
+ const state=$('#section-manager-state');if(state)state.textContent=message;
+}
+function sectionMove(id,toIndex){
+ if(!sectionDraft)return;
+ const old=sectionDraft.order.indexOf(id);
+ if(old===-1)return;
+ sectionDraft.order.splice(old,1);
+ sectionDraft.order.splice(Math.max(0,Math.min(sectionDraft.order.length,toIndex)),0,id);
+ renderSectionRows();sectionChanges();
+}
+function sectionInput(label,value,placeholder,onInput,multiline=false){
+ const wrap=document.createElement('label');wrap.className='section-manager-field';
+ const labelNode=document.createElement('span');labelNode.textContent=label;wrap.append(labelNode);
+ const input=document.createElement(multiline?'textarea':'input');
+ input.value=value||'';input.placeholder=placeholder;input.maxLength=multiline?350:label==='Menu label'?28:115;
+ if(multiline)input.rows=2;
+ input.addEventListener('input',()=>{onInput(input.value);sectionChanges()});
+ wrap.append(input);return wrap;
+}
+function renderSectionRows(){
+ const holder=$('#section-manager-list');if(!holder||!sectionDraft)return;
+ holder.replaceChildren();
+ sectionDraft.order.forEach((id,index)=>{
+  const def=SECTION_DEFS.find(s=>s.id===id);if(!def)return;
+  const entry=sectionDraft.entries[id];
+  const card=document.createElement('article');card.className='section-manager-item';card.draggable=true;card.dataset.sectionId=id;
+  const header=document.createElement('div');header.className='section-manager-row-head';
+  const handle=document.createElement('span');handle.className='section-handle';handle.textContent='⠿';handle.title='Drag to reorder';handle.setAttribute('aria-hidden','true');
+  const heading=document.createElement('div');heading.className='section-manager-names';
+  const number=document.createElement('small');number.textContent=String(index+1).padStart(2,'0')+' / WEBSITE SECTION';
+  const title=document.createElement('strong');title.textContent=def.name;
+  const summary=document.createElement('p');summary.textContent=def.summary;
+  heading.append(number,title,summary);
+  const actions=document.createElement('div');actions.className='section-manager-actions';
+  for(const [txt,delta] of [['↑',-1],['↓',1]]){
+   const btn=document.createElement('button');btn.type='button';btn.textContent=txt;
+   btn.setAttribute('aria-label',(delta<0?'Move ':'Move ')+def.name+(delta<0?' up':' down'));
+   btn.disabled=delta<0?index===0:index===sectionDraft.order.length-1;
+   btn.addEventListener('click',()=>sectionMove(id,index+delta));actions.append(btn);
+  }
+  const toggle=document.createElement('button');toggle.type='button';toggle.className='section-visibility';
+  toggle.textContent=entry.visible?'Visible ✓':'Hidden — Restore';toggle.setAttribute('aria-pressed',String(entry.visible));
+  toggle.addEventListener('click',()=>{entry.visible=!entry.visible;renderSectionRows();sectionChanges()});actions.append(toggle);
+  header.append(handle,heading,actions);card.append(header);
+  const fields=document.createElement('div');fields.className='section-manager-fields';
+  fields.append(sectionInput('Menu label',entry.navLabel,def.nav,value=>entry.navLabel=value));
+  fields.append(sectionInput('Headline override',entry.heading,'Keep current editorial headline',value=>entry.heading=value));
+  fields.append(sectionInput('Small label',entry.eyebrow,'Keep current eyebrow',value=>entry.eyebrow=value));
+  fields.append(sectionInput('Description',entry.description,'Keep existing introduction text',value=>entry.description=value,true));
+  card.append(fields);
+  const note=document.createElement('p');note.className='section-manager-note';note.textContent=id==='motion'?'Motion & Film and 3D & Interaction are grouped so their layout stays consistent.':'Blank text fields preserve your existing editorial design.';
+  card.append(note);
+  card.addEventListener('dragstart',event=>{sectionsDragging=id;card.classList.add('section-is-dragged');event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id)});
+  card.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect='move';card.classList.add('section-drop-target')});
+  card.addEventListener('dragleave',()=>card.classList.remove('section-drop-target'));
+  card.addEventListener('drop',event=>{event.preventDefault();const moving=sectionsDragging||event.dataTransfer.getData('text/plain');sectionsDragging=null;sectionMove(moving,sectionDraft.order.indexOf(id))});
+  card.addEventListener('dragend',()=>{sectionsDragging=null;document.querySelectorAll('.section-is-dragged,.section-drop-target').forEach(el=>el.classList.remove('section-is-dragged','section-drop-target'))});
+  holder.append(card);
+ });
+}
+async function saveSectionManager(){
+ if(!client)return;
+ const button=$('#section-manager-save');button.disabled=true;
+ sectionChanges('Saving section order and appearance…');
+ try{
+  const value=normalizeSections(sectionDraft);
+  const result=await client.from('portfolio_settings').upsert({key:SECTION_SETTINGS_KEY,value},{onConflict:'key'});
+  if(result.error)throw result.error;
+  settings[SECTION_SETTINGS_KEY]=structuredClone(value);
+  sectionChanges('Saved to Supabase. Refresh the public portfolio to see your changes.');
+  notice('Section presentation saved. All projects are unchanged.');
+ }catch(error){console.error(error);sectionChanges('Could not save: '+error.message);notice('Section changes were not saved.',true)}
+ finally{button.disabled=false}
+}
+function initSectionManager(){
+ const dialog=$('#section-manager-dialog'),open=$('#open-section-manager');
+ if(!dialog||!open)return;
+ open.addEventListener('click',()=>{resetSectionDraft();dialog.showModal();sectionChanges('Drag, rename or hide sections. Nothing is live until you save.')});
+ $('#section-manager-close').addEventListener('click',()=>dialog.close());
+ $('#section-manager-cancel').addEventListener('click',()=>dialog.close());
+ $('#section-manager-save').addEventListener('click',saveSectionManager);
+ dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+}
+
+attachListeners();initSectionManager();wireSystemsEditor();begin();
