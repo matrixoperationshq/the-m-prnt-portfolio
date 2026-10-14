@@ -21,7 +21,8 @@ export const LOCATIONS = [
   ['visual','Visual Studies','Posters, illustrations, graphics and standalone designs'],
   ['motion','Motion & Film','Animations, films and motion design'],
   ['three','3D & Interaction','GLB models, spatial design and interactive work'],
-  ['archive','More Work','Supporting pieces and smaller creative projects']
+  ['archive','More Work','Supporting published projects and additional creative work'],
+  ['holding','Private Holding','Keep a project in the library without putting it on the public site']
 ];
 const canonical = new Set(DISCIPLINES.map(item=>item[0]));
 const legacy = {

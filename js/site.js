@@ -55,7 +55,7 @@ function projectCardVisual(p,alt,lazy=true,styleCrop=null,shouldCrop=false){
  if(p.video_card_preview&&p.primary_visual==='video'&&video){return `<video class="studio-card-video" muted playsinline loop preload="none" poster="${att(safeUrl(p.cover)||'')}" src="${att(video)}" aria-label="Muted preview: ${att(p.title)}"></video>`;}
  return image(p.cover,alt,lazy,styleCrop,shouldCrop);
 }
-function isUsable(p){return p.status==='published'&&!!safeUrl(p.cover)}
+function isUsable(p){return p.status==='published'&&locationFor(p)!=='holding'&&!!safeUrl(p.cover)}
 function displayTitle(p){return esc(p.title||'Untitled work')}
 function featuredCard(p,i){
  const shape=ratio(featuredFrameV28);
@@ -72,10 +72,6 @@ function renderWork(){
  $('#featured-grid').innerHTML=filtered.length?filtered.map(featuredCard).join(''):`<p class="loading-note">No published pieces in this collection yet. Explore another discipline.</p>`;
  setGalleryPresentation('featured','featured-grid');
  // Only show creative/archive projects here. Websites and motion have their own curated sections.
- const others=ordered('archive',publish.filter(p=>!p.featured && locationFor(p)==='archive')).slice(0,12);
- $('#more-grid').innerHTML=activeFilter==='All'?others.map(miniCard).join(''):'';
- setGalleryPresentation('archive','more-grid');
- $('.more-work-head').style.display=activeFilter==='All'&&others.length?'flex':'none';
  $('#all-count').textContent=String(featured.length).padStart(2,'0');
  $$('.filter-btn').forEach(b=>{const active=b.dataset.filter===activeFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false')});
 }
@@ -106,6 +102,7 @@ function renderIndependentGallery(sectionId,gridId,location,mode){
 }
 function renderCreative(){return renderIndependentGallery('creative','creative-grid','creative')}
 function renderSocial(){return renderIndependentGallery('social','social-grid','social')}
+function renderMore(){return renderIndependentGallery('more','more-native-grid','archive','archive')}
 function renderClient(){
  const list=ordered('client',allProjects.filter(p=>isUsable(p)&&locationFor(p)==='client'));
  const section=$('#client');if(!section)return;
@@ -195,7 +192,7 @@ function storyBlocks(p){
  }).join('');
 }
 function openProject(id){
- const p=allProjects.find(p=>p.id===id&&p.status==='published');if(!p)return;
+ const p=allProjects.find(p=>p.id===id&&isUsable(p));if(!p)return;
  const assets=(p.media||[]).filter(m=>safeUrl(m.src));
  const leadShape=ratio(p.hero_ratio||'original'),leadFit=fit(p.hero_fit||'contain');
  const video=chosenVideo(p);
@@ -334,5 +331,5 @@ function launchSeamlessBanner(){
   rebuild();
 }
 
-async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};setCustomLocations(normalizeSections(s.sectionManagerV29).custom);featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderCreative();renderDigital();renderClient();renderSocial();renderConcept();renderVisual();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);renderNativeGalleries(s.sectionManagerV29);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withCreative:!!document.querySelector('#creative-grid .client-card'),withSocial:!!document.querySelector('#social-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};setCustomLocations(normalizeSections(s.sectionManagerV29).custom);featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderCreative();renderDigital();renderClient();renderSocial();renderConcept();renderVisual();renderMore();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);renderNativeGalleries(s.sectionManagerV29);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withCreative:!!document.querySelector('#creative-grid .client-card'),withSocial:!!document.querySelector('#social-grid .client-card'),withMore:!!document.querySelector('#more-native-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();

@@ -10,6 +10,7 @@ export const SECTION_DEFS = Object.freeze([
  {id:'social',name:'Social & Content',nav:'social',headingId:'social-title',summary:'Posts, stories, content campaigns and carousel graphics'},
  {id:'concept',name:'The Concept Lab',nav:'concepts',headingId:'concept-title',summary:'Spec campaigns and concept development'},
  {id:'visual',name:'Visual Studies',nav:'posters',headingId:'visual-title',summary:'Posters, illustration and graphic experiments'},
+ {id:'more',name:'More Work',nav:'more work',headingId:'more-title',summary:'Additional finished work, now with its own public gallery'},
  {id:'motion',name:'Motion + 3D',nav:'motion',headingId:'motion-title',summary:'Motion & Film and 3D & Interaction together'},
  {id:'studio',name:'Studio / About',nav:'studio',headingId:'studio-title',summary:'Your practice, skills and creative direction'}
 ]);
@@ -33,6 +34,7 @@ export function normalizeSections(raw){
  // Preserve explicit positions after the owner has organized these sections.
  if(!order.includes('creative')){unique.splice(unique.indexOf('creative'),1);unique.splice(unique.indexOf('work')+1,0,'creative')}
  if(!order.includes('social')){unique.splice(unique.indexOf('social'),1);unique.splice(unique.indexOf('client')+1,0,'social')}
+ if(!order.includes('more')){unique.splice(unique.indexOf('more'),1);unique.splice(unique.indexOf('visual')+1,0,'more')}
  // Old V2.9 ordering predates Systems Lab, and some versions stored no entry for it.
  if(!order.includes('systems')){unique.splice(unique.indexOf('systems'),1);unique.splice(unique.indexOf('digital')+1,0,'systems')}
  const entries={};
@@ -42,14 +44,14 @@ export function normalizeSections(raw){
  return {order:unique,entries,custom};
 }
 export function sectionDefinitions(raw){const settings=normalizeSections(raw);return [...SECTION_DEFS,...settings.custom.map(item=>({id:item.id,name:item.name,nav:item.name.toLowerCase(),headingId:'',summary:'Your own collection of portfolio projects'}))]}
-export function applySectionSettings(raw,{withClient=false,withSystems=false,withCreative=false,withSocial=false}={}){
+export function applySectionSettings(raw,{withClient=false,withSystems=false,withCreative=false,withSocial=false,withMore=false}={}){
  const settings=normalizeSections(raw),defs=sectionDefinitions(settings);
  const main=document.querySelector('main'),reference=document.getElementById('work');if(!main||!reference)return;
  const marker=document.createComment('Managed section order');main.insertBefore(marker,reference);
  for(const id of settings.order){
   const element=document.getElementById(id),def=defs.find(d=>d.id===id);if(!element||!def)continue;
   main.insertBefore(element,marker);
-  const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial);
+  const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
   element.hidden=!entry.visible||entry.removed||!available;
   element.classList.toggle('managed-section-hidden',!entry.visible||entry.removed||!available);
   element.dataset.sectionVisible=String(entry.visible&&!entry.removed&&available);
@@ -80,7 +82,7 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
   for(const link of nav.querySelectorAll('a[href^="#"]')){
    const href=link.getAttribute('href').slice(1),id=href==='three'?'motion':href;
    const def=defs.find(d=>d.id===id);if(!def)continue;
-   const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial);
+   const entry=settings.entries[id];const available=(id!=='client'||withClient)&&(id!=='systems'||withSystems)&&(id!=='creative'||withCreative)&&(id!=='social'||withSocial)&&(id!=='more'||withMore);
    link.hidden=!entry.visible||entry.removed||!available;
    link.classList.toggle('managed-section-hidden',!entry.visible||entry.removed||!available);
    if(href!=='three')link.textContent=entry.navLabel||def.nav;
