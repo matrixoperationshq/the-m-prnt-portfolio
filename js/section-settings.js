@@ -39,7 +39,7 @@ export function normalizeSections(raw){
  if(!order.includes('systems')){unique.splice(unique.indexOf('systems'),1);unique.splice(unique.indexOf('digital')+1,0,'systems')}
  const entries={};
  for(const def of defs){const source=input.entries?.[def.id]||{};
-  entries[def.id]={removed:source.removed===true,visible:source.visible!==false,navLabel:clean(source.navLabel,28),heading:clean(source.heading,115),eyebrow:clean(source.eyebrow,110),description:clean(source.description,350),theme:['light','dark','lavender'].includes(source.theme)?source.theme:'light'};
+  entries[def.id]={removed:source.removed===true,visible:source.visible!==false,navLabel:clean(source.navLabel,28),heading:clean(source.heading,115),eyebrow:clean(source.eyebrow,110),description:clean(source.description,350),adminNote:clean(source.adminNote,300),theme:['light','dark','lavender'].includes(source.theme)?source.theme:'light'};
  }
  return {order:unique,entries,custom};
 }
@@ -88,4 +88,35 @@ export function applySectionSettings(raw,{withClient=false,withSystems=false,wit
    if(href!=='three')link.textContent=entry.navLabel||def.nav;
   }
  }
+}
+
+/** Website manager is the source of truth for Admin gallery menus and destination order.
+ * A visible=false gallery is still editable in Admin. A removed=true gallery isn't offered.
+ * Holding is intentionally Admin-only, and both Motion disciplines share the Motion section.
+ */
+const DESTINATIONS_BY_SECTION=Object.freeze({
+ work:[['featured','Selected Work','Featured projects only']],
+ creative:[['creative','Creative Work','Art direction and complete designs']],
+ digital:[['digital','Digital Experiences','Websites, commerce and digital systems']],
+ client:[['client','Client Work','Commissioned creative assets']],
+ social:[['social','Social & Content','Posts, carousels and content campaigns']],
+ concept:[['concept','The Concept Lab','Spec campaigns, pitches and concepts']],
+ visual:[['visual','Visual Studies','Posters, illustration and graphics']],
+ motion:[['motion','Motion & Film','Films, videos and animation'],['three','3D & Interaction','Models and interactive spatial design']],
+ more:[['archive','More Work','Additional published creative work']]
+});
+export function orderedSectionDestinations(raw,{featured=true,holding=false}={}){
+ const s=normalizeSections(raw),defs=sectionDefinitions(s);
+ const rows=[];
+ for(const id of s.order){
+  const entry=s.entries[id];if(!entry||entry.removed)continue;
+  const def=defs.find(d=>d.id===id);if(!def)continue;
+  const items=isCustomGalleryId(id)?[[id,def.name,entry.adminNote||'Your own project gallery']]:DESTINATIONS_BY_SECTION[id]||[];
+  for(const [value,defaultLabel,help] of items){
+   if(value==='featured'&&!featured)continue;
+   rows.push({value,label:isCustomGalleryId(id)?def.name:defaultLabel,help,sectionId:id});
+  }
+ }
+ if(holding)rows.push({value:'holding',label:'Private Holding',help:'Not published, saved as draft',sectionId:null});
+ return rows;
 }

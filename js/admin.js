@@ -1,5 +1,5 @@
 import {SYSTEMS_DEFAULT,normalizeSystems} from './systems-lab.js';
-import {SECTION_DEFS, SECTION_SETTINGS_KEY, normalizeSections,sectionDefinitions,isCustomGalleryId} from './section-settings.js';
+import {SECTION_DEFS, SECTION_SETTINGS_KEY, normalizeSections,sectionDefinitions,isCustomGalleryId,orderedSectionDestinations} from './section-settings.js';
 import {disciplineFor,locationFor,locationLabel,suggestedLocation,LOCATIONS,setCustomLocations} from './project-taxonomy.js';
 import {hasBackend,getClient,safeUrl} from './data-service.js';
 import {CROP_ASPECTS, normalizedCrop, imageCropCss, dragCrop} from './crop-utils.js';
@@ -20,24 +20,56 @@ async function openDashboard(){show('dashboard');await loadData();renderList();i
 async function loadData(){const [records,copy]=await Promise.all([client.from('portfolio_projects').select('id,data,status,sort_order').order('sort_order',{ascending:true}),client.from('portfolio_settings').select('key,value')]);if(records.error)throw records.error;if(copy.error)throw copy.error;projects=(records.data||[]).map(r=>({...r.data,id:r.id,status:r.status,sort_order:r.sort_order}));persistedIds=new Set(projects.map(p=>p.id));settings=Object.fromEntries((copy.data||[]).map(r=>[r.key,r.value]));refreshSectionDestinations();loadSettingsForm();populateSystemsEditor();renderCustomSectionEditors();$('#legacy-sections-panel').hidden=!(Array.isArray(settings.customSections)&&settings.customSections.length);resetSectionDraft()}
 
 function refreshSectionDestinations(){
- const data=normalizeSections(settings[SECTION_SETTINGS_KEY]);
- setCustomLocations(data.custom);
+ const normalized=normalizeSections(settings[SECTION_SETTINGS_KEY]);
+ // Keep all stable custom IDs known to locationFor(), even if removed, so projects
+ // assigned to a removed gallery never fall back into Creative Work by accident.
+ setCustomLocations(normalized.custom);
+ const rows=orderedSectionDestinations(normalized,{holding:true});
+ const currentRadio=document.querySelector('input[name="site-section"]:checked')?.value;
  const group=document.querySelector('.placement-choices');
- group?.querySelectorAll('[data-custom-placement]').forEach(el=>el.remove());
  const lib=$('#library-placement-filter'),arrange=$('#arrange-section');
- for(const select of [lib,arrange])select?.querySelectorAll('option[data-custom-placement]').forEach(el=>el.remove());
- for(const [index,item] of data.custom.entries()){
-  const label=document.createElement('label');label.className='placement-choice';label.dataset.customPlacement=item.id;
-  const input=document.createElement('input');input.type='radio';input.name='site-section';input.value=item.id;
-  input.addEventListener('change',()=>{setPlacement(input.value);syncForm()});
-  const ordinal=document.createElement('span');ordinal.className='placement-choice-ordinal';ordinal.textContent=String(index+9).padStart(2,'0');
-  const description=document.createElement('span');description.className='placement-choice-copy';
-  const heading=document.createElement('strong');heading.textContent=item.name;
-  const helper=document.createElement('small');helper.textContent='Custom gallery · add and arrange projects';
-  description.append(heading,helper);label.append(input,ordinal,description);group?.append(label);
-  for(const select of [lib,arrange]){if(!select)continue;const op=document.createElement('option');op.value=item.id;op.textContent=item.name;op.dataset.customPlacement=item.id;select.append(op)}
+ const oldLibrary=lib?.value,oldArrange=arrange?.value;
+ if(group){
+  group.replaceChildren();
+  rows.filter(r=>r.value!=='featured').forEach((row,index)=>{
+   const label=document.createElement('label');label.className='placement-choice';
+   const input=document.createElement('input');input.type='radio';input.name='site-section';input.value=row.value;
+   input.addEventListener('change',()=>{setPlacement(input.value);syncForm()});
+   const number=document.createElement('span');number.className='placement-choice-ordinal';number.textContent=row.value==='holding'?'—':String(index+1).padStart(2,'0');
+   const copy=document.createElement('span');copy.className='placement-choice-copy';
+   const name=document.createElement('strong');name.textContent=row.label;
+   const hint=document.createElement('small');hint.textContent=row.help;
+   copy.append(name,hint);label.append(input,number,copy);group.append(label);
+  });
  }
- const lf=lib?.value;if(lf && !Array.from(lib.options).some(o=>o.value===lf))lib.value='all';
+ for(const [select,includeFeatured,includeHolding] of [[lib,true,true],[arrange,true,false]]){
+  if(!select)continue;
+  select.replaceChildren();
+  if(select===lib){const all=document.createElement('option');all.value='all';all.textContent='All website sections';select.append(all)}
+  for(const row of rows){
+   if(row.value==='featured'&&!includeFeatured||row.value==='holding'&&!includeHolding)continue;
+   const opt=document.createElement('option');opt.value=row.value;opt.textContent=row.label;select.append(opt);
+  }
+ }
+ if(lib)lib.value=Array.from(lib.options).some(o=>o.value===oldLibrary)?oldLibrary:'all';
+ if(arrange)arrange.value=Array.from(arrange.options).some(o=>o.value===oldArrange)?oldArrange:arrange.options[0]?.value||'';
+ if(current){ensureProjectPlacement(current)}
+ if(currentRadio){
+  const radio=Array.from(document.querySelectorAll('input[name="site-section"]')).find(r=>r.value===currentRadio);
+  if(radio)radio.checked=true;
+ }
+}
+function ensureProjectPlacement(project){
+ const value=locationFor(project);
+ const options=Array.from(document.querySelectorAll('input[name="site-section"]'));
+ if(options.some(input=>input.value===value))return;
+ const group=document.querySelector('.placement-choices');if(!group)return;
+ const label=document.createElement('label');label.className='placement-choice placement-retired';label.dataset.retiredPlacement='true';
+ const radio=document.createElement('input');radio.type='radio';radio.name='site-section';radio.value=value;
+ const copy=document.createElement('span');copy.className='placement-choice-copy';
+ const name=document.createElement('strong');name.textContent='Removed section: '+locationLabel(project);
+ const warning=document.createElement('small');warning.textContent='Reassign this project to an active section before saving.';
+ copy.append(name,warning);label.append(radio,copy);group.append(label);
 }
 
 function renderList(){
@@ -94,7 +126,7 @@ function updatePlacementPreview(){
  $('#editor-preview-placement').textContent=name.toUpperCase();
  document.querySelectorAll('.placement-choice').forEach(el=>el.classList.toggle('is-selected',!!el.querySelector('input:checked')));
 }
-function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderPrimaryMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
+function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;ensureProjectPlacement(current);setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderPrimaryMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
 function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=selectedPlacement()==='holding'?false:$('#edit-featured').checked;current.status=selectedPlacement()==='holding'?'draft':$('#edit-status').value;current.primary_visual=$('#edit-primary-visual').value;current.primary_video_src=$('#edit-primary-video').value;current.video_autoplay=$('#edit-video-autoplay').checked;current.video_card_preview=$('#edit-video-card').checked;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
 function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-portrait34','preview-ratio-portrait23','preview-ratio-social916','preview-ratio-landscape','preview-ratio-classic','preview-ratio-original');if(['square','portrait','portrait34','portrait23','social916','landscape','classic','original'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover';preview.style.objectPosition='';preview.style.transform='';preview.style.transformOrigin='';if(current.card_ratio!=='original'&&current.card_fit==='cover'){preview.style.cssText += imageCropCss(current.card_crop)}
  const selected=$('#editor-featured-preview');const featImg=$('#editor-featured-preview-img');
@@ -258,7 +290,12 @@ async function uploadOne(file,cover=false){
 }
 async function uploadFiles(files,cover){if(!current||!files?.length)return;const node=$('#upload-state');for(let i=0;i<files.length;i++){node.textContent=`Uploading ${i+1} of ${files.length}: ${files[i].name}…`;try{await uploadOne(files[i],cover);node.textContent=`Uploaded ${i+1} of ${files.length}. Remember to save.`}catch(e){console.error(e);node.textContent='Upload failed: '+e.message;notice(node.textContent,true);return}}notice('Media uploaded. Save changes to attach it to the live project.')}
 function projectPayload(p){const copy=cleanProject(p);delete copy.sort_order;return copy}
-async function saveProject(){if(!current)return;syncForm();if(!current.title){notice('Project title is required.',true);return}if(current.site_url&&!safeUrl(current.site_url)){notice('Website URL must use HTTPS.',true);return}if(current.status==='published'&&current.primary_visual==='video'&&!(current.media||[]).some(m=>m.type==='video'&&m.src===current.primary_video_src)){notice('Choose an uploaded video as the main visual before publishing.',true);return}if(current.status==='published'&&!safeUrl(current.cover)){notice('Published projects require a valid cover image.',true);return}if(current.status==='published'&&current.category==='Experiments'&&!safeUrl(current.model)){notice('3D experiments need a real GLB model to publish.',true);return}if(current.status==='published'&&current.category==='Motion'&&!current.media?.some(m=>m.type==='video'&&safeUrl(m.src))){notice('Motion projects need a playable video to publish.',true);return}const btn=$('#save-project');btn.disabled=true;$('#save-state').textContent='Saving to database…';try{const previous=projects.find(p=>p.id===current.id);if(previous&&persistedIds.has(current.id)){const rev=await client.from('portfolio_revisions').insert({project_id:current.id,previous_data:projectPayload(previous),previous_status:previous.status,previous_order:previous.sort_order});if(rev.error)throw rev.error}const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const order=current.sort_order??maxOrder;const result=await client.from('portfolio_projects').upsert({id:current.id,data:projectPayload(current),status:current.status,sort_order:order},{onConflict:'id'}).select('id').single();if(result.error)throw result.error;persistedIds.add(current.id);current.sort_order=order;const index=projects.findIndex(p=>p.id===current.id);if(index===-1)projects.push(cleanProject(current));else projects[index]=cleanProject(current);dirty=false;renderList();$('#save-state').textContent=current.site_section==='holding'?'Private Holding · saved':current.status==='published'?'Published · saved to database':'Saved as '+current.status;notice('Saved to Supabase. '+(current.site_section==='holding'?'This record stays private in Holding.':current.status==='published'?'Live site is now updated.':'This record is not public.'))}catch(e){console.error(e);$('#save-state').textContent='Save failed';notice('Save failed: '+e.message,true)}finally{btn.disabled=false}}
+async function saveProject(){if(!current)return;syncForm();
+ const active=orderedSectionDestinations(settings[SECTION_SETTINGS_KEY],{featured:false,holding:true});
+ if(!active.some(row=>row.value===current.site_section)){
+  notice('This project belongs to a removed gallery. Choose an active destination before saving.',true);return;
+ }
+if(!current.title){notice('Project title is required.',true);return}if(current.site_url&&!safeUrl(current.site_url)){notice('Website URL must use HTTPS.',true);return}if(current.status==='published'&&current.primary_visual==='video'&&!(current.media||[]).some(m=>m.type==='video'&&m.src===current.primary_video_src)){notice('Choose an uploaded video as the main visual before publishing.',true);return}if(current.status==='published'&&!safeUrl(current.cover)){notice('Published projects require a valid cover image.',true);return}if(current.status==='published'&&current.category==='Experiments'&&!safeUrl(current.model)){notice('3D experiments need a real GLB model to publish.',true);return}if(current.status==='published'&&current.category==='Motion'&&!current.media?.some(m=>m.type==='video'&&safeUrl(m.src))){notice('Motion projects need a playable video to publish.',true);return}const btn=$('#save-project');btn.disabled=true;$('#save-state').textContent='Saving to database…';try{const previous=projects.find(p=>p.id===current.id);if(previous&&persistedIds.has(current.id)){const rev=await client.from('portfolio_revisions').insert({project_id:current.id,previous_data:projectPayload(previous),previous_status:previous.status,previous_order:previous.sort_order});if(rev.error)throw rev.error}const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const order=current.sort_order??maxOrder;const result=await client.from('portfolio_projects').upsert({id:current.id,data:projectPayload(current),status:current.status,sort_order:order},{onConflict:'id'}).select('id').single();if(result.error)throw result.error;persistedIds.add(current.id);current.sort_order=order;const index=projects.findIndex(p=>p.id===current.id);if(index===-1)projects.push(cleanProject(current));else projects[index]=cleanProject(current);dirty=false;renderList();$('#save-state').textContent=current.site_section==='holding'?'Private Holding · saved':current.status==='published'?'Published · saved to database':'Saved as '+current.status;notice('Saved to Supabase. '+(current.site_section==='holding'?'This record stays private in Holding.':current.status==='published'?'Live site is now updated.':'This record is not public.'))}catch(e){console.error(e);$('#save-state').textContent='Save failed';notice('Save failed: '+e.message,true)}finally{btn.disabled=false}}
 async function addProject(){if(dirty&&!confirm('Discard unsaved changes?'))return;const id='project-'+crypto.randomUUID().slice(0,8);const maxOrder=projects.reduce((m,p)=>Math.max(m,p.sort_order??0),0)+1;const p={id,slug:id,title:'New project',eyebrow:'CREATIVE WORK',category:'Brand Identity',site_section:'creative',client_type:'Creative work',role:'',summary:'',approach:'',outcome:'',cover:'',media:[],tags:[],feature_rank:99,featured:false,status:'draft',sort_order:maxOrder};projects.push(p);selectProject(id);dirty=true;$('#save-state').textContent='New draft · not saved yet';$('#edit-title').focus()}
 async function orderProject(direction){if(!current)return;const idx=projects.findIndex(p=>p.id===current.id);const other=projects[idx+direction];if(!other)return;if(dirty&&!confirm('Save your changes before reordering?'))return;const currentOrder=current.sort_order;const otherOrder=other.sort_order;const a=await client.from('portfolio_projects').update({sort_order:otherOrder}).eq('id',current.id);if(a.error){notice(a.error.message,true);return}const b=await client.from('portfolio_projects').update({sort_order:currentOrder}).eq('id',other.id);if(b.error){notice('One reorder step failed. Refresh to check the saved order.',true);await loadData();renderList();return}current.sort_order=otherOrder;other.sort_order=currentOrder;projects.sort((a,b)=>a.sort_order-b.sort_order);renderList();notice('Project order updated.')}
 async function archiveProject(){if(!current)return;$('#edit-status').value='archived';await saveProject()}
@@ -274,7 +311,7 @@ const ARRANGE_DEFAULTS={featured:'compact',creative:'editorial',social:'compact'
 let arrangeDraftOrder={},arrangeDraftModes={};
 let arrangeDraftFeaturedFrame='portrait';
 function arrangerProjects(section){
- const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?(!p.featured&&locationFor(p)==='archive'):locationFor(p)===section));
+ const visible=projects.filter(p=>p.status==='published' && (section==='featured'?!!p.featured:section==='archive'?locationFor(p)==='archive':locationFor(p)===section));
  const sequence=arrangeDraftOrder[section]||[];
  if(!sequence.length)return visible;
  const ranks=new Map(sequence.map((id,i)=>[id,i]));
@@ -285,7 +322,7 @@ function showArrange(){
  arrangeDraftOrder=structuredClone(settings.galleryOrderV25||{});
  arrangeDraftModes={...ARRANGE_DEFAULTS,...(settings.galleryModesV25||{})};
  arrangeDraftFeaturedFrame=['original','square','portrait','portrait34','portrait23','social916','landscape','classic'].includes(settings.featuredFrameV28)?settings.featuredFrameV28:'portrait';
- $('#arrange-section').value='featured';renderArranger();$('#arrange-dialog').showModal();
+ const chosen=$('#arrange-section');chosen.value=Array.from(chosen.options).some(o=>o.value==='featured')?'featured':chosen.options[0]?.value||'';renderArranger();$('#arrange-dialog').showModal();
 }
 function renderArranger(){
  const section=$('#arrange-section').value;
@@ -478,25 +515,46 @@ function sectionChanges(message='Unpublished section changes. Save to update the
 }
 function sectionMove(id,toIndex){
  if(!sectionDraft)return;
- const old=sectionDraft.order.indexOf(id);
- if(old===-1)return;
- sectionDraft.order.splice(old,1);
- sectionDraft.order.splice(Math.max(0,Math.min(sectionDraft.order.length,toIndex)),0,id);
+ const active=sectionDraft.order.filter(v=>!sectionDraft.entries[v]?.removed);
+ const removed=sectionDraft.order.filter(v=>sectionDraft.entries[v]?.removed);
+ const old=active.indexOf(id);if(old===-1)return;
+ active.splice(old,1);
+ active.splice(Math.max(0,Math.min(active.length,toIndex)),0,id);
+ sectionDraft.order=[...active,...removed];
  renderSectionRows();sectionChanges();
 }
+
 function sectionInput(label,value,placeholder,onInput,multiline=false){
  const wrap=document.createElement('label');wrap.className='section-manager-field';
  const labelNode=document.createElement('span');labelNode.textContent=label;wrap.append(labelNode);
  const input=document.createElement(multiline?'textarea':'input');
- input.value=value||'';input.placeholder=placeholder;input.maxLength=multiline?350:label==='Menu label'?28:115;
+ input.value=value||'';input.placeholder=placeholder;input.maxLength=label.startsWith('Admin note')?300:multiline?350:label==='Menu label'?28:115;
  if(multiline)input.rows=2;
  input.addEventListener('input',()=>{onInput(input.value);sectionChanges()});
  wrap.append(input);return wrap;
 }
+function sectionProjectCount(id){
+ return projects.filter(p=>id==='work'?!!p.featured:id==='motion'?['motion','three'].includes(locationFor(p)):id==='more'?locationFor(p)==='archive':locationFor(p)===id).length;
+}
+function requestDeleteSection(id,title){
+ if(!isCustomGalleryId(id))return;
+ const count=sectionProjectCount(id);
+ if(count){
+  sectionChanges(`Cannot permanently delete “${title}”: ${count} project(s) are assigned, including drafts or archived records. Reassign them first. Nothing was deleted.`);
+  notice(`Move the ${count} project(s) out of “${title}” before deleting it.`,true);
+  return;
+ }
+ const phrase=prompt(`PERMANENTLY DELETE “${title}”?\nThis cannot be undone after saving.\nNo portfolio projects will be deleted.\n\nType DELETE to confirm:`);
+ if(phrase!=='DELETE'){sectionChanges('Deletion cancelled. Type DELETE exactly to confirm a permanent deletion.');return}
+ sectionDraft.custom=sectionDraft.custom.filter(x=>x.id!==id);
+ sectionDraft.order=sectionDraft.order.filter(x=>x!==id);
+ delete sectionDraft.entries[id];
+ renderSectionRows();sectionChanges('Gallery deletion pending. Click Save website sections to commit. No projects were deleted.');
+}
 function renderSectionRows(){
  const holder=$('#section-manager-list');if(!holder||!sectionDraft)return;
  holder.replaceChildren();
- sectionDraft.order.forEach((id,index)=>{
+ sectionDraft.order.filter(id=>!sectionDraft.entries[id]?.removed).forEach((id,index,active)=>{
   const def=sectionDefinitions(sectionDraft).find(s=>s.id===id);if(!def)return;
   if(sectionDraft.entries[id]?.removed)return;
   const entry=sectionDraft.entries[id];
@@ -506,41 +564,39 @@ function renderSectionRows(){
   const heading=document.createElement('div');heading.className='section-manager-names';
   const number=document.createElement('small');number.textContent=String(index+1).padStart(2,'0')+' / WEBSITE SECTION';
   const title=document.createElement('strong');title.textContent=def.name;
-  const summary=document.createElement('p');summary.textContent=def.summary;
+  const summary=document.createElement('p');summary.textContent=entry.adminNote||def.summary;
   heading.append(number,title,summary);
   const actions=document.createElement('div');actions.className='section-manager-actions';
   for(const [txt,delta] of [['↑',-1],['↓',1]]){
    const btn=document.createElement('button');btn.type='button';btn.textContent=txt;
    btn.setAttribute('aria-label',(delta<0?'Move ':'Move ')+def.name+(delta<0?' up':' down'));
-   btn.disabled=delta<0?index===0:index===sectionDraft.order.length-1;
+   btn.disabled=delta<0?index===0:index===active.length-1;
    btn.addEventListener('click',()=>sectionMove(id,index+delta));actions.append(btn);
   }
   const toggle=document.createElement('button');toggle.type='button';toggle.className='section-visibility';
   toggle.textContent=entry.visible?'Visible ✓':'Hidden — Restore';toggle.setAttribute('aria-pressed',String(entry.visible));
   toggle.addEventListener('click',()=>{entry.visible=!entry.visible;renderSectionRows();sectionChanges()});actions.append(toggle);
   const remove=document.createElement('button');remove.type='button';remove.className='section-remove';
-  remove.textContent=isCustomGalleryId(id)?'Remove / delete':'Remove section';
-  remove.title='Remove this section from the active organization; empty custom galleries can be permanently deleted.';
+  remove.textContent='Remove from organizer';
+  remove.title='Hide from website and remove from active menus. Restorable later.';
   remove.addEventListener('click',()=>{
-   const count=projects.filter(p=>id==='work'?!!p.featured:id==='motion'?['motion','three'].includes(locationFor(p)):id==='more'?locationFor(p)==='archive':locationFor(p)===id).length;
-   if(isCustomGalleryId(id)&&count===0){
-    if(!confirm('Permanently delete empty gallery “'+def.name+'”? This cannot be undone.'))return;
-    sectionDraft.custom=sectionDraft.custom.filter(c=>c.id!==id);
-    sectionDraft.order=sectionDraft.order.filter(v=>v!==id);
-    delete sectionDraft.entries[id];
-    renderSectionRows();sectionChanges('Empty custom gallery deleted. Save to apply.');return;
-   }
-   const warning=count?` ${count} assigned project(s) will remain saved in Supabase but will no longer be shown in this section until restored or reassigned.`:'';
-   if(!confirm('Remove “'+def.name+'” from the active organization?'+warning+' You can restore the section later.'))return;
+   const count=sectionProjectCount(id);
+   const warning=count?` ${count} project(s) will stay saved and attached to this removed gallery until you restore it or reassign them.`:'';
+   if(!confirm('Remove “'+def.name+'” from active organization?'+warning+' This is reversible.'))return;
    entry.removed=true;entry.visible=false;
-   renderSectionRows();sectionChanges('Section removed from active organization. Save to apply; projects remain stored and the section can be restored.');
+   renderSectionRows();sectionChanges('Removed from active organizer. Projects are preserved. Save to apply.');
   });actions.append(remove);
+  if(isCustomGalleryId(id)){
+   const del=document.createElement('button');del.type='button';del.className='section-remove section-delete';del.textContent='Delete permanently';
+   del.addEventListener('click',()=>requestDeleteSection(id,def.name));actions.append(del);
+  }
   header.append(handle,heading,actions);card.append(header);
   const fields=document.createElement('div');fields.className='section-manager-fields';
   fields.append(sectionInput('Menu label',entry.navLabel,def.nav,value=>entry.navLabel=value));
   fields.append(sectionInput('Headline override',entry.heading,'Keep current editorial headline',value=>entry.heading=value));
   fields.append(sectionInput('Small label',entry.eyebrow,'Keep current eyebrow',value=>entry.eyebrow=value));
   fields.append(sectionInput('Description',entry.description,'Keep existing introduction text',value=>entry.description=value,true));
+  fields.append(sectionInput('Admin note · private',entry.adminNote,'Describe what belongs here (only visible to you)',value=>{entry.adminNote=value;summary.textContent=value||def.summary},true));
   if(isCustomGalleryId(id)){
    fields.append(sectionInput('Section name',def.name,'Gallery name',value=>{const item=sectionDraft.custom.find(c=>c.id===id);if(item)item.name=value.slice(0,70)}));
    const themeLabel=document.createElement('label');themeLabel.className='section-manager-field';
@@ -567,7 +623,12 @@ function renderSectionRows(){
    const row=document.createElement('div');row.className='section-removed-row';
    const name=document.createElement('strong');name.textContent=def.name;
    const restore=document.createElement('button');restore.type='button';restore.textContent='Restore section';restore.addEventListener('click',()=>{entry.removed=false;entry.visible=false;renderSectionRows();sectionChanges('Restored to organization as hidden. Save to apply.')});
-   row.append(name,restore);removedList.append(row);
+   row.append(name,restore);
+   if(isCustomGalleryId(def.id)){
+    const removePermanently=document.createElement('button');removePermanently.type='button';removePermanently.className='section-remove';removePermanently.textContent='Delete permanently';
+    removePermanently.addEventListener('click',()=>requestDeleteSection(def.id,def.name));row.append(removePermanently);
+   }
+   removedList.append(row);
   }
   removedSection.hidden=!removedList.childElementCount;
  }
@@ -578,6 +639,14 @@ async function saveSectionManager(){
  sectionChanges('Saving section order and appearance…');
  try{
   const value=normalizeSections(sectionDraft);
+  const names=new Map();
+  for(const def of sectionDefinitions(value)){
+   if(value.entries[def.id]?.removed)continue;
+   const key=def.name.trim().toLocaleLowerCase();
+   if(names.has(key))throw new Error(`Duplicate section name “${def.name}”. Rename or delete one gallery before saving.`);
+   names.set(key,def.id);
+  }
+
   const result=await client.from('portfolio_settings').upsert({key:SECTION_SETTINGS_KEY,value},{onConflict:'key'});
   if(result.error)throw result.error;
   settings[SECTION_SETTINGS_KEY]=structuredClone(value);
@@ -598,7 +667,7 @@ function initSectionManager(){
   if(sectionDraft.custom.length>=20){sectionChanges('Maximum of 20 custom galleries. Hide unused galleries or rename an existing one.');return}
   const id='collection-'+crypto.randomUUID();
   sectionDraft.custom.push({id,name:'New gallery'});sectionDraft.order.push(id);
-  sectionDraft.entries[id]={removed:false,visible:false,navLabel:'',heading:'',eyebrow:'',description:'',theme:'light'};
+  sectionDraft.entries[id]={removed:false,visible:false,navLabel:'',heading:'',eyebrow:'',description:'',adminNote:'',theme:'light'};
   renderSectionRows();sectionChanges('New gallery added as hidden. Name it and save, then assign projects in the editor.');
   $('#section-manager-list').lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'});
  });

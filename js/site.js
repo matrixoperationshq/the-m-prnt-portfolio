@@ -248,7 +248,7 @@ function renderNativeGalleries(raw){
  const config=normalizeSections(raw);setCustomLocations(config.custom);
  const main=document.querySelector('main'),reference=document.getElementById('work');if(!main||!reference)return;
  for(const item of config.custom){
-  const entry=config.entries[item.id];let section=document.getElementById(item.id);
+  const entry=config.entries[item.id];if(entry.removed)continue;let section=document.getElementById(item.id);
   if(!section){
    section=document.createElement('section');section.id=item.id;section.className='client-section native-gallery-section';
    section.setAttribute('aria-label',item.name);section.innerHTML='<div class="layout-container"><div class="section-intro native-gallery-intro"><div><p class="eyebrow section-eyebrow" data-managed-eyebrow></p><h2 data-managed-heading></h2></div><p data-managed-description></p></div><div class="client-grid native-gallery-grid"></div></div>';

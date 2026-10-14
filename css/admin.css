@@ -234,3 +234,11 @@
 .section-removed-row button{background:#42304b;color:#f7e5f4;border:1px solid #b893c2;border-radius:8px;min-height:36px;padding:8px 12px;cursor:pointer}
 .systems-editor-card label textarea{max-width:100%}
 @media(max-width:650px){.section-manager-removed{padding:16px 12px}.section-manager-actions .section-remove{width:100%}}
+
+/* V2.14: active organization, private notes, deliberate destructive actions */
+.section-manager-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.section-delete{border-color:#cb658b!important;color:#ffd8e6!important}
+.section-manager-item .section-manager-names p{max-width:56ch;overflow-wrap:anywhere}
+.placement-retired{border:1px dashed #d67d9a;background:#4d253b}
+.section-removed-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.section-removed-row strong{margin-right:auto}
