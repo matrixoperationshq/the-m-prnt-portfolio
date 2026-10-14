@@ -309,9 +309,9 @@ function updateCropPreview(){
  const shape=$('#crop-shape').value;
  frame.classList.toggle('crop-original',shape==='original');
  if(shape!=='original')frame.style.aspectRatio=String(CROP_ASPECTS[shape]||4/5);
+ else frame.style.aspectRatio='auto';
  // Tall story frames remain fully visible inside the crop editor.
  frame.style.maxWidth=shape==='social916'?'min(100%,285px)':shape==='portrait23'?'min(100%,350px)':shape==='portrait34'?'min(100%,400px)':'';
- else frame.style.aspectRatio='auto';
  const c=normalizedCrop(editingCrop.crop);
  const original=shape==='original';
  photo.style.cssText=original?'':imageCropCss(c);
