@@ -1,5 +1,6 @@
 import {disciplineFor,locationFor,locationLabel,suggestedLocation,LOCATIONS} from './project-taxonomy.js';
 import {hasBackend,getClient,safeUrl} from './data-service.js';
+import {CROP_ASPECTS, normalizedCrop, imageCropCss, dragCrop} from './crop-utils.js';
 const REORDER_ICONS={up:`<svg class="line-icon line-icon-arrow-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>`,down:`<svg class="line-icon line-icon-arrow-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14m-7-7 7 7 7-7"/></svg>`};
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 let client, projects=[],settings={},current=null,selectedId=null,dirty=false,filterStatus='all';let locationTouched=false;let persistedIds=new Set();
@@ -70,7 +71,7 @@ function updatePlacementPreview(){
 }
 function populateForm(){if(!current)return;setVal('edit-title',current.title);setVal('edit-category',disciplineFor(current));setVal('edit-client-type',current.client_type);setVal('edit-eyebrow',current.eyebrow);setVal('edit-role',current.role);setVal('edit-site-url',current.site_url);setVal('edit-summary',current.summary);setVal('edit-approach',current.approach);setVal('edit-outcome',current.outcome);setVal('edit-tags',(current.tags||[]).join(', '));setVal('edit-cover',current.cover?.startsWith('https://')?current.cover:'');for(const [key,id,otherwise] of [['card_ratio','edit-card-ratio','auto'],['card_span','edit-card-span','auto'],['card_fit','edit-card-fit','cover'],['hero_ratio','edit-hero-ratio','original'],['hero_fit','edit-hero-fit','contain'],['gallery_layout','edit-gallery-layout','two'],['gallery_gap','edit-gallery-gap','normal']])$('#'+id).value=current[key]||otherwise;$('#edit-status').value=current.status||'draft';$('#edit-featured').checked=!!current.featured;locationTouched=false;setPlacement(locationFor(current),false);updateImage($('#cover-preview'),current.cover);renderMedia();renderStoryBlocks();renderPreview();$('#history-list').replaceChildren()}
 function syncForm(){if(!current)return;current.title=getVal('edit-title');current.category=getVal('edit-category');current.site_section=selectedPlacement();current.client_type=getVal('edit-client-type');current.eyebrow=getVal('edit-eyebrow');current.role=getVal('edit-role');current.site_url=getVal('edit-site-url');current.summary=getVal('edit-summary');current.approach=getVal('edit-approach');current.outcome=getVal('edit-outcome');current.tags=getVal('edit-tags').split(',').map(x=>x.trim()).filter(Boolean);current.featured=$('#edit-featured').checked;current.status=$('#edit-status').value;for(const [key,id] of [['card_ratio','edit-card-ratio'],['card_span','edit-card-span'],['card_fit','edit-card-fit'],['hero_ratio','edit-hero-ratio'],['hero_fit','edit-hero-fit'],['gallery_layout','edit-gallery-layout'],['gallery_gap','edit-gallery-gap']])current[key]=$('#'+id).value;const cover=getVal('edit-cover');if(cover){if(!safeUrl(cover)){notice('Cover must be a secure HTTPS URL.',true);return}current.cover=cover}dirty=true;$('#save-state').textContent='Unsaved changes';$('#editor-heading').textContent=current.title||'Untitled project';renderPreview()}
-function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-landscape');if(['square','portrait','landscape'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover'}
+function renderPreview(){if(!current)return;updateImage($('#editor-preview-img'),current.cover);$('#editor-preview-title').textContent=current.title||'Untitled';$('#editor-preview-category').textContent=disciplineFor(current).toUpperCase();updatePlacementPreview();$('#editor-preview-summary').textContent=(current.summary||'Project summary goes here.').slice(0,240);updateImage($('#cover-preview'),current.cover);const preview=$('#editor-preview-img');preview.classList.remove('preview-ratio-square','preview-ratio-portrait','preview-ratio-landscape');if(['square','portrait','landscape'].includes(current.card_ratio))preview.classList.add('preview-ratio-'+current.card_ratio);preview.style.objectFit=current.card_fit==='contain'?'contain':'cover';preview.style.objectPosition='';preview.style.transform='';preview.style.transformOrigin='';if(current.card_ratio!=='original'&&current.card_fit==='cover'){preview.style.cssText += imageCropCss(current.card_crop)}}
 function renderMedia(){
  const list=$('#gallery-editor');list.replaceChildren();
  (current.media||[]).forEach((asset,index)=>{
@@ -82,6 +83,7 @@ function renderMedia(){
   if(asset.type==='image'){
    options.append(fieldLabel('Image shape',fieldSelect(asset.ratio||'original',shapeOptions,val=>{asset.ratio=val;markDirty()})));
    options.append(fieldLabel('Fill behavior',fieldSelect(asset.fit||'contain',fitOptions,val=>{asset.fit=val;markDirty()})));
+   const cropButton=document.createElement('button');cropButton.type='button';cropButton.className='subtle-button crop-open-inline';cropButton.textContent='Adjust crop ↗';cropButton.addEventListener('click',()=>openCropEditor('gallery',index));options.append(cropButton);
   }
   options.append(fieldLabel('Display width',fieldSelect(asset.span||'auto',[['auto','Normal column'],['full','Full-width gallery row']],val=>{asset.span=val;markDirty()})));
   middle.append(options);
@@ -281,7 +283,87 @@ async function saveArranger(){
  finally{btn.disabled=false}
 }
 
+// V2.7 — visual crop editor (positions saved to the project, original upload untouched).
+let editingCrop=null;
+const cropShapeOptions=[['original','Original / show entire image'],['square','Square · 1:1'],['portrait','Portrait · 4:5'],['landscape','Landscape · 16:9'],['classic','Classic · 3:2']];
+function cropSource(){return editingCrop?.kind==='gallery'?current.media?.[editingCrop.index]?.src:current?.cover}
+function closeCropEditor(){const dlg=$('#crop-dialog');if(dlg?.open)dlg.close();editingCrop=null}
+function updateCropPreview(){
+ if(!editingCrop)return;
+ const frame=$('#crop-frame'),photo=$('#crop-preview-img');
+ const shape=$('#crop-shape').value;
+ frame.classList.toggle('crop-original',shape==='original');
+ if(shape!=='original')frame.style.aspectRatio=String(CROP_ASPECTS[shape]||4/5);
+ else frame.style.aspectRatio='auto';
+ const c=normalizedCrop(editingCrop.crop);
+ const original=shape==='original';
+ photo.style.cssText=original?'':imageCropCss(c);
+ $('#crop-zoom').disabled=original;$('#crop-reset').disabled=original;
+ $('#crop-zoom').value=String(c.zoom);
+ $('#crop-zoom-output').textContent=c.zoom.toFixed(2)+'×';
+ $('#crop-position').textContent=original?'Original artwork: no crop':`Horizontal ${Math.round(c.x)}% · Vertical ${Math.round(c.y)}%`;
+ $('#crop-instruction').textContent=original?'Choose a frame shape to adjust the visible area.':'Drag the image to reposition it. Use the zoom slider for finer control.';
+}
+function openCropEditor(kind,index=-1){
+ if(!current)return;
+ const item=kind==='gallery'?current.media?.[index]:current;
+ if(!item)return;
+ const url=kind==='gallery'?item.src:current.cover;
+ if(!safeUrl(url)){notice('Please upload or set a valid image before cropping.',true);return}
+ const config=kind==='gallery'?{shape:item.ratio||'original',crop:item.crop}:kind==='hero'?{shape:current.hero_ratio||'original',crop:current.hero_crop}:{shape:current.card_ratio||'portrait',crop:current.card_crop};
+ editingCrop={kind,index,crop:normalizedCrop(config.crop)};
+ $('#crop-title').textContent=(kind==='card'?'Homepage card':kind==='hero'?'Case-study cover':'Gallery image')+' / '+(current.title||'Artwork');
+ $('#crop-preview-img').src=url;
+ $('#crop-shape').value=['square','portrait','landscape','classic','original'].includes(config.shape)?config.shape:'portrait';
+ updateCropPreview();$('#crop-dialog').showModal();
+}
+function applyCrop(){
+ if(!editingCrop||!current)return;
+ const {kind,index,crop}=editingCrop,shape=$('#crop-shape').value;
+ if(kind==='gallery'){
+  const item=current.media?.[index];if(!item)return;
+  item.ratio=shape;item.fit=shape==='original'?'contain':'cover';item.crop=normalizedCrop(crop);
+  renderMedia();
+ }else if(kind==='hero'){
+  current.hero_ratio=shape;current.hero_fit=shape==='original'?'contain':'cover';current.hero_crop=normalizedCrop(crop);
+  $('#edit-hero-ratio').value=shape;$('#edit-hero-fit').value=current.hero_fit;
+ }else{
+  current.card_ratio=shape;current.card_fit=shape==='original'?'contain':'cover';current.card_crop=normalizedCrop(crop);
+  $('#edit-card-ratio').value=shape;$('#edit-card-fit').value=current.card_fit;
+ }
+ markDirty();renderPreview();closeCropEditor();notice('Crop added to project. Select Save changes to publish.');
+}
+function configureCropEditor(){
+ const dlg=$('#crop-dialog'),frame=$('#crop-frame'),img=$('#crop-preview-img');
+ $('#crop-open-card').addEventListener('click',()=>openCropEditor('card'));
+ $('#crop-open-hero').addEventListener('click',()=>openCropEditor('hero'));
+ $('#crop-close').addEventListener('click',closeCropEditor);
+ $('#crop-cancel').addEventListener('click',closeCropEditor);
+ $('#crop-apply').addEventListener('click',applyCrop);
+ dlg.addEventListener('click',e=>{if(e.target===dlg)closeCropEditor()});
+ dlg.addEventListener('close',()=>{editingCrop=null});
+ $('#crop-shape').addEventListener('change',updateCropPreview);
+ $('#crop-zoom').addEventListener('input',e=>{if(!editingCrop)return;editingCrop.crop.zoom=Number(e.target.value);updateCropPreview()});
+ $('#crop-reset').addEventListener('click',()=>{if(!editingCrop)return;editingCrop.crop={x:50,y:50,zoom:1};updateCropPreview()});
+ let last=null;
+ frame.addEventListener('pointerdown',e=>{
+  if(!editingCrop||$('#crop-shape').value==='original'||!img.naturalWidth||!img.naturalHeight)return;
+  if(e.button!==undefined&&e.button!==0)return;
+  last={x:e.clientX,y:e.clientY};frame.setPointerCapture(e.pointerId);frame.classList.add('is-dragging');e.preventDefault();
+ });
+ frame.addEventListener('pointermove',e=>{
+  if(!editingCrop||!last)return;
+  const dx=e.clientX-last.x,dy=e.clientY-last.y;last={x:e.clientX,y:e.clientY};
+  const rect=frame.getBoundingClientRect();
+  editingCrop.crop=dragCrop(editingCrop.crop,dx,dy,rect.width,rect.height,img.naturalWidth,img.naturalHeight);
+  updateCropPreview();
+ });
+ const release=e=>{last=null;frame.classList.remove('is-dragging');if(frame.hasPointerCapture(e.pointerId))frame.releasePointerCapture(e.pointerId)};
+ frame.addEventListener('pointerup',release);frame.addEventListener('pointercancel',release);frame.addEventListener('lostpointercapture',()=>{last=null;frame.classList.remove('is-dragging')});
+}
+
 function attachListeners(){
+ configureCropEditor();
  $('#login-form').addEventListener('submit',async e=>{e.preventDefault();authMessage('Signing in…');$('#login-btn').disabled=true;try{const res=await client.auth.signInWithPassword({email:getVal('login-email'),password:getVal('login-password')});if(res.error)throw res.error;if(!(await checkAuthorization())){await client.auth.signOut();throw Error('This account is not authorized as a portfolio admin.')}authMessage('');await openDashboard()}catch(err){authMessage(err.message||'Login failed')}finally{$('#login-btn').disabled=false}});
  $('#signout').addEventListener('click',async()=>{if(dirty&&!confirm('Discard unsaved edits?'))return;await client.auth.signOut();current=null;show('login-view')});
  $('#project-search').addEventListener('input',renderList);$('#library-placement-filter').addEventListener('change',renderList);$$('.sidebar-filters button').forEach(b=>b.addEventListener('click',()=>{filterStatus=b.dataset.status;$$('.sidebar-filters button').forEach(x=>x.classList.toggle('active',x===b));renderList()}));

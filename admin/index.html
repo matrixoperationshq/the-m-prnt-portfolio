@@ -30,6 +30,7 @@
 
        <section class="form-panel display-panel"><div class="panel-label">PROJECT DISPLAY / LIVE LAYOUT</div>
         <p class="fineprint">These controls are saved with each project. Use “Original / show entire image” to display the whole artwork without cropping.</p>
+        <div class="crop-quick-actions"><button id="crop-open-card" type="button" class="button crop-callout">✥ Adjust homepage crop</button><button id="crop-open-hero" type="button" class="subtle-button">Adjust case-study cover ↗</button><small>Choose frame, drag image, adjust zoom. Non-destructive. Save changes to publish.</small></div>
         <div class="field-grid">
           <label>Homepage card shape<select id="edit-card-ratio"><option value="auto">Editorial / automatic</option><option value="original">Match the actual image · no crop</option><option value="square">Square · 1:1</option><option value="portrait">Portrait · 4:5</option><option value="landscape">Landscape · 16:9</option><option value="classic">Classic · 3:2</option></select></label>
           <label>Homepage card width<select id="edit-card-span"><option value="auto">Editorial / automatic</option><option value="wide">Full width</option><option value="half">Half width</option></select></label>
@@ -58,6 +59,17 @@
    <p class="arrange-explanation" id="arrange-explanation">In compact mode artwork stacks naturally, without empty grid rows.</p>
    <div class="arrange-list" id="arrange-list" role="list" aria-label="Reorder projects in this section"></div>
    <footer class="arrange-footer"><p id="arrange-status" role="status">Changes are a preview until you publish them.</p><button id="save-arrange" type="button" class="button primary">Save layout &amp; order</button></footer>
+  </div>
+ </dialog>
+
+ <dialog id="crop-dialog" class="crop-dialog" aria-labelledby="crop-title">
+  <div class="crop-dialog-shell">
+   <header class="crop-topline"><div><span class="eyebrow">FRAMING STUDIO / V2.7</span><h2 id="crop-title">Adjust image crop</h2><p>Original asset stays untouched. Only the display crop changes.</p></div><button type="button" class="subtle-button" id="crop-close" aria-label="Close crop editor">Close ×</button></header>
+   <div class="crop-workspace">
+    <div class="crop-stage"><div class="crop-frame" id="crop-frame"><img id="crop-preview-img" alt="Artwork being cropped" draggable="false"><div class="crop-guides" aria-hidden="true"></div></div><p id="crop-instruction">Drag the image to reposition it.</p></div>
+    <div class="crop-controls"><label>Frame shape<select id="crop-shape"><option value="original">Original / full artwork</option><option value="square">Square · 1:1</option><option value="portrait">Portrait · 4:5</option><option value="landscape">Landscape · 16:9</option><option value="classic">Classic · 3:2</option></select></label><label>Zoom <output id="crop-zoom-output">1.00×</output><input id="crop-zoom" type="range" min="1" max="2.5" step="0.01" value="1"></label><p class="crop-position" id="crop-position" aria-live="polite">Horizontal 50% · Vertical 50%</p><button type="button" id="crop-reset" class="subtle-button">Reset crop to center</button><div class="crop-hint"><strong>Tip</strong><p>Choose the same 4:5 shape for multiple projects to create a coordinated grid. Drag each image so important details remain visible.</p></div></div>
+   </div>
+   <footer class="crop-footer"><span>Preview only until you save the project.</span><div><button type="button" class="subtle-button" id="crop-cancel">Cancel</button><button type="button" class="button primary" id="crop-apply">Apply crop</button></div></footer>
   </div>
  </dialog>
  <div class="admin-toast" id="admin-toast" role="status" aria-live="polite"></div>

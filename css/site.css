@@ -360,3 +360,20 @@
 @media(max-width:1150px){.desktop-nav{gap:14px}.desktop-nav a{font-size:11px}}
 @media(max-width:850px){.client-section{padding:84px 0}.client-heading{display:block}.client-intro{margin-top:23px;max-width:650px}.client-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.client-grid.gallery-layout-compact{columns:2}}
 @media(max-width:570px){.client-section{padding:67px 0}.client-heading h2{font-size:clamp(46px,12vw,65px)}.client-heading{padding-bottom:30px}.client-intro{font-size:14px;line-height:1.75}.client-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.client-grid.gallery-layout-compact{columns:2;column-gap:10px}.client-grid.gallery-layout-compact>.client-card{margin-bottom:13px}.client-card-meta{padding:10px 2px}.client-card-meta h3{font-size:18px}.client-card-meta p{font-size:10px}.client-card-arrow{width:27px;height:27px;top:9px;right:9px}.client-grid.gallery-layout-carousel>.client-card{flex-basis:min(75vw,335px)!important;width:min(75vw,335px)!important}.client-footnote{text-align:left;font-size:8px}}
+
+/* V2.7 — user-saved focal crop always wins over decorative hover zoom. */
+.project-card:hover .card-visual img[style*="object-position"],
+.concept-card:hover .concept-art img[style*="object-position"],
+.visual-card:hover .visual-art img[style*="object-position"],
+.client-card:hover .client-art img[style*="object-position"],
+.digital-card:hover .digital-visual img[style*="object-position"] {filter:brightness(1.035)}
+/* The inline transform and object-position are intentional and take precedence over hover transforms. */
+@media (prefers-reduced-motion:reduce){.crop-user-img{transition:none!important}}
+
+/* V2.7: digital projects may override the old second-card logo padding. */
+.digital-card .digital-visual img[style*="object-position"]{object-fit:cover!important;padding:0!important}
+.digital-card.card-fit-contain .digital-visual img:not([style*="object-position"]){object-fit:contain}
+.motion-card.card-ratio-portrait .motion-visual{height:auto;aspect-ratio:4/5}
+.motion-card.card-ratio-square .motion-visual{height:auto;aspect-ratio:1}
+.motion-card.card-ratio-landscape .motion-visual{height:auto;aspect-ratio:16/9}
+.motion-card.card-ratio-classic .motion-visual{height:auto;aspect-ratio:3/2}

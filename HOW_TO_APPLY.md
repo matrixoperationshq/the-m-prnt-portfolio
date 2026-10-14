@@ -1,48 +1,41 @@
-# The M Prnt V2.6 — Client Work Gallery
+# The M Prnt — V2.7 / Drag-to-Crop Studio
 
-A dedicated, editable portfolio gallery for **real client commissions**: ads, logos, flyers, promotional graphics and campaign materials. It is distinct from The Concept Lab (spec work) and Visual Studies (self-initiated pieces).
+This update builds on V2.6, including Client Work and the flexible galleries. It adds non-destructive image crop controls inside Studio Admin.
 
-## What is included
+## What you can edit
 
-Seven website files, based on the currently deployed V2.5 GitHub source (not an earlier V2.4 release):
+- **Homepage/project cards:** Choose the original proportions, 1:1 square, 4:5 portrait, 16:9 landscape, or 3:2 classic. Click **Adjust homepage crop** to drag artwork into position and zoom.
+- **Case-study cover:** Click **Adjust case-study cover** to choose an independent frame and crop; original full-resolution artwork remains accessible through *View Full Image*.
+- **Case-study gallery images:** Click **Adjust crop** beside any image in the media library. Non-image assets (GLB, video, PDF) are left alone.
+- **Undo/re-edit:** Reopen any crop, use Reset, or choose Original / full artwork. The crop only changes presentation metadata, not the source upload.
 
-- `index.html`
-- `admin/index.html`
-- `js/site.js`
-- `js/admin.js`
-- `js/project-taxonomy.js`
-- `css/site.css`
-- `css/admin.css`
+## Install to your connected GitHub / Netlify website
 
-Do **not** upload the ZIP itself to GitHub; unzip it and upload the individual files preserving these paths. **Do not replace `js/config.js`.**
+1. **Save a backup.** In GitHub, keep a copy of your current `main` commit, and in Studio Admin use **Export backup JSON**. The current live Supabase content will not be altered by installing the code.
+2. Unzip `The_M_Prnt_V2_7_Drag_To_Crop_Studio.zip` on your computer.
+3. Replace these existing files **at their matching repository paths**:
+   - `admin/index.html`
+   - `js/admin.js`
+   - `js/site.js`
+   - `css/admin.css`
+   - `css/site.css`
+4. **Add this new file** at its matching path: `js/crop-utils.js`.
+5. Commit all six file changes to your repository's `main` branch. Do not upload the ZIP as a single file. Netlify will automatically deploy the changes.
+6. Do **not** replace `js/config.js` and do not re-run Supabase SQL. Your Supabase connection and data stay intact.
+7. Once the new Netlify deploy is published, hard-refresh the public site and `/admin/` (Mac Chrome: Cmd+Shift+R).
 
-## Install
+## Try your first 4:5 crop
 
-1. Create a backup of the current GitHub source or commit to a new branch.
-2. In the GitHub repository `matrixoperationshq/the-m-prnt-portfolio`, replace the matching seven files, preserving folders.
-3. Commit to `main` when ready for Netlify to deploy.
-4. Refresh `themprnt.co/admin/` after the Netlify deploy completes.
-5. For an actual commissioned project, select **Client Work** under **Where should this appear?**. The discipline can independently be Advertising, Brand Identity, or Poster Design. Keep it marked **Published**, then select **Save changes**.
-6. The **Client Work** section and header link appear automatically after at least one published project has been assigned; until then, no empty section is displayed.
-7. To change order or switch between compact, editorial or horizontal: **Arrange galleries → Client Work → Save layout & order**.
-8. To change the wording: open **Studio copy + links → Client Work / Public Section Copy** and save.
+1. In Studio Admin, choose a poster project.
+2. Open **Project Display → Adjust homepage crop**.
+3. Select **Portrait · 4:5**, drag the image and use **Zoom** to align the design. Click **Apply crop**.
+4. Crucial: click the main **Save changes** button at the top of the project editor to publish the framing to Supabase.
+5. Refresh the public website and inspect that project's card. You may independently use **Adjust case-study cover** if you want the full project view framed differently.
 
-## Default copy
+## Notes
 
-**Label:** 03 / CLIENT WORK · DESIGN IN PRACTICE
-
-**Headline:** Designed for the brief. / Made to stand out.
-
-**Description:** From brand identities and promotional campaigns to flyers, advertising, and everyday creative assets. A collection of commissioned work where strategy meets visual storytelling, tailored to each client's audience, personality, and goals.
-
-No Supabase table, authentication, or storage setting changes are needed. Existing project records are not reassigned and no content is uploaded automatically. The new placement requires explicit assignment through Studio Admin.
-
-## Testing after installation
-
-- Confirm an existing project still opens and renders normally.
-- Assign one **real commissioned** project to Client Work and save. Refresh the homepage and verify it appears in the new section.
-- Change the gallery mode to Carousel in Arrange galleries, save, refresh, and verify horizontal scrolling and arrows.
-- Edit the Client Work headline in Studio copy + links, save, refresh, and verify.
-- Confirm Concept Lab and Visual Studies still show their prior work and that no content was duplicated.
-
-If the public site shows older code, hard-refresh with Command + Shift + R and check the latest Netlify deployment succeeded.
+- Crop settings live in each project's `data` JSON (`card_crop`, `hero_crop`, or `media[].crop`). No database migration or new storage bucket is required.
+- Saved crop is expressed by X/Y focal position and zoom, so the browser recreates it responsively. The original files are not modified, downloaded, or overwritten.
+- Cropping does not change image resolution. For huge originals, web-optimized cover assets may load faster, but are optional.
+- The existing `Original / show entire image` option still displays the full uncut image.
+- The new JavaScript was syntax-tested and the crop math was unit-checked. The authenticated live-browser interaction and cross-device visual match need to be confirmed after installation.
