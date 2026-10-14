@@ -1,7 +1,7 @@
 import {renderSystemsLab} from './systems-lab.js';
 import {videoUI,wireVideos,stopVideos} from './video-ui.js';
-import {applySectionSettings} from './section-settings.js';
-import {disciplineFor,locationFor,has3D} from './project-taxonomy.js';
+import {applySectionSettings,normalizeSections} from './section-settings.js';
+import {disciplineFor,locationFor,has3D,setCustomLocations} from './project-taxonomy.js';
 import {imageCropCss} from './crop-utils.js';
 import {getPublicData,safeUrl,escapeHtml as esc,escapeAttr as att} from './data-service.js';
 const $=q=>document.querySelector(q);
@@ -24,7 +24,7 @@ function ordered(section,list){
 }
 function setGalleryPresentation(section,id){
  const target=document.getElementById(id);if(!target)return;
- const mode=['compact','editorial','carousel'].includes(galleryModesV25[section])?galleryModesV25[section]:GALLERY_DEFAULT_MODES[section];
+ const mode=['compact','editorial','carousel'].includes(galleryModesV25[section])?galleryModesV25[section]:(GALLERY_DEFAULT_MODES[section]||'compact');
  target.classList.remove('gallery-layout-compact','gallery-layout-editorial','gallery-layout-carousel');
  target.classList.add('gallery-layout-'+mode);
  const navId='gallery-navigation-'+section;let nav=document.getElementById(navId);
@@ -233,6 +233,30 @@ function launchMotion(){
  function scrollEffect(){const rect=area.getBoundingClientRect();const progress=Math.max(0,Math.min(1,-rect.top/(area.offsetHeight*.8)));const wave=Math.sin(progress*Math.PI);const offsets=[[-20,-22,-8],[-8,21,5],[13,-18,9],[24,15,-8],[31,-22,7]];$('#move-word').style.setProperty('--move-translate',(-progress*8)+'px');$('#move-word').style.setProperty('--move-rotate',(progress*1.2)+'deg');$$('.move-letter').forEach((letter,i)=>{const [x,y,r]=offsets[i];letter.style.transform=`translate3d(${(x*wave).toFixed(2)}px,${(y*wave).toFixed(2)}px,0) rotate(${(r*wave).toFixed(2)}deg)`})};addEventListener('scroll',scrollEffect,{passive:true});scrollEffect();
 }
 
+
+// V2.11: Custom, first-class galleries use the same project records and styling as Client Work.
+function renderNativeGalleries(raw){
+ const config=normalizeSections(raw);setCustomLocations(config.custom);
+ const main=document.querySelector('main'),reference=document.getElementById('work');if(!main||!reference)return;
+ for(const item of config.custom){
+  const entry=config.entries[item.id];let section=document.getElementById(item.id);
+  if(!section){
+   section=document.createElement('section');section.id=item.id;section.className='client-section native-gallery-section';
+   section.setAttribute('aria-label',item.name);section.innerHTML='<div class="layout-container"><div class="section-intro native-gallery-intro"><div><p class="eyebrow section-eyebrow" data-managed-eyebrow></p><h2 data-managed-heading></h2></div><p data-managed-description></p></div><div class="client-grid native-gallery-grid"></div></div>';
+   main.insertBefore(section,reference);
+  }
+  section.className='client-section native-gallery-section native-gallery-theme-'+entry.theme;
+  section.querySelector('[data-managed-eyebrow]').textContent=entry.eyebrow||'CURATED COLLECTION / THE M PRNT';
+  section.querySelector('[data-managed-heading]').textContent=entry.heading||item.name;
+  section.querySelector('[data-managed-description]').textContent=entry.description||'A curated collection of creative work.';
+  const list=ordered(item.id,allProjects.filter(p=>isUsable(p)&&locationFor(p)===item.id));
+  const grid=section.querySelector('.native-gallery-grid');grid.id='gallery-'+item.id;
+  grid.innerHTML=list.map(clientCard).join('')||'<p class="collection-empty">Projects in this section will appear when you publish them from Studio Admin.</p>';
+  setGalleryPresentation(item.id,grid.id);
+  section.hidden=!entry.visible;
+ }
+}
+
 function renderCustomSections(sections){
  const list=Array.isArray(sections)?sections:[];
  for(const placement of ['after-work','before-concept','before-visual','before-motion','before-three','before-studio']){
@@ -298,5 +322,5 @@ function launchSeamlessBanner(){
   rebuild();
 }
 
-async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderDigital();renderClient();renderConcept();renderVisual();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
+async function init(){configureInteractions();launchMotion();launchAura();launchSeamlessBanner();try{const data=await getPublicData();allProjects=data.projects||[];const s=data.settings||{};galleryOrderV25=s.galleryOrderV25||{};galleryModesV25=s.galleryModesV25||{};setCustomLocations(normalizeSections(s.sectionManagerV29).custom);featuredFrameV28=pick(s.featuredFrameV28,['original','square','portrait','portrait34','portrait23','social916','landscape','classic'],'portrait');if(s.subtitle)$('#hero-subtitle').textContent=s.subtitle;if(s.about)$('#about-copy').textContent=s.about;if(s.aboutExtra)$('#about-extra').textContent=s.aboutExtra;if(s.email){$('#email-link').replaceChildren(document.createTextNode(s.email+' '));const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('class','line-icon line-icon-arrow-up-right');arrow.setAttribute('aria-hidden','true');const line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('d','M7 17 17 7M7 7h10v10');arrow.append(line);$('#email-link').append(arrow);$('#email-link').href='mailto:'+encodeURIComponent(s.email)}if(s.instagram&&safeUrl(s.instagram))$('#instagram-link').href=s.instagram;if(s.linkedin&&safeUrl(s.linkedin))$('#linkedin-link').href=s.linkedin;loadClientCopy(s);renderWork();renderDigital();renderClient();renderConcept();renderVisual();renderMotion();renderSystemsLab(s.systemsLabV210);renderCustomSections(s.customSections);renderNativeGalleries(s.sectionManagerV29);applySectionSettings(s.sectionManagerV29,{withClient:!!document.querySelector('#client-grid .client-card'),withSystems:!!s.systemsLabV210?.enabled});const deep=new URLSearchParams(location.search).get('project');if(deep)openProject(deep);if(data.source==='offline-fallback')console.warn('CMS unavailable. Serving bundled snapshot.')}catch(error){console.error(error);$('#featured-grid').innerHTML='<p class="loading-note">The portfolio could not be loaded. Try refreshing the page.</p>';toast('Portfolio content could not load.')}}
 init();

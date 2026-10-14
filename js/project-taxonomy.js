@@ -77,3 +77,13 @@ export function suggestedLocation(discipline){
   if(discipline==='Posters & Graphic Art'||discipline==='Illustration & Experiments')return 'visual';
   return 'work';
 }
+
+// Additional native galleries load from portfolio_settings after authentication.
+const BUILTIN_LOCATION_COUNT=LOCATIONS.length;
+export function setCustomLocations(custom=[]){
+ LOCATIONS.splice(BUILTIN_LOCATION_COUNT);
+ for(const item of custom){
+  if(/^collection-[a-z0-9-]{8,65}$/.test(item.id)&&!LOCATIONS.some(row=>row[0]===item.id))
+   LOCATIONS.push([item.id,item.name||'Custom gallery','Custom portfolio collection']);
+ }
+}

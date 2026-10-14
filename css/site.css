@@ -599,3 +599,19 @@
 @media(max-width:850px){.systems-lab-intro{grid-template-columns:1fr;gap:15px}.systems-lab-intro>p{margin-left:0}.systems-lab-grid{grid-template-columns:1fr}}
 @media(max-width:480px){.systems-step-rail{grid-template-columns:repeat(2,minmax(0,1fr))}.systems-step-button{min-height:70px}.systems-lab-section{padding:70px 0}}
 @media(prefers-reduced-motion:reduce){.systems-step-button{transition:none}}
+
+
+/* V2.11: first-class additional galleries; original V2 art direction remains unchanged */
+.native-gallery-section{padding-block:clamp(72px,8vw,130px);scroll-margin-top:80px}
+.native-gallery-section[hidden]{display:none!important}
+.native-gallery-intro{margin-bottom:clamp(30px,5vw,58px)}
+.native-gallery-theme-dark{background:#1e1125;color:#f8f0f3}
+.native-gallery-theme-lavender{background:#ece2ef;color:#281a2d}
+.native-gallery-theme-light{background:#f6f0ea;color:#281a2d}
+.native-gallery-section .native-gallery-intro h2{font-family:var(--font-display,Georgia,serif);font-size:clamp(44px,6vw,92px);line-height:1.02;letter-spacing:-.045em;overflow-wrap:anywhere}
+.native-gallery-section .native-gallery-intro p{max-width:390px}
+.native-gallery-section .client-card{min-width:0}
+.native-gallery-grid.gallery-layout-editorial{columns:3;column-gap:clamp(12px,2vw,28px);display:block}
+.native-gallery-grid.gallery-layout-editorial .client-card{break-inside:avoid;margin-bottom:clamp(12px,2vw,28px);display:inline-block;width:100%}
+@media(max-width:950px){.native-gallery-grid.gallery-layout-editorial{columns:2}}
+@media(max-width:600px){.native-gallery-grid.gallery-layout-editorial{columns:1}}

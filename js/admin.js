@@ -1,6 +1,6 @@
 import {SYSTEMS_DEFAULT,normalizeSystems} from './systems-lab.js';
-import {SECTION_DEFS, SECTION_SETTINGS_KEY, normalizeSections} from './section-settings.js';
-import {disciplineFor,locationFor,locationLabel,suggestedLocation,LOCATIONS} from './project-taxonomy.js';
+import {SECTION_DEFS, SECTION_SETTINGS_KEY, normalizeSections,sectionDefinitions,isCustomGalleryId} from './section-settings.js';
+import {disciplineFor,locationFor,locationLabel,suggestedLocation,LOCATIONS,setCustomLocations} from './project-taxonomy.js';
 import {hasBackend,getClient,safeUrl} from './data-service.js';
 import {CROP_ASPECTS, normalizedCrop, imageCropCss, dragCrop} from './crop-utils.js';
 const REORDER_ICONS={up:`<svg class="line-icon line-icon-arrow-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>`,down:`<svg class="line-icon line-icon-arrow-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14m-7-7 7 7 7-7"/></svg>`};
@@ -17,7 +17,29 @@ function authMessage(message){$('#login-error').textContent=message}
 async function checkAuthorization(){const {data:{user},error}=await client.auth.getUser();if(error||!user)return false;const result=await client.from('portfolio_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(result.error)throw result.error;return !!result.data}
 async function begin(){if(!hasBackend()){show('setup-view');return}try{client=await getClient();if(await checkAuthorization())await openDashboard();else show('login-view')}catch(e){console.error(e);show('login-view');authMessage('Could not connect to Supabase. Check the public project URL, key, schema and network.')}}
 async function openDashboard(){show('dashboard');await loadData();renderList();if(projects.length)selectProject(projects[0].id)}
-async function loadData(){const [records,copy]=await Promise.all([client.from('portfolio_projects').select('id,data,status,sort_order').order('sort_order',{ascending:true}),client.from('portfolio_settings').select('key,value')]);if(records.error)throw records.error;if(copy.error)throw copy.error;projects=(records.data||[]).map(r=>({...r.data,id:r.id,status:r.status,sort_order:r.sort_order}));persistedIds=new Set(projects.map(p=>p.id));settings=Object.fromEntries((copy.data||[]).map(r=>[r.key,r.value]));loadSettingsForm();populateSystemsEditor();renderCustomSectionEditors();resetSectionDraft()}
+async function loadData(){const [records,copy]=await Promise.all([client.from('portfolio_projects').select('id,data,status,sort_order').order('sort_order',{ascending:true}),client.from('portfolio_settings').select('key,value')]);if(records.error)throw records.error;if(copy.error)throw copy.error;projects=(records.data||[]).map(r=>({...r.data,id:r.id,status:r.status,sort_order:r.sort_order}));persistedIds=new Set(projects.map(p=>p.id));settings=Object.fromEntries((copy.data||[]).map(r=>[r.key,r.value]));refreshSectionDestinations();loadSettingsForm();populateSystemsEditor();renderCustomSectionEditors();$('#legacy-sections-panel').hidden=!(Array.isArray(settings.customSections)&&settings.customSections.length);resetSectionDraft()}
+
+function refreshSectionDestinations(){
+ const data=normalizeSections(settings[SECTION_SETTINGS_KEY]);
+ setCustomLocations(data.custom);
+ const group=document.querySelector('.placement-choices');
+ group?.querySelectorAll('[data-custom-placement]').forEach(el=>el.remove());
+ const lib=$('#library-placement-filter'),arrange=$('#arrange-section');
+ for(const select of [lib,arrange])select?.querySelectorAll('option[data-custom-placement]').forEach(el=>el.remove());
+ for(const [index,item] of data.custom.entries()){
+  const label=document.createElement('label');label.className='placement-choice';label.dataset.customPlacement=item.id;
+  const input=document.createElement('input');input.type='radio';input.name='site-section';input.value=item.id;
+  input.addEventListener('change',()=>{setPlacement(input.value);syncForm()});
+  const ordinal=document.createElement('span');ordinal.className='placement-choice-ordinal';ordinal.textContent=String(index+9).padStart(2,'0');
+  const description=document.createElement('span');description.className='placement-choice-copy';
+  const heading=document.createElement('strong');heading.textContent=item.name;
+  const helper=document.createElement('small');helper.textContent='Custom gallery · add and arrange projects';
+  description.append(heading,helper);label.append(input,ordinal,description);group?.append(label);
+  for(const select of [lib,arrange]){if(!select)continue;const op=document.createElement('option');op.value=item.id;op.textContent=item.name;op.dataset.customPlacement=item.id;select.append(op)}
+ }
+ const lf=lib?.value;if(lf && !Array.from(lib.options).some(o=>o.value===lf))lib.value='all';
+}
+
 function renderList(){
  const query=getVal('project-search').toLowerCase();
  const locationFilter=$('#library-placement-filter').value;
@@ -266,7 +288,7 @@ function showArrange(){
 }
 function renderArranger(){
  const section=$('#arrange-section').value;
- $('#arrange-mode').value=arrangeDraftModes[section]||ARRANGE_DEFAULTS[section];
+ $('#arrange-mode').value=arrangeDraftModes[section]||ARRANGE_DEFAULTS[section]||'compact';
  $('#arrange-featured-frame').hidden=section!=='featured';
  $('#arrange-featured-shape').value=arrangeDraftFeaturedFrame;
  const descriptions={compact:'Compact: tight, balanced masonry. Projects in Selected Work share the chosen Featured frame.',editorial:'Editorial flow: expressive image heights in consistent columns. Cards pack without the old staggered empty slots.',carousel:'Horizontal gallery: visitors swipe or use arrow buttons to explore.'};
@@ -474,7 +496,7 @@ function renderSectionRows(){
  const holder=$('#section-manager-list');if(!holder||!sectionDraft)return;
  holder.replaceChildren();
  sectionDraft.order.forEach((id,index)=>{
-  const def=SECTION_DEFS.find(s=>s.id===id);if(!def)return;
+  const def=sectionDefinitions(sectionDraft).find(s=>s.id===id);if(!def)return;
   const entry=sectionDraft.entries[id];
   const card=document.createElement('article');card.className='section-manager-item';card.draggable=true;card.dataset.sectionId=id;
   const header=document.createElement('div');header.className='section-manager-row-head';
@@ -500,8 +522,16 @@ function renderSectionRows(){
   fields.append(sectionInput('Headline override',entry.heading,'Keep current editorial headline',value=>entry.heading=value));
   fields.append(sectionInput('Small label',entry.eyebrow,'Keep current eyebrow',value=>entry.eyebrow=value));
   fields.append(sectionInput('Description',entry.description,'Keep existing introduction text',value=>entry.description=value,true));
+  if(isCustomGalleryId(id)){
+   fields.append(sectionInput('Section name',def.name,'Gallery name',value=>{const item=sectionDraft.custom.find(c=>c.id===id);if(item)item.name=value.slice(0,70)}));
+   const themeLabel=document.createElement('label');themeLabel.className='section-manager-field';
+   const heading=document.createElement('span');heading.textContent='Section appearance';
+   const selector=document.createElement('select');for(const [v,t] of [['light','Warm cream'],['dark','Dark plum'],['lavender','Soft lavender']]){const opt=document.createElement('option');opt.value=v;opt.textContent=t;selector.append(opt)}
+   selector.value=entry.theme;selector.addEventListener('change',()=>{entry.theme=selector.value;sectionChanges()});
+   themeLabel.append(heading,selector);fields.append(themeLabel);
+  }
   card.append(fields);
-  const note=document.createElement('p');note.className='section-manager-note';note.textContent=id==='motion'?'Motion & Film and 3D & Interaction are grouped so their layout stays consistent.':'Blank text fields preserve your existing editorial design.';
+  const note=document.createElement('p');note.className='section-manager-note';note.textContent=isCustomGalleryId(id)?'This gallery appears in project placement, gallery arrangement and navigation. Add projects after saving this section.':id==='motion'?'Motion & Film and 3D & Interaction are grouped so their layout stays consistent.':'Blank text fields preserve your existing editorial design.';
   card.append(note);
   card.addEventListener('dragstart',event=>{sectionsDragging=id;card.classList.add('section-is-dragged');event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id)});
   card.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect='move';card.classList.add('section-drop-target')});
@@ -520,6 +550,7 @@ async function saveSectionManager(){
   const result=await client.from('portfolio_settings').upsert({key:SECTION_SETTINGS_KEY,value},{onConflict:'key'});
   if(result.error)throw result.error;
   settings[SECTION_SETTINGS_KEY]=structuredClone(value);
+  refreshSectionDestinations();renderList();
   sectionChanges('Saved to Supabase. Refresh the public portfolio to see your changes.');
   notice('Section presentation saved. All projects are unchanged.');
  }catch(error){console.error(error);sectionChanges('Could not save: '+error.message);notice('Section changes were not saved.',true)}
@@ -532,6 +563,14 @@ function initSectionManager(){
  $('#section-manager-close').addEventListener('click',()=>dialog.close());
  $('#section-manager-cancel').addEventListener('click',()=>dialog.close());
  $('#section-manager-save').addEventListener('click',saveSectionManager);
+ $('#section-manager-add').addEventListener('click',()=>{
+  if(sectionDraft.custom.length>=20){sectionChanges('Maximum of 20 custom galleries. Hide unused galleries or rename an existing one.');return}
+  const id='collection-'+crypto.randomUUID();
+  sectionDraft.custom.push({id,name:'New gallery'});sectionDraft.order.push(id);
+  sectionDraft.entries[id]={visible:false,navLabel:'',heading:'',eyebrow:'',description:'',theme:'light'};
+  renderSectionRows();sectionChanges('New gallery added as hidden. Name it and save, then assign projects in the editor.');
+  $('#section-manager-list').lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'});
+ });
  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
 }
 
